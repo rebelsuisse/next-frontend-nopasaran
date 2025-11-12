@@ -1,6 +1,6 @@
-import { Incident, StrapiApiResponse } from "@/types";
+import { Incident, StrapiApiSingleResponse } from "@/types";
 
-export async function getIncidents(): Promise<StrapiApiResponse<Incident[]>> {
+export async function getIncidents(): Promise<StrapiApiSingleResponse<Incident[]>> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/the-wall-of-shames?populate=*`);
 
     if (!res.ok) {
@@ -15,7 +15,7 @@ export async function getIncidents(): Promise<StrapiApiResponse<Incident[]>> {
     return res.json();
 }
 
-export async function getIncidentBySlug(slug: string): Promise<StrapiApiResponse<Incident[]>> {
+export async function getIncidentBySlug(slug: string): Promise<StrapiApiSingleResponse<Incident[]>> {
 // L'API de Strapi permet de filtrer par n'importe quel champ
     const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/the-wall-of-shames?filters[slug][$eq]=${slug}&populate=*`);
 
