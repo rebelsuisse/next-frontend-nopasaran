@@ -1,8 +1,11 @@
 // src/components/Footer.tsx
 import { FaGithub, FaTwitter, FaFacebook, FaInstagram, FaYoutube, FaMedium } from 'react-icons/fa';
 
-export default function Footer() {
-  return (
+interface HeaderProps {
+  lang: string;
+}
+
+export default function Footer({ lang }: HeaderProps) {  return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
       <div className="container mx-auto text-center">
         <div className="flex justify-center space-x-6 mb-4">

@@ -1,10 +1,14 @@
-// src/app/the-wall-of-shame/[slug]/page.tsx
 import { getIncidentBySlug } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
-export default async function IncidentPage({ params }: { params: { slug: string } }) {
-  const response = await getIncidentBySlug(params.slug);
+export default async function IncidentPage({ params }: any) {
+
+  // ÉTAPE CLÉ : On résout la promesse 'params' explicitement
+  const resolvedParams = await params;
+
+  // On utilise les paramètres résolus (lang et slug) pour l'appel API
+  const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
 
   if (!response.data || response.data.length === 0) {
     return notFound();

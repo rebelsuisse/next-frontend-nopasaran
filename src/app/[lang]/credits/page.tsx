@@ -1,5 +1,3 @@
-// src/app/credits/page.tsx
-
 export default function CreditsPage() {
   return (
     <div className="container mx-auto p-8">
