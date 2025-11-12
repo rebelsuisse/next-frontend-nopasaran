@@ -29,7 +29,7 @@ export default async function HomePage({ params }: any) {
               <p className="text-gray-600">
                 {new Date(incident.incident_date).toLocaleDateString('fr-CH')}
               </p>
-              <p className="mt-2 font-medium">{incident.sujet?.data?.attributes.display_name ?? 'Sujet non défini'}</p>
+              <p className="mt-2 font-medium">{incident.sujet?.data?.display_name ?? 'Sujet non défini'}</p>
             </div>
           </Link>
         ))}
