@@ -1,43 +1,49 @@
 // src/app/the-wall-of-shame/[slug]/page.tsx
-
 import { getIncidentBySlug } from '@/lib/api';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 
-// On définit le type des props que la page va recevoir
-interface IncidentPageProps {
-  // params est un objet qui contient une clé 'slug' de type string
-  params: { slug: string };
-}
+export default async function IncidentPage({ params }: { params: { slug: string } }) {
+  const response = await getIncidentBySlug(params.slug);
 
-// On utilise 'any' temporairement pour les props pour simplifier et se concentrer sur le problème
-export default async function IncidentPage({ params }: any) {
-  
-  // ÉTAPE CLÉ : On résout la promesse 'params' explicitement
-  const resolvedParams = await params;
-
-  // Maintenant, on est sûr que resolvedParams est un objet simple
-  // et on peut lire sa propriété .slug en toute sécurité.
-  const response = await getIncidentBySlug(resolvedParams.slug);
-
-  // Le reste du code ne change pas.
   if (!response.data || response.data.length === 0) {
     return notFound();
   }
 
-  // Comme la réponse de l'API est un tableau, on prend le premier élément.
   const incident = response.data[0];
+  const sujet = incident.sujet?.data;
 
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-4">{incident.title}</h1>
-      <p className="text-lg text-gray-600 mb-6">
-        {new Date(incident.incident_date).toLocaleDateString('fr-CH')}
-      </p>
-      
-      <div
-        className="prose lg:prose-xl"
-        dangerouslySetInnerHTML={{ __html: incident.description }}
-      />
-    </main>
+    <div className="container mx-auto p-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2">
+          <h1 className="text-4xl font-bold mb-2">{incident.title}</h1>
+          <p className="text-lg text-gray-500 mb-6">
+            {new Date(incident.incident_date).toLocaleDateString('fr-CH')}
+          </p>
+          <div
+            className="prose lg:prose-xl"
+            dangerouslySetInnerHTML={{ __html: incident.description }}
+          />
+        </div>
+        <aside>
+          {sujet && (
+            <div className="border rounded-lg p-4">
+              {sujet.picture?.data && (
+                <Image
+                  src={sujet.picture.data.url}
+                  alt={`Photo de ${sujet.display_name}`}
+                  width={200}
+                  height={200}
+                  className="rounded-full mx-auto mb-4"
+                />
+              )}
+              <h3 className="text-2xl font-bold text-center">{sujet.display_name}</h3>
+              <p className="text-center text-gray-600">{sujet.canton}</p>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
   );
 }
