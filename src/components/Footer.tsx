@@ -9,7 +9,7 @@ export default function Footer({ lang }: HeaderProps) {  return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
       <div className="container mx-auto text-center">
         <div className="flex justify-center space-x-6 mb-4">
-          <a href="https://github.com/rebelsuisse/nopasaran" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
+          <a href="https://github.com/rebelsuisse" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
           <a href="https://www.instagram.com/rebel_suisse/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram size={24} /></a>
           <a href="https://www.facebook.com/people/Rebel-Suisse/61560481049078/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook size={24} /></a>
           <a href="https://www.youtube.com/@Rebel-ch" target="_blank" rel="noopener noreferrer" aria-label="Youtube"><FaYoutube size={24} /></a>
