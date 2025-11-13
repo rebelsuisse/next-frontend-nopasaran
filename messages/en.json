@@ -1,0 +1,18 @@
+{
+  "HomePage": {
+    "title": "The Latest Incidents",
+    "noIncidents": "No incidents to display at the moment."
+  },
+  "IncidentPage": {
+    "involvedSubject": "Subject Involved",
+    "descriptionTitle": "Description of the Facts",
+    "consequencesTitle": "Consequences",
+    "evidenceTitle": "Evidence",
+    "sourcesTitle": "Sources"
+  },
+  "Header": {
+    "search": "Search",
+    "manifesto": "Manifesto",
+    "credits": "Credits"
+  }
+}

@@ -1,22 +1,21 @@
-// src/app/[lang]/layout.tsx
 
+// src/app/[lang]/layout.tsx
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getTranslations } from 'next-intl/server';
 
-// On utilise 'any' temporairement pour les props pour contourner les erreurs de type pendant le débogage
-export default async function LangLayout({
-  children,
-  params,
-}: any) {
-  
-  // ÉTAPE CLÉ : On résout la promesse 'params' explicitement
+export default async function LangLayout({ children, params }: any) {
   const resolvedParams = await params;
+  const t = await getTranslations('Header');
 
-  // Maintenant, on peut utiliser resolvedParams.lang en toute sécurité
   return (
     <>
-      <Header lang={resolvedParams.lang} />
-      {/* On applique les classes de thème ici */}
+      <Header
+        lang={resolvedParams.lang}
+        searchLabel={t('search')}
+        manifestoLabel={t('manifesto')}
+        creditsLabel={t('credits')}
+      />
       <main className="min-h-screen bg-gray-900 text-gray-200">
         {children}
       </main>

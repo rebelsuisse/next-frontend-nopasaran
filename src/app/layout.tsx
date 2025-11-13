@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import {NextIntlClientProvider} from 'next-intl';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,9 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // On met 'fr-CH' en dur pour l'instant, ou on pourrait le laisser vide.
-    <html lang="fr-CH">
-      <body className={inter.className}>{children}</body>
+    <html>
+      <body>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }

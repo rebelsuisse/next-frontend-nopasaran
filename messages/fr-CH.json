@@ -1,0 +1,18 @@
+{
+  "HomePage": {
+    "title": "Les Derniers Incidents",
+    "noIncidents": "Aucun incident à afficher pour le moment."
+  },
+  "IncidentPage": {
+    "involvedSubject": "Sujet Impliqué",
+    "descriptionTitle": "Description des faits",
+    "consequencesTitle": "Conséquences",
+    "evidenceTitle": "Preuves",
+    "sourcesTitle": "Sources"
+  },
+  "Header": {
+     "search": "Recherche",
+     "manifesto": "Manifeste",
+     "credits": "Crédits"
+  }
+}

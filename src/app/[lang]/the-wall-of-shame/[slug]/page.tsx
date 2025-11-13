@@ -4,6 +4,7 @@ import { getIncidentBySlug } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
+import { getTranslations } from 'next-intl/server';
 
 interface DetailPageProps {
   params: any; 
@@ -12,7 +13,8 @@ interface DetailPageProps {
 export default async function DetailPageOfAnIncident({ params }: DetailPageProps) {
   const resolvedParams = await params;
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
-
+  const t = await getTranslations('IncidentPage');
+  
   console.log("Données pour la page de détail:", JSON.stringify(response.data, null, 2));
 
   if (!response.data || response.data.length === 0) {
@@ -55,7 +57,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             </div>
 
             {/* Description */}
-            <h2 className="text-2xl font-semibold mb-3 text-white">Description des faits</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-white">{t('descriptionTitle')}</h2>
             <div
               // On ajoute 'prose-invert' pour que le contenu ait du texte clair
               className="prose prose-lg max-w-none prose-invert"
@@ -65,7 +67,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             {/* Conséquences */}
             {consequenceHtml && (
               <div className="mt-8">
-                <h2 className="text-2xl font-semibold mb-3 text-white">Conséquences</h2>
+                <h2 className="text-2xl font-semibold mb-3 text-white">{t('consequencesTitle')}</h2>
                 <div
                   className="prose prose-lg max-w-none prose-invert"
                   dangerouslySetInnerHTML={{ __html: consequenceHtml }}
@@ -99,7 +101,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
           <aside className="w-full md:w-1/3">
             {sujet && (
               <div className="border border-gray-700 rounded-lg p-6 sticky top-8 bg-gray-900">
-                <h2 className="text-xl font-semibold text-center mb-4 text-white">Sujet Impliqué</h2>
+                <h2 className="text-xl font-semibold text-center mb-4 text-white">{t('involvedSubject')}</h2>
                 {sujet.picture && (
                   <div className="relative w-32 h-32 mx-auto mb-4">
                      <Image

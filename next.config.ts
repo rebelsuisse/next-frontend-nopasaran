@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const createNextIntlPlugin = require('next-intl/plugin');
+const withNextIntl = createNextIntlPlugin();
+
 const nextConfig: NextConfig = {
   // On ajoute une section 'env' pour exposer des variables au build
   /*env: {
@@ -35,4 +38,5 @@ const nextConfig: NextConfig = {
   },
 };
 
+module.exports = withNextIntl(nextConfig);
 export default nextConfig;
