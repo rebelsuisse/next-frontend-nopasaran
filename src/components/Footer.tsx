@@ -5,6 +5,8 @@ interface HeaderProps {
   lang: string;
 }
 
+const appVersion = process.env.APP_VERSION;
+
 export default function Footer({ lang }: HeaderProps) {  return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
       <div className="container mx-auto text-center">
@@ -16,7 +18,7 @@ export default function Footer({ lang }: HeaderProps) {  return (
           <a href="https://medium.com/@rebel.suisse" target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href="https://x.com/Rebel_Suisse" target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
         </div>
-        <p>© {new Date().getFullYear()} nopasaran.ch - Rebel Suisse</p>
+        <p>nopasaran.ch {appVersion && ` ${appVersion}`} | © {new Date().getFullYear()} Rebel Suisse</p>
       </div>
     </footer>
   );
