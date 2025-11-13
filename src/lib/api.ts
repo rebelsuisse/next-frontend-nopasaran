@@ -20,26 +20,35 @@ async function fetchApi<T>(query: string): Promise<T> {
 }
 
 // Récupère la liste des incidents, triés par date
-export async function getIncidents(locale: string = 'fr') {
+export async function getIncidents(locale: string = 'fr-CH') {
   const query = `the-wall-of-shames?locale=${locale}&sort=incident_date:desc&populate=sujet`;
   return fetchApi<StrapiApiCollectionResponse<Incident>>(query);
 }
 
 // Récupère un incident par son slug
-export async function getIncidentBySlug(slug: string, locale: string = 'fr') {
-  // On peuple toutes les relations pour la page de détail
-  const query = `the-wall-of-shames?locale=${locale}&filters[slug][$eq]=${slug}&populate=sujet.picture,sources,evidence_image,localizations`;
+export async function getIncidentBySlug(slug: string, locale: string = 'fr-CH') {
+  // On construit les paramètres de 'populate' de manière structurée
+  const populateParams = [
+    'populate[sujet][populate][0]=picture', // Peuple 'sujet', et à l'intérieur, peuple 'picture'
+    'populate[sources]=*',                  // Peuple le composant 'sources'
+    'populate[evidence_image]=*',            // Peuple le champ média 'evidence_image'
+    'populate[localizations]=*'             // Peuple les traductions disponibles
+  ].join('&');
+
+  const query = `the-wall-of-shames?locale=${locale}&filters[slug][$eq]=${slug}&${populateParams}`;
+  
+  // Le type de retour est bien une collection car le filtre retourne un tableau
   return fetchApi<StrapiApiCollectionResponse<Incident>>(query);
 }
 
 // Recherche des incidents
-export async function searchIncidents(searchTerm: string, locale: string = 'fr') {
+export async function searchIncidents(searchTerm: string, locale: string = 'fr-CH') {
   const query = `the-wall-of-shames?locale=${locale}&filters[$or][0][title][$contains]=${searchTerm}&filters[$or][1][description][$contains]=${searchTerm}&populate=sujet`;
   return fetchApi<StrapiApiCollectionResponse<Incident>>(query);
 }
 
 // Récupère un incident au hasard (astuce en 2 étapes)
-export async function getRandomIncident(locale: string = 'fr') {
+export async function getRandomIncident(locale: string = 'fr-CH') {
   // 1. Obtenir le nombre total d'incidents
   const countResponse = await fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?locale=${locale}&pagination[pageSize]=1`);
   const total = countResponse.meta.pagination.total;

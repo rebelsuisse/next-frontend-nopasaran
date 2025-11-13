@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // On met 'fr' en dur pour l'instant, ou on pourrait le laisser vide.
-    <html lang="fr">
+    // On met 'fr-CH' en dur pour l'instant, ou on pourrait le laisser vide.
+    <html lang="fr-CH">
       <body className={inter.className}>{children}</body>
     </html>
   );

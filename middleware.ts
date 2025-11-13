@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Définissez vos langues supportées
-const locales = ['fr', 'de', 'it', 'en'] 
-const defaultLocale = 'fr'
+const locales = ['fr-CH', 'de-CH', 'it-CH', 'en'] 
+const defaultLocale = 'fr-CH'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -17,8 +17,8 @@ export function middleware(request: NextRequest) {
   if (pathnameHasLocale) return
 
   // 2. Si aucune langue n'est présente, redirige vers la langue par défaut
-  //    /credits -> /fr/credits
-  //    /        -> /fr
+  //    /credits -> /fr-CH/credits
+  //    /        -> /fr-CH
   request.nextUrl.pathname = `/${defaultLocale}${pathname}`
   return NextResponse.redirect(request.nextUrl)
 }

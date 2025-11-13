@@ -9,13 +9,14 @@ export default async function IncidentPage({ params }: any) {
 
   // On utilise les paramètres résolus (lang et slug) pour l'appel API
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
-
+  console.log(`Réponse de l'API pour slug='${resolvedParams.slug}' et locale='${resolvedParams.lang}':`, JSON.stringify(response, null, 2));
+  
   if (!response.data || response.data.length === 0) {
     return notFound();
   }
 
   const incident = response.data[0];
-  const sujet = incident.sujet?.data;
+  const sujet = incident.sujet;
 
   return (
     <div className="container mx-auto p-8">
@@ -36,13 +37,13 @@ export default async function IncidentPage({ params }: any) {
               {sujet.picture?.data && (
                 <Image
                   src={sujet.picture.data.url}
-                  alt={`Photo de ${sujet.display_name}`}
+                  alt={`Photo de ${sujet.name}`}
                   width={200}
                   height={200}
                   className="rounded-full mx-auto mb-4"
                 />
               )}
-              <h3 className="text-2xl font-bold text-center">{sujet.display_name}</h3>
+              <h3 className="text-2xl font-bold text-center">{sujet.name}</h3>
               <p className="text-center text-gray-600">{sujet.canton}</p>
             </div>
           )}

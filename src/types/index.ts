@@ -12,10 +12,9 @@ export interface LinkComponent {
 
 export interface Sujet {
   id: number;
-  display_name: string;
-  type: 'Personne' | 'Organisation';
   name: string | null;
   canton: string | null;
+  affiliation: string | null;
   picture: {
     data: StrapiMedia | null;
   };
@@ -25,15 +24,16 @@ export interface Incident {
   id: number;
   title: string;
   slug: string;
+  subject_role: string | null;
   incident_date: string;
   category: string;
   description: string;
-  sujet: {
-    data: Sujet | null;
+  sujet: Sujet | null;
+  evidence_image: {
+      data: StrapiMedia[] | null;
   };
   sources: LinkComponent[];
   locale: string;
-  // Crucial pour le sélecteur de langue
   localizations?: {
     data: Incident[];
   };
