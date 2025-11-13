@@ -15,9 +15,7 @@ export interface Sujet {
   name: string;
   canton: string;
   affiliation: string;
-  picture: {
-    data: StrapiMedia | null;
-  };
+  picture: StrapiMedia | null; 
 }
 
 export interface Incident {
@@ -31,9 +29,7 @@ export interface Incident {
   description: string;
   consequence: string | null;
   sujet: Sujet | null;
-  evidence_image: {
-      data: StrapiMedia[] | null;
-  };
+  evidence_image: StrapiMedia[] | null;
   sources: LinkComponent[];
   locale: string;
   localizations?: {

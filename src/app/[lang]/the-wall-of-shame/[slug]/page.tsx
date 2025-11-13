@@ -13,13 +13,16 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
   const resolvedParams = await params;
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
 
+  console.log("Données pour la page de détail:", JSON.stringify(response.data, null, 2));
+
   if (!response.data || response.data.length === 0) {
     return notFound();
   }
 
   const incident = response.data[0];
   const sujet = incident.sujet;
-  
+  const STRAPI_HOST = process.env.NEXT_PUBLIC_STRAPI_HOST;
+
   const descriptionHtml = incident.description || '';
   const consequenceHtml = incident.consequence || '';
   
@@ -70,19 +73,38 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
               </div>
             )}
 
+            {/* Images de Preuve (Evidence Images) */}
+            {incident.evidence_image && incident.evidence_image.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-semibold mb-3 text-white">Preuves</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {incident.evidence_image.map(image => (
+                    <div key={image.id} className="relative aspect-video">
+                      <Image
+                        src={`${STRAPI_HOST}${image.url}`}
+                        alt="Image de preuve pour l'incident"
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* ... reste de la colonne principale ... */}
           </div>
 
           {/* Colonne Latérale */}
-          <aside className="w-full md:w-1//3">
+          <aside className="w-full md:w-1/3">
             {sujet && (
-              // La carte du sujet a maintenant un fond plus sombre
               <div className="border border-gray-700 rounded-lg p-6 sticky top-8 bg-gray-900">
                 <h2 className="text-xl font-semibold text-center mb-4 text-white">Sujet Impliqué</h2>
-                {sujet.picture?.data && (
+                {sujet.picture && (
                   <div className="relative w-32 h-32 mx-auto mb-4">
                      <Image
-                      src={sujet.picture.data.url}
+                      // On construit l'URL complète
+                      src={`${STRAPI_HOST}${sujet.picture.url}`}
                       alt={`Photo de ${sujet.name}`}
                       fill
                       className="rounded-full object-cover border-4 border-gray-700 shadow-md"
