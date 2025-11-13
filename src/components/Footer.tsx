@@ -19,8 +19,10 @@ export default function Footer({ lang }: HeaderProps) {  return (
           <a href="https://medium.com/@rebel.suisse" target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href="https://x.com/Rebel_Suisse" target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
         </div>
-        <p>nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse</p>
-      </div>
+          <p className="text-sm text-gray-400">
+            nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse
+          </p>
+        </div>
     </footer>
   );
 }
