@@ -12,9 +12,9 @@ export interface LinkComponent {
 
 export interface Sujet {
   id: number;
-  name: string | null;
-  canton: string | null;
-  affiliation: string | null;
+  name: string;
+  canton: string;
+  affiliation: string;
   picture: {
     data: StrapiMedia | null;
   };

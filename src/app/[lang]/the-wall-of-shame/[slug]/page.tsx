@@ -2,8 +2,12 @@ import { getIncidentBySlug } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
-export default async function IncidentPage({ params }: any) {
+interface IncidentProps {
+  params: any; // On met 'any' pour que le 'await' fonctionne sans que TS ne se plaigne
+}
 
+export default async function DetailPageOfAnEvent({ params }: IncidentProps) {
+  console.log("IncidentPage...");
   // ÉTAPE CLÉ : On résout la promesse 'params' explicitement
   const resolvedParams = await params;
 
