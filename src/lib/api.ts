@@ -1,5 +1,6 @@
 // src/lib/api.ts
 import { StrapiApiCollectionResponse, Incident } from "@/types";
+import qs from 'qs';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
@@ -27,18 +28,34 @@ export async function getIncidents(locale: string = 'fr-CH') {
 
 // Récupère un incident par son slug
 export async function getIncidentBySlug(slug: string, locale: string = 'fr-CH') {
-  // On construit les paramètres de 'populate' de manière structurée
-  const populateParams = [
-    'populate[sujet][populate][0]=picture', // Peuple 'sujet', et à l'intérieur, peuple 'picture'
-    'populate[sources]=*',                  // Peuple le composant 'sources'
-    'populate[evidence_image]=*',            // Peuple le champ média 'evidence_image'
-    'populate[localizations]=*'             // Peuple les traductions disponibles
-  ].join('&');
+  // On définit notre 'populate' sous forme d'objet JavaScript
+  const queryObject = {
+    locale,
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
+    populate: {
+      sujet: {
+        populate: {
+          picture: true, // On demande juste les infos de base de l'image
+        },
+      },
+      sources: true,
+      evidence_image: true, // On demande juste les infos de base
+      localizations: true,
+    },
+  };
 
-  const query = `the-wall-of-shames?locale=${locale}&filters[slug][$eq]=${slug}&${populateParams}`;
-  
-  // Le type de retour est bien une collection car le filtre retourne un tableau
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(query);
+  // La librairie 'qs' va transformer cet objet en une chaîne d'URL parfaite
+  const query = qs.stringify(queryObject, {
+    encodeValuesOnly: true, // Pour une meilleure gestion des caractères spéciaux
+  });
+
+  console.log("Query envoyée à l'API:", `the-wall-of-shames?${query}`);
+
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
 
 // Recherche des incidents

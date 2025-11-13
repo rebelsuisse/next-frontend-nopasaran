@@ -6,8 +6,7 @@ interface IncidentProps {
   params: any; // On met 'any' pour que le 'await' fonctionne sans que TS ne se plaigne
 }
 
-export default async function DetailPageOfAnEvent({ params }: IncidentProps) {
-  console.log("IncidentPage...");
+export default async function DetailPageOfAnIncident({ params }: IncidentProps) {
   // ÉTAPE CLÉ : On résout la promesse 'params' explicitement
   const resolvedParams = await params;
 
