@@ -26,8 +26,10 @@ export interface Incident {
   slug: string;
   subject_role: string | null;
   incident_date: string;
+  incident_location: string;
   category: string;
   description: string;
+  consequence: string | null;
   sujet: Sujet | null;
   evidence_image: {
       data: StrapiMedia[] | null;

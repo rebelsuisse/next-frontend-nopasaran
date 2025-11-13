@@ -16,10 +16,11 @@ export default async function LangLayout({
   return (
     <>
       <Header lang={resolvedParams.lang} />
-      <main className="min-h-screen">
+      {/* On applique les classes de thème ici */}
+      <main className="min-h-screen bg-gray-900 text-gray-200">
         {children}
       </main>
-      <Footer lang={resolvedParams.lang} />
+      <Footer lang={params.lang} />
     </>
   );
 }
