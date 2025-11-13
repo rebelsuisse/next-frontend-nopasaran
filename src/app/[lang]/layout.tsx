@@ -20,7 +20,7 @@ export default async function LangLayout({
       <main className="min-h-screen bg-gray-900 text-gray-200">
         {children}
       </main>
-      <Footer lang={params.lang} />
+      <Footer lang={resolvedParams.lang} />
     </>
   );
 }
