@@ -5,7 +5,8 @@ interface HeaderProps {
   lang: string;
 }
 
-const appVersion = process.env.APP_VERSION;
+const appVersion = process.env.NEXT_PUBLIC_APP_VERSION;
+const formattedVersion = appVersion?.replace('-', '+').replace('g', '');
 
 export default function Footer({ lang }: HeaderProps) {  return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
@@ -18,7 +19,7 @@ export default function Footer({ lang }: HeaderProps) {  return (
           <a href="https://medium.com/@rebel.suisse" target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href="https://x.com/Rebel_Suisse" target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
         </div>
-        <p>nopasaran.ch {appVersion && ` ${appVersion}`} | © {new Date().getFullYear()} Rebel Suisse</p>
+        <p>nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse</p>
       </div>
     </footer>
   );
