@@ -6,7 +6,7 @@ import { ChangeEvent } from 'react';
 
 export default function LanguageSwitcher() {
   const currentPathname = usePathname();
-  const locales = ['fr-CH', 'de-CH', 'it-CH', 'en-US'];
+  const locales = ['fr-CH', 'de-CH'];
 
   // ÉTAPE 1 : On DÉDUIT la locale à chaque rendu, pas besoin d'un 'useEffect'
   const segments = currentPathname.split('/');
