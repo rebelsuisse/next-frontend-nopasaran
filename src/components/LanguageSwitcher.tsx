@@ -17,17 +17,23 @@ export default function LanguageSwitcher() {
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const newLocale = event.target.value;
 
-    // La logique de reconstruction de l'URL reste la même
-    const pathWithoutLocale = currentPathname.startsWith(`/${currentLocale}`)
-      ? currentPathname.substring(currentLocale.length + 1)
-      : currentPathname;
-    
-    // S'assure qu'on a bien un slash au début si le chemin est vide
-    const finalPath = pathWithoutLocale.startsWith('/') ? pathWithoutLocale : `/${pathWithoutLocale}`;
+    // Si on est sur une page de détail d'incident...
+    if (currentPathname.includes('/the-wall-of-shame/')) {
+      // ...on redirige simplement vers la page d'accueil de la nouvelle langue.
+      window.location.href = `/${newLocale}`;
+    } else {
+      // Sinon, on fait le changement normal.
+      const pathWithoutLocale = currentPathname.startsWith(`/${currentLocale}`)
+        ? currentPathname.substring(currentLocale.length + 1)
+        : currentPathname;
+      
+      // S'assure qu'on a bien un slash au début si le chemin est vide
+      const finalPath = pathWithoutLocale.startsWith('/') ? pathWithoutLocale : `/${pathWithoutLocale}`;
 
-    const newUrl = `/${newLocale}${finalPath}`;
-    
-    window.location.href = newUrl;
+      const newUrl = `/${newLocale}${finalPath}`;
+      
+      window.location.href = newUrl;
+    }
   };
 
   return (
