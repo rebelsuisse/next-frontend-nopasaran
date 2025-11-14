@@ -19,8 +19,9 @@ export default function Footer({ lang }: HeaderProps) {  return (
           <a href="https://medium.com/@rebel.suisse" target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href="https://x.com/Rebel_Suisse" target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
         </div>
-          <p className="text-sm text-gray-400">
-            nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse
+          <p className="text-sm text-gray-400" style={{ whiteSpace: 'pre-line' }}>
+            nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse{"\n"}
+            This project is licensed under the <a href="/LICENSE" target="_blank" rel="noopener noreferrer">Mozilla Public License 2.0</a>.
           </p>
         </div>
     </footer>
