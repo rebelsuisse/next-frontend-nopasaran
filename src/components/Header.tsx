@@ -16,7 +16,7 @@ export default function Header({ lang, t }: HeaderProps) {
   return (
     <header className="bg-gray-800 text-white p-4">
       <nav className="container mx-auto flex justify-between items-center">
-        <Link href={`/${lang}`} className="text-xl font-bold">Nopasaran.ch</Link>
+        <Link href={`/${lang}`} className="text-xl font-bold">No pasarán</Link>
         <div className="flex items-center space-x-4">
           {/* Le Header utilise maintenant 't' directement */}
           <Link href={`/${lang}/search`}>{t('search')}</Link>
