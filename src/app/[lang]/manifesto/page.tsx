@@ -1,16 +1,16 @@
-// src/app/[lang]/credits/page.tsx
+// src/app/[lang]/manifesto/page.tsx
 
 import MarkdownContent from '@/components/MarkdownContent';
 
-interface CreditsPageProps {
+interface ManifestoPageProps {
   params: { lang: string };
 }
 
-export default function CreditsPage({ params }: CreditsPageProps) {
+export default function ManifestoPage({ params }: ManifestoPageProps) {
   return (
     <div className="container mx-auto p-8">
       {/* On appelle notre composant en lui disant quel dossier lire */}
-      <MarkdownContent contentFolder="credits" lang={params.lang} />
+      <MarkdownContent contentFolder="manifesto" lang={params.lang} />
     </div>
   );
 }
