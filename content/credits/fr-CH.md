@@ -1,1 +1,1 @@
-# TODO
+# Merci à toustes les personnes qui ont contribué !
