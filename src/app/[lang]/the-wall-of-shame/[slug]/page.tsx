@@ -1,10 +1,11 @@
 // src/app/[lang]/the-wall-of-shame/[slug]/page.tsx
 
 import { getIncidentBySlug } from '@/lib/api';
-import { notFound } from 'next/navigation';
+//import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
 import { getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 
 interface DetailPageProps {
   params: any; 
