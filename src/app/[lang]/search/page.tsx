@@ -25,7 +25,6 @@ async function getPageTranslations(locale: string) {
     }
 }
 
-
 export default async function SearchPage({ params }: SearchPageProps) {
   const resolvedParams = await params;
 
