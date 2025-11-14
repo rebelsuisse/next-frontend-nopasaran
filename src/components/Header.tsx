@@ -1,11 +1,14 @@
 // src/components/Header.tsx
 import Link from 'next/link';
 import LanguageSwitcher from './LanguageSwitcher';
-// On importe les icônes dont on a besoin
 import { FaHome, FaSearch, FaQuestionCircle, FaHeart } from 'react-icons/fa';
+
+// Définition du type de la fonction 't' pour que TypeScript soit content
+type TFunction = (key: 'search' | 'manifesto' | 'credits') => string;
 
 interface HeaderProps {
   lang: string;
+  t: TFunction;
 }
 
 // Le composant redevient simple et non-async
