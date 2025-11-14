@@ -27,8 +27,10 @@ async function getPageTranslations(locale: string) {
 
 
 export default async function SearchPage({ params }: SearchPageProps) {
-  // On récupère les textes traduits
-  const { title, message } = await getPageTranslations(params.lang);
+  const resolvedParams = await params;
+
+  // On utilise les params résolus
+  const { title, message } = await getPageTranslations(resolvedParams.lang);
 
   return (
     <div className="container mx-auto p-8 flex flex-col items-center justify-center text-center min-h-[60vh]">
