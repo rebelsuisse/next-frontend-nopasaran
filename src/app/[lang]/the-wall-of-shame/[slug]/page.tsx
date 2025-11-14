@@ -1,7 +1,6 @@
 // src/app/[lang]/the-wall-of-shame/[slug]/page.tsx
 
 import { getIncidentBySlug } from '@/lib/api';
-//import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
 import { getTranslations } from 'next-intl/server';
@@ -11,12 +10,25 @@ interface DetailPageProps {
   params: any; 
 }
 
+async function getPageTranslations(locale: string) {
+  const t = await getTranslations({locale, namespace: 'IncidentPage'});
+  return {
+    involvedSubject: t('involvedSubject'),
+    descriptionTitle: t('descriptionTitle'),
+    consequencesTitle: t('consequencesTitle'),
+    evidenceTitle: t('evidenceTitle'),
+    sourcesTitle: t('sourcesTitle'),
+  };
+}
+
 export default async function DetailPageOfAnIncident({ params }: DetailPageProps) {
   const resolvedParams = await params;
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
-  const t = await getTranslations('IncidentPage');
-  
-  console.log("Données pour la page de détail:", JSON.stringify(response.data, null, 2));
+    
+  // On utilise les params résolus
+  const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle } = await getPageTranslations(resolvedParams.lang);
+
+  //console.log("Données pour la page de détail:", JSON.stringify(response.data, null, 2));
 
   if (!response.data || response.data.length === 0) {
     return notFound();
@@ -45,7 +57,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-400 mb-6 border-b border-gray-700 pb-4">
               <div className="flex items-center gap-2">
                 <FaCalendar />
-                <span>{new Date(incident.incident_date).toLocaleDateString('fr-CH', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                <span>{new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang, { day: '2-digit', month: 'long', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-2">
                 <FaTag />
@@ -58,7 +70,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             </div>
 
             {/* Description */}
-            <h2 className="text-2xl font-semibold mb-3 text-white">{t('descriptionTitle')}</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-white">{descriptionTitle}</h2>
             <div
               // On ajoute 'prose-invert' pour que le contenu ait du texte clair
               className="prose prose-lg max-w-none prose-invert"
@@ -68,7 +80,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             {/* Conséquences */}
             {consequenceHtml && (
               <div className="mt-8">
-                <h2 className="text-2xl font-semibold mb-3 text-white">{t('consequencesTitle')}</h2>
+                <h2 className="text-2xl font-semibold mb-3 text-white">{consequencesTitle}</h2>
                 <div
                   className="prose prose-lg max-w-none prose-invert"
                   dangerouslySetInnerHTML={{ __html: consequenceHtml }}
@@ -79,7 +91,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
             {/* Images de Preuve (Evidence Images) */}
             {incident.evidence_image && incident.evidence_image.length > 0 && (
               <div className="mt-8">
-                <h2 className="text-2xl font-semibold mb-3 text-white">Preuves</h2>
+                <h2 className="text-2xl font-semibold mb-3 text-white">{evidenceTitle}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {incident.evidence_image.map(image => (
                     <div key={image.id} className="relative aspect-video">
@@ -101,23 +113,24 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
           {/* Colonne Latérale */}
           <aside className="w-full md:w-1/3">
             {sujet && (
-              <div className="border border-gray-700 rounded-lg p-6 sticky top-8 bg-gray-900">
-                <h2 className="text-xl font-semibold text-center mb-4 text-white">{t('involvedSubject')}</h2>
-                {sujet.picture && (
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                     <Image
-                      // On construit l'URL complète
-                      src={`${STRAPI_HOST}${sujet.picture.url}`}
-                      alt={`Photo de ${sujet.name}`}
-                      fill
-                      className="rounded-full object-cover border-4 border-gray-700 shadow-md"
-                    />
-                  </div>
-                )}
-                <h3 className="text-2xl font-bold text-center text-white">{sujet.name}</h3>
-                <p className="text-center text-gray-400 mb-1">{incident.subject_role}</p>
-                <p className="text-center text-sm text-gray-500">{sujet.affiliation} - {sujet.canton}</p>
-              </div>
+            <div className="border border-gray-700 rounded-lg p-6 sticky top-8 bg-gray-900">
+              {/* Le titre "Sujet Impliqué" a été enlevé. */}
+              
+              {sujet.picture && (
+                // J'ai augmenté la marge en dessous de l'image pour compenser
+                <div className="relative w-32 h-32 mx-auto mb-6"> 
+                    <Image
+                    src={`${STRAPI_HOST}${sujet.picture.url}`}
+                    alt={`Photo de ${sujet.name}`}
+                    fill
+                    className="rounded-full object-cover border-4 border-gray-700 shadow-md"
+                  />
+                </div>
+              )}
+              <h3 className="text-2xl font-bold text-center text-white">{sujet.name}</h3>
+              <p className="text-center text-gray-400 mb-1">{incident.subject_role}</p>
+              <p className="text-center text-sm text-gray-500">{sujet.affiliation} - {sujet.canton}</p>
+            </div>
             )}
           </aside>
         </div>
@@ -125,18 +138,18 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
         {/* Section des Sources */}
         {incident.sources && incident.sources.length > 0 && (
           <div className="mt-10 border-t border-gray-700 pt-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-300">
               <FaLink />
-              Sources
+              {sourcesTitle}
             </h2>
-            <ul className="list-disc list-inside space-y-2">
+            <ul className="list-disc list-inside space-y-2 text-sm text-gray-400">
               {incident.sources.map(source => (
                 <li key={source.id}>
                   <a 
                     href={source.url} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-blue-400 hover:underline" // Lien plus clair pour fond sombre
+                    className="text-blue-500 hover:text-blue-400 hover:underline transition-colors"
                   >
                     {source.label}
                   </a>
