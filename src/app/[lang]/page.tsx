@@ -2,15 +2,27 @@
 
 import { getIncidents } from '@/lib/api';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 interface HomePageProps {
-  params: any;
+  params: { lang: string };
+}
+
+async function getPageTranslations(locale: string) {
+  const t = await getTranslations({locale, namespace: 'HomePage'});
+  return {
+      title: t('title'),
+      noIncidents: t('noIncidents'),
+  };
 }
 
 export default async function HomePage({ params }: HomePageProps) {
   const resolvedParams = await params;
   const response = await getIncidents(resolvedParams.lang);
   const incidents = response.data;
+
+  // On utilise les params résolus
+  const { title, noIncidents } = await getPageTranslations(resolvedParams.lang);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -19,7 +31,7 @@ export default async function HomePage({ params }: HomePageProps) {
           The Wall of Shame
         </h1>
         <p className="text-lg text-gray-400 mt-2">
-          Registre des dérapages de l'extrême droite en Suisse.
+          {title}
         </p>
       </div>
 
@@ -41,7 +53,7 @@ export default async function HomePage({ params }: HomePageProps) {
                   
                   {/* Date (à droite, ne se réduit pas) */}
                   <div className="flex-shrink-0 text-sm text-gray-400">
-                    {new Date(incident.incident_date).toLocaleDateString('fr-CH', {
+                    {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang, {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',
@@ -53,7 +65,7 @@ export default async function HomePage({ params }: HomePageProps) {
           </ul>
         ) : (
           <div className="text-center text-gray-500 p-10">
-            <p>Aucun incident à afficher pour le moment.</p>
+            <p>{noIncidents}</p>
           </div>
         )}
       </div>
