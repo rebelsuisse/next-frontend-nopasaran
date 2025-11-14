@@ -14,5 +14,9 @@
      "search": "Suche",
      "manifesto": "Manifest",
      "credits": "Danksagung"
+  },
+  "Placeholder": {
+    "searchTitle": "Seite im Aufbau",
+    "searchMessage": "Die Suchfunktion befindet sich in der Entwicklung und wird bald verfügbar sein. Vielen Dank für Ihre Geduld!"
   }
 }
