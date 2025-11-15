@@ -1,7 +1,11 @@
 export interface StrapiMedia {
   id: number;
   url: string;
-  // Ajoutez d'autres champs si nécessaire (width, height, etc.)
+  width: number;
+  height: number;
+  // Vous pouvez aussi ajouter d'autres champs que Strapi renvoie si vous en avez besoin
+  // alternativeText: string | null;
+  // caption: string | null;
 }
 
 export interface LinkComponent {
