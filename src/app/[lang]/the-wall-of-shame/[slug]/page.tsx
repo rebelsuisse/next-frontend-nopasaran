@@ -77,6 +77,34 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
               dangerouslySetInnerHTML={{ __html: descriptionHtml }}
             />
 
+            {/* --- LES IMAGES DE PREUVE --- */}
+            {incident.evidence_image && incident.evidence_image.length > 0 && (
+              // On ajoute une marge verticale pour séparer de la description
+              <div className="my-8 space-y-4">
+                {/* On ne met plus de titre "Preuves" */}
+                {incident.evidence_image.map(image => (
+                  // Chaque image est maintenant un lien qui ouvre l'image en grand
+                  <a 
+                    key={image.id}
+                    href={`${STRAPI_HOST}${image.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block" // Fait en sorte que le lien prenne toute la largeur de l'image
+                  >
+                    <Image
+                      src={`${STRAPI_HOST}${image.url}`}
+                      alt="Image de preuve pour l'incident"
+                      // On utilise width et height pour respecter le ratio
+                      width={image.width}
+                      height={image.height}
+                      // 'layout="responsive"' est implicite mais ce style le garantit
+                      className="rounded-lg object-contain w-full h-auto max-h-[70vh] cursor-pointer"
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
+
             {/* Conséquences */}
             {consequenceHtml && (
               <div className="mt-8">
@@ -85,25 +113,6 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                   className="prose prose-lg max-w-none prose-invert"
                   dangerouslySetInnerHTML={{ __html: consequenceHtml }}
                 />
-              </div>
-            )}
-
-            {/* Images de Preuve (Evidence Images) */}
-            {incident.evidence_image && incident.evidence_image.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-2xl font-semibold mb-3 text-white">{evidenceTitle}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {incident.evidence_image.map(image => (
-                    <div key={image.id} className="relative aspect-video">
-                      <Image
-                        src={`${STRAPI_HOST}${image.url}`}
-                        alt="Image de preuve pour l'incident"
-                        fill
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 
