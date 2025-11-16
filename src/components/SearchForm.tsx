@@ -1,16 +1,16 @@
 // src/components/SearchForm.tsx
 'use client';
 
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 // On passe les options en props pour que le composant reste générique
 interface SearchFormProps {
   categories: string[];
   cantons: string[];
+  initialValues: { [key: string]: string | string[] | undefined };
 }
 
-export default function SearchForm({ categories, cantons }: SearchFormProps) {
-  const searchParams = useSearchParams();
+export default function SearchForm({ categories, cantons, initialValues }: SearchFormProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -37,13 +37,14 @@ export default function SearchForm({ categories, cantons }: SearchFormProps) {
       <input
         type="text"
         name="query"
-        defaultValue={searchParams.get('query') || ''}
+        // On utilise les props pour la valeur par défaut
+        defaultValue={initialValues.query as string || ''}
         placeholder="Rechercher par nom ou mot-clé..."
         className="col-span-1 md:col-span-2 bg-gray-700 text-white rounded p-2"
       />
 
       {/* Selecteur d'année */}
-      <select name="year" defaultValue={searchParams.get('year') || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="year" defaultValue={initialValues.year as string || ''} className="bg-gray-700 text-white rounded p-2">
         <option value="">Toutes les années</option>
         {[...Array(10)].map((_, i) => {
           const year = new Date().getFullYear() - i;
@@ -52,13 +53,13 @@ export default function SearchForm({ categories, cantons }: SearchFormProps) {
       </select>
       
       {/* Sélecteur de catégorie */}
-      <select name="category" defaultValue={searchParams.get('category') || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="category" defaultValue={initialValues.category as string || ''} className="bg-gray-700 text-white rounded p-2">
         <option value="">Toutes les catégories</option>
         {categories.map(cat => <option key={cat} value={cat} className="capitalize">{cat}</option>)}
       </select>
       
       {/* Sélecteur de canton */}
-      <select name="canton" defaultValue={searchParams.get('canton') || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="canton" defaultValue={initialValues.canton as string || ''} className="bg-gray-700 text-white rounded p-2">
         <option value="">Tous les cantons</option>
         {cantons.map(canton => <option key={canton} value={canton}>{canton}</option>)}
       </select>

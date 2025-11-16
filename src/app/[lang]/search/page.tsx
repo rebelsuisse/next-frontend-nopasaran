@@ -45,8 +45,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <h1 className="text-4xl font-bold text-white mb-6">{searchTitle}</h1>
       
       {/* Le formulaire de recherche (Composant Client) */}
-      <SearchForm categories={categories} cantons={cantons} />
-      
+      <SearchForm 
+        categories={categories} 
+        cantons={cantons} 
+        initialValues={resolvedsearchParams} // On passe les valeurs initiales
+      />
       {/* Affichage des résultats */}
       <div>
         <p className="text-gray-400 mb-4">{total} {searchFound}</p>
