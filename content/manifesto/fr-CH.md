@@ -1,4 +1,4 @@
-**Pour un cordon sanitaire autour l’extrême droite**  
+**Pour un cordon sanitaire autour de l’extrême droite**  
 
 Les partis d'extrême droite, dont l'UDC est la figure de proue en Suisse, ne sont pas des partis comme les autres.
 
