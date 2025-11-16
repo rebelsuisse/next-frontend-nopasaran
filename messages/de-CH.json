@@ -18,5 +18,10 @@
   "Placeholder": {
     "searchTitle": "Seite im Aufbau",
     "searchMessage": "Die Suchfunktion befindet sich in der Entwicklung und wird bald verfügbar sein. Vielen Dank für Ihre Geduld!"
+  },
+  "SearchPage": {
+    "searchTitle": "Suchparameter",
+    "searchFound": "Ergebnis(se) gefunden",
+    "searchNotFound": "Es wurden keine Vorfälle gefunden, die Ihrer Suche entsprechen."
   }
 }
