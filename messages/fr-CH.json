@@ -18,5 +18,10 @@
   "Placeholder": {
     "searchTitle": "Page en Construction",
     "searchMessage": "La fonctionnalité de recherche est en cours de développement et sera bientôt disponible. Merci pour votre patience !"
+  },
+  "SearchPage": {
+    "searchTitle": "Paramètres de recherche",
+    "searchFound": "résultat(s) trouvé(s)",
+    "searchNotFound": "Aucun incident ne correspond à votre recherche."
   }
 }
