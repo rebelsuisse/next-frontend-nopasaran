@@ -1,3 +1,6 @@
+import remarkGfm from "remark-gfm";
+import createMDX from "@next/mdx";
+
 import type { NextConfig } from "next";
 
 import createNextIntlPlugin from 'next-intl/plugin';
@@ -37,7 +40,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  pageExtensions: ["md", "mdx", "ts", "tsx"],
 };
 
+const withMDX = createMDX({
+  // Add markdown plugins here, as desired
+  extension: /\.(md|mdx)$/,
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [],
+  },
+  //providerImportSource: "@mdx-js/react",
+});
+
 module.exports = withNextIntl(nextConfig);
-export default nextConfig;
+
+// Merge MDX config with Next.js config
+export default withMDX(nextConfig);
