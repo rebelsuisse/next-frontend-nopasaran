@@ -57,10 +57,25 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
         <div className="space-y-4">
           {incidents && incidents.length > 0 ? (
             incidents.map(incident => (
-              <Link key={incident.id} href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}>
+              <Link
+                key={incident.id}
+                href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}
+              >
                 <div className="bg-gray-800 p-4 rounded-lg hover:bg-gray-700">
-                  <p className="text-sm text-gray-400">{new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)} - {incident.sujet?.name}</p>
-                  <h3 className="text-xl font-semibold text-white mt-1">{incident.title}</h3>
+
+                  {/* Ligne alignée gauche/droite */}
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>
+                      {incident.sujet?.name} - {incident.sujet?.canton}
+                    </span>
+                    <span>
+                      {incident.category} - {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-white mt-1">
+                    {incident.title}
+                  </h3>
                 </div>
               </Link>
             ))
