@@ -21,9 +21,28 @@ async function fetchApi<T>(query: string): Promise<T> {
 }
 
 // Récupère la liste des incidents, triés par date
-export async function getIncidents(locale: string = 'fr-CH') {
-  const query = `the-wall-of-shames?locale=${locale}&sort=incident_date:desc&populate=sujet`;
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(query);
+export async function getIncidents(
+  locale: string = 'fr-CH',
+  // On ajoute les paramètres pour la pagination avec des valeurs par défaut
+  page: number = 1,
+  pageSize: number = 10
+) {
+  // On construit la requête avec qs pour la robustesse
+  const queryObject = {
+    locale,
+    sort: ['incident_date:desc'],
+    populate: 'sujet',
+    pagination: {
+      page: page,
+      pageSize: pageSize,
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+
+  console.log("HomePage Query:", `the-wall-of-shames?${query}`);
+
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
 
 // Récupère un incident par son slug

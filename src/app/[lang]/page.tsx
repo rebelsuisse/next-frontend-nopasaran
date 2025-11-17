@@ -3,9 +3,11 @@
 import { getIncidents } from '@/lib/api';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import PaginationControls from '@/components/PaginationControls';
 
 interface HomePageProps {
   params: { lang: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 async function getPageTranslations(locale: string) {
@@ -16,10 +18,15 @@ async function getPageTranslations(locale: string) {
   };
 }
 
-export default async function HomePage({ params }: HomePageProps) {
+export default async function HomePage({ params, searchParams }: HomePageProps) {
   const resolvedParams = await params;
-  const response = await getIncidents(resolvedParams.lang);
+  const resolvedSearchParams = await searchParams;
+  const currentPage = Number(resolvedSearchParams.page) || 1;
+  const pageSize = 10;
+  const response = await getIncidents(resolvedParams.lang, currentPage, pageSize);
   const incidents = response.data;
+  const meta = response.meta;
+  const pageCount = meta.pagination.pageCount;
 
   // On utilise les params résolus
   const { title, noIncidents } = await getPageTranslations(resolvedParams.lang);
@@ -69,6 +76,14 @@ export default async function HomePage({ params }: HomePageProps) {
           </div>
         )}
       </div>
+
+      <div className="mt-8 flex justify-center">
+        <PaginationControls
+          currentPage={currentPage}
+          pageCount={pageCount}
+        />
+      </div>
+
     </div>
   );
 }

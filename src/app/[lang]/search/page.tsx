@@ -42,7 +42,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     canton: resolvedsearchParams.canton as string,
     query: resolvedsearchParams.query as string,
     page: currentPage,
-    pageSize: 3,
+    pageSize: 10,
   });
 
   const incidents = response.data;
