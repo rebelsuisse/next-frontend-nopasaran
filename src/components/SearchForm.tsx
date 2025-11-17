@@ -26,13 +26,20 @@ export default function SearchForm({ categories, cantons, initialValues }: Searc
     if (year) params.set('year', year);
     if (category) params.set('category', category);
     if (canton) params.set('canton', canton);
-    
+
     // On navigue vers la même page mais avec les nouveaux paramètres de recherche
     router.replace(`${pathname}?${params.toString()}`);
   }
   
   return (
-    <form action={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-800 p-4 rounded-lg">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          handleSearch(formData);
+        }}
+        className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-800 p-4 rounded-lg"
+      >
       {/* Champ de recherche texte */}
       <input
         type="text"
