@@ -77,8 +77,13 @@ export async function searchIncidents(
     category?: string;
     canton?: string;
     query?: string;
+    page?: number;
+    pageSize?: number;
   }
 ) {
+
+  const { page = 1, pageSize = 10 } = params;
+
   const filters: any = {
     $and: [],
   };
@@ -126,15 +131,18 @@ export async function searchIncidents(
     filters,
     sort: 'incident_date:desc',
     populate: 'sujet',
+    pagination: {
+      page: page,
+      pageSize: pageSize,
+    },
   };
 
-  // Si aucun filtre n'est appliqué, on ne met pas un filtre '$and' vide
   if (filters.$and.length === 0) {
     delete queryObject.filters;
   }
   
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-  console.log("Search Query:", `the-wall-of-shames?${query}`);
+  console.log("Search Query with Pagination:", `the-wall-of-shames?${query}`);
   
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }

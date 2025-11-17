@@ -65,7 +65,7 @@ export default function SearchForm({ categories, cantons, initialValues, labels 
           return <option key={year} value={year}>{year}</option>;
         })}
       </select>
-      
+
       {/* Sélecteur de catégorie */}
       <select name="category" defaultValue={initialValues.category as string || ''} className="bg-gray-700 text-white rounded p-2">
         <option value="">{labels.allCategories}</option>

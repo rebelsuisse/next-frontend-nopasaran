@@ -2,6 +2,7 @@
 
 import { searchIncidents } from '@/lib/api';
 import SearchForm from '@/components/SearchForm';
+import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
@@ -32,15 +33,22 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, searchButton};
 
+  const currentPage = Number(resolvedsearchParams.page) || 1;
+
   // On récupère les résultats en fonction des paramètres de l'URL
   const response = await searchIncidents(resolvedParams.lang, {
     year: resolvedsearchParams.year as string,
     category: resolvedsearchParams.category as string,
     canton: resolvedsearchParams.canton as string,
     query: resolvedsearchParams.query as string,
+    page: currentPage,
+    pageSize: 3,
   });
+
   const incidents = response.data;
-  const total = response.meta.pagination.total;
+  const meta = response.meta;
+  const total = meta.pagination.total;
+  const pageCount = meta.pagination.pageCount;
 
   // On prépare les options pour les menus déroulants
   // C'est mieux de les hardcoder si elles ne changent pas souvent, c'est plus performant
@@ -91,6 +99,15 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
             <p className="text-gray-500">{searchNotFound}</p>
           )}
         </div>
+
+        {/* Afficher les contrôles de pagination */}
+        <div className="mt-8 flex justify-center">
+          <PaginationControls
+            currentPage={currentPage}
+            pageCount={pageCount}
+          />
+        </div>
+
       </div>
     </div>
   );
