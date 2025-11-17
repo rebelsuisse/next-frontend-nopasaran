@@ -22,6 +22,11 @@
   "SearchPage": {
     "searchTitle": "Suchparameter",
     "searchFound": "Ergebnis(se) gefunden",
-    "searchNotFound": "Es wurden keine Vorfälle gefunden, die Ihrer Suche entsprechen."
+    "searchNotFound": "Es wurden keine Vorfälle gefunden, die Ihrer Suche entsprechen.",
+    "searchPlaceholder": "Suche nach Name oder Stichwort...",
+    "allYears": "Alle Jahre",
+    "allCategories": "Alle Kategorien",
+    "allCantons": "Alle Kantone",
+    "searchButton": "Suchen"
   }
 }

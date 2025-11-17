@@ -22,6 +22,11 @@
   "SearchPage": {
     "searchTitle": "Paramètres de recherche",
     "searchFound": "résultat(s) trouvé(s)",
-    "searchNotFound": "Aucun incident ne correspond à votre recherche."
+    "searchNotFound": "Aucun incident ne correspond à votre recherche.",
+    "searchPlaceholder": "Rechercher par nom ou mot-clé...",
+    "allYears": "Toutes les années",
+    "allCategories": "Toutes les catégories",
+    "allCantons": "Tous les cantons",
+    "searchButton": "Rechercher"
   }
 }

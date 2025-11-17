@@ -8,9 +8,16 @@ interface SearchFormProps {
   categories: string[];
   cantons: string[];
   initialValues: { [key: string]: string | string[] | undefined };
+  labels: {
+    searchPlaceholder: string;
+    allYears: string;
+    allCategories: string;
+    allCantons: string;
+    searchButton: string;
+  };
 }
 
-export default function SearchForm({ categories, cantons, initialValues }: SearchFormProps) {
+export default function SearchForm({ categories, cantons, initialValues, labels }: SearchFormProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -46,13 +53,13 @@ export default function SearchForm({ categories, cantons, initialValues }: Searc
         name="query"
         // On utilise les props pour la valeur par défaut
         defaultValue={initialValues.query as string || ''}
-        placeholder="Rechercher par nom ou mot-clé..."
+        placeholder={labels.searchPlaceholder}
         className="col-span-1 md:col-span-2 bg-gray-700 text-white rounded p-2"
       />
 
       {/* Selecteur d'année */}
       <select name="year" defaultValue={initialValues.year as string || ''} className="bg-gray-700 text-white rounded p-2">
-        <option value="">Toutes les années</option>
+        <option value="">{labels.allYears}</option>
         {[...Array(10)].map((_, i) => {
           const year = new Date().getFullYear() - i;
           return <option key={year} value={year}>{year}</option>;
@@ -61,20 +68,20 @@ export default function SearchForm({ categories, cantons, initialValues }: Searc
       
       {/* Sélecteur de catégorie */}
       <select name="category" defaultValue={initialValues.category as string || ''} className="bg-gray-700 text-white rounded p-2">
-        <option value="">Toutes les catégories</option>
+        <option value="">{labels.allCategories}</option>
         {categories.map(cat => <option key={cat} value={cat} className="capitalize">{cat}</option>)}
       </select>
       
       {/* Sélecteur de canton */}
       <select name="canton" defaultValue={initialValues.canton as string || ''} className="bg-gray-700 text-white rounded p-2">
-        <option value="">Tous les cantons</option>
+        <option value="">{labels.allCantons}</option>
         {cantons.map(canton => <option key={canton} value={canton}>{canton}</option>)}
       </select>
 
       {/* Bouton de soumission */}
       <div className="md:col-span-4 flex justify-end gap-4">
          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Rechercher
+          {labels.searchButton}
         </button>
       </div>
     </form>

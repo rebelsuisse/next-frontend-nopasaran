@@ -16,6 +16,11 @@ async function getPageTranslations(locale: string) {
       searchTitle: t('searchTitle'),
       searchFound: t('searchFound'),
       searchNotFound: t('searchNotFound'),
+      searchPlaceholder: t('searchPlaceholder'),
+      allYears: t('allYears'),
+      allCategories: t('allCategories'),
+      allCantons: t('allCantons'),
+      searchButton: t('searchButton'),
   };
 }
 
@@ -23,7 +28,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const resolvedParams = await params;
   const resolvedsearchParams = await searchParams;
   // On utilise les params résolus
-  const { searchTitle, searchFound, searchNotFound } = await getPageTranslations(resolvedParams.lang);
+  const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, searchButton } = await getPageTranslations(resolvedParams.lang);
+
+  const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, searchButton};
 
   // On récupère les résultats en fonction des paramètres de l'URL
   const response = await searchIncidents(resolvedParams.lang, {
@@ -48,7 +55,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <SearchForm 
         categories={categories} 
         cantons={cantons} 
-        initialValues={resolvedsearchParams} // On passe les valeurs initiales
+        initialValues={resolvedsearchParams}
+        labels={searchFormLabels}
       />
       {/* Affichage des résultats */}
       <div>
