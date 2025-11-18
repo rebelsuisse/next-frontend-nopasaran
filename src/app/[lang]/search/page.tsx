@@ -70,33 +70,46 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <div>
         <p className="text-gray-400 mb-4">{total} {searchFound}</p>
         
-        <div className="space-y-4">
+        {/* Le conteneur extérieur a maintenant le fond et les coins arrondis */}
+        <div className="bg-gray-800 rounded-lg shadow-lg">
           {incidents && incidents.length > 0 ? (
-            incidents.map(incident => (
-              <Link
-                key={incident.id}
-                href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}
-              >
-                <div className="bg-gray-800 p-4 rounded-lg hover:bg-gray-700">
+            // On utilise une liste <ul> avec des séparateurs automatiques
+            <ul className="divide-y divide-gray-700">
+              {incidents.map(incident => (
+                // Chaque élément est un <li> pour une meilleure sémantique
+                <li key={incident.id}>
+                  <Link
+                    href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}
+                    // On rend tout le bloc cliquable
+                    className="block" 
+                  >
+                    {/* Le div intérieur n'a plus ni fond ni coins arrondis, juste du padding et un effet de survol */}
+                    <div className="p-4 hover:bg-gray-700/50 transition-colors">
 
-                  {/* Ligne alignée gauche/droite */}
-                  <div className="flex justify-between text-sm text-gray-400">
-                    <span>
-                      {incident.sujet?.name} - {incident.sujet?.canton}
-                    </span>
-                    <span>
-                      {incident.category} - {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
-                    </span>
-                  </div>
+                      <div className="flex justify-between text-sm text-gray-400">
+                        <span>
+                          {incident.sujet?.name}<br/>
+                          {incident.sujet?.affiliation} - {incident.sujet?.canton}
+                        </span>
+                        <span className="text-right">
+                          {incident.category}<br/>
+                          {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
+                        </span>
+                      </div>
 
-                  <h3 className="text-xl font-semibold text-white mt-1">
-                    {incident.title}
-                  </h3>
-                </div>
-              </Link>
-            ))
+                      <h3 className="text-xl font-semibold text-white mt-2"> {/* J'ai augmenté la marge mt-1 à mt-2 */}
+                        {incident.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           ) : (
-            <p className="text-gray-500">{searchNotFound}</p>
+            // On garde le message pour l'absence de résultats, mais avec un padding
+            <div className="p-10 text-center text-gray-500">
+              <p>{searchNotFound}</p>
+            </div>
           )}
         </div>
 
