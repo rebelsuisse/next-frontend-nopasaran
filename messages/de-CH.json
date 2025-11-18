@@ -8,7 +8,9 @@
     "descriptionTitle": "Beschreibung der Fakten",
     "consequencesTitle": "Konsequenzen",
     "evidenceTitle": "Beweise",
-    "sourcesTitle": "Quellen"
+    "sourcesTitle": "Quellen",
+    "shareLabel": "Teilen",
+    "copiedLabel": "Kopiert!"
   },
   "Header": {
      "search": "Suche",

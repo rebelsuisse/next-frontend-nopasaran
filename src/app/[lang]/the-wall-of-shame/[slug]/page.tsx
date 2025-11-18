@@ -2,7 +2,8 @@
 
 import { getIncidentBySlug } from '@/lib/api';
 import Image from 'next/image';
-import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink } from 'react-icons/fa';
+import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink, FaShareAlt } from 'react-icons/fa';
+import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
@@ -18,6 +19,8 @@ async function getPageTranslations(locale: string) {
     consequencesTitle: t('consequencesTitle'),
     evidenceTitle: t('evidenceTitle'),
     sourcesTitle: t('sourcesTitle'),
+    shareLabel: t('shareLabel'),
+    copiedLabel: t('copiedLabel'),
   };
 }
 
@@ -26,7 +29,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
     
   // On utilise les params résolus
-  const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle } = await getPageTranslations(resolvedParams.lang);
+  const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle, shareLabel, copiedLabel } = await getPageTranslations(resolvedParams.lang);
 
   //console.log("Données pour la page de détail:", JSON.stringify(response.data, null, 2));
 
@@ -67,6 +70,11 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                 <FaMapMarkerAlt />
                 <span>{incident.incident_location}</span>
               </div>
+              <ShareButton
+                title={incident.title}
+                text={`Découvrez cet incident : ${incident.title}`}
+                labels={{ share: shareLabel, copied: copiedLabel }}
+              />
             </div>
 
             {/* Description */}
