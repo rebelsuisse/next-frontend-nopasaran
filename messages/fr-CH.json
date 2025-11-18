@@ -1,7 +1,11 @@
 {
   "HomePage": {
     "title": "Registre des dérapages de l'extrême droite en Suisse.",
-    "noIncidents": "Aucun incident à afficher pour le moment."
+    "noIncidents": "Aucun incident à afficher pour le moment.",
+    "shareTitle": "No pasarán, The Wall of Shame",
+    "shareText": "Registre des dérapages de l'extrême droite en Suisse",
+    "shareLabel": "Partager",
+    "copiedLabel": "Copié !"
   },
   "IncidentPage": {
     "involvedSubject": "Sujet Impliqué",

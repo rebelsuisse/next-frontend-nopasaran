@@ -4,6 +4,7 @@ import { getIncidents } from '@/lib/api';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import PaginationControls from '@/components/PaginationControls';
+import ShareButton from '@/components/ShareButton';
 
 interface HomePageProps {
   params: { lang: string };
@@ -15,6 +16,10 @@ async function getPageTranslations(locale: string) {
   return {
       title: t('title'),
       noIncidents: t('noIncidents'),
+      shareTitle: t('shareTitle'),
+      shareText: t('shareText'),
+      shareLabel: t('shareLabel'),
+      copiedLabel: t('copiedLabel'),
   };
 }
 
@@ -29,17 +34,30 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const pageCount = meta.pagination.pageCount;
 
   // On utilise les params résolus
-  const { title, noIncidents } = await getPageTranslations(resolvedParams.lang);
+  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel } = await getPageTranslations(resolvedParams.lang);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-          The Wall of Shame
-        </h1>
-        <p className="text-lg text-gray-400 mt-2">
-          {title}
-        </p>
+      {/* 4. Update the header to be a flex container */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-8">
+        {/* Left side: Title and description */}
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+            The Wall of Shame
+          </h1>
+          <p className="text-lg text-gray-400 mt-2">
+            {title}
+          </p>
+        </div>
+
+        {/* Right side: Share button */}
+        <div className="flex-shrink-0 pt-2 sm:pt-0">
+          <ShareButton
+            title={shareTitle}
+            text={shareText}
+            labels={{ share: shareLabel, copied: copiedLabel }}
+          />
+        </div>
       </div>
 
       {/* Conteneur de la liste */}

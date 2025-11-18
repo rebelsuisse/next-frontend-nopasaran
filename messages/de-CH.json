@@ -1,7 +1,11 @@
 {
   "HomePage": {
     "title": "Register der rechtsextremen Ausschreitungen in der Schweiz.",
-    "noIncidents": "Derzeit sind keine Vorfälle anzuzeigen."
+    "noIncidents": "Derzeit sind keine Vorfälle anzuzeigen.",
+    "shareTitle": "No pasarán, The Wall of Shame",
+    "shareText": "Register der rechtsextremen Ausschreitungen in der Schweiz",
+    "shareLabel": "Teilen",
+    "copiedLabel": "Kopiert!"
   },
   "IncidentPage": {
     "involvedSubject": "Beteiligtes Subjekt",
