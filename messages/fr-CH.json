@@ -30,5 +30,11 @@
     "allCategories": "Toutes les catégories",
     "allCantons": "Tous les cantons",
     "searchButton": "Rechercher"
+  },
+  "ManifestoPage": {
+    "shareTitle": "Découvrez le manifeste de No pasarán",
+    "shareText": "Pour un cordon sanitaire autour de l'extrême droite",
+    "shareLabel": "Partager",
+    "copiedLabel": "Copié !"
   }
 }
