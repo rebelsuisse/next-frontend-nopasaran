@@ -71,7 +71,7 @@ export default function SearchForm({ categories, cantons, initialValues, labels 
         <option value="">{labels.allCategories}</option>
         {categories.map(cat => <option key={cat} value={cat} className="capitalize">{cat}</option>)}
       </select>
-      
+
       {/* Sélecteur de canton */}
       <select name="canton" defaultValue={initialValues.canton as string || ''} className="bg-gray-700 text-white rounded p-2">
         <option value="">{labels.allCantons}</option>

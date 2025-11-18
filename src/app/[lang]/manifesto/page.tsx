@@ -4,11 +4,23 @@ import { notFound } from 'next/navigation';
 import fs from 'fs/promises';
 import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
+import ShareButton from '@/components/ShareButton';
+import { getTranslations } from 'next-intl/server';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
 
 interface ManifestoPageProps {
   params: any;
+}
+
+async function getPageTranslations(locale: string) {
+  const t = await getTranslations({locale, namespace: 'ManifestoPage'});
+  return {
+    shareTitle: t('shareTitle'),
+    shareText: t('shareText'),
+    shareLabel: t('shareLabel'),
+    copiedLabel: t('copiedLabel'),
+  };
 }
 
 export default async function ManifestoPage({ params }: ManifestoPageProps) {
@@ -34,10 +46,12 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     return notFound();
   }
 
+  const translations = await getPageTranslations(lang);
+
   // On compile le MDX EN LUI PASSANT NOS COMPOSANTS PERSONNALISÉS
-  const { content } = await compileMDX({
+  const { content, frontmatter } = await compileMDX({
     source: source,
-    components: getCustomMDXComponents(), // On appelle la nouvelle fonction
+    components: getCustomMDXComponents(),
     options: {
       parseFrontmatter: true,
     },
@@ -45,6 +59,18 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
 
   return (
     <div className="container mx-auto p-8">
+      <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 pb-4 border-b border-gray-700">
+        <h1 className="text-4xl font-bold text-white">
+          {frontmatter.title || 'Manifesto'}
+        </h1>
+        <div className="flex-shrink-0">
+          <ShareButton
+            title={translations.shareTitle}
+            text={translations.shareText}
+            labels={{ share: translations.shareLabel, copied: translations.copiedLabel }}
+          />
+        </div>
+      </header>
       <article>
         {content}
       </article>
