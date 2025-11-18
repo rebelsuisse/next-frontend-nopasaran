@@ -48,8 +48,8 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
 
   const translations = await getPageTranslations(lang);
 
-  // On compile le MDX EN LUI PASSANT NOS COMPOSANTS PERSONNALISÉS
-  const { content, frontmatter } = await compileMDX({
+  // On compile le MDX et on extrait le 'frontmatter' en plus du 'content'
+  const { content, frontmatter } = await compileMDX<{ title?: string }>({
     source: source,
     components: getCustomMDXComponents(),
     options: {
@@ -61,7 +61,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     <div className="container mx-auto p-8">
       <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 pb-4 border-b border-gray-700">
         <h1 className="text-4xl font-bold text-white">
-          {frontmatter.title || 'Manifesto'}
+          {frontmatter?.title || 'Manifesto'}
         </h1>
         <div className="flex-shrink-0">
           <ShareButton
