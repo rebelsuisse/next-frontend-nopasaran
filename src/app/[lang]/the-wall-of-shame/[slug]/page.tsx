@@ -51,11 +51,11 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
       {/* L'article a maintenant un fond sombre et du texte clair */}
       <article className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg text-gray-300">
         <div className="flex flex-col md:flex-row gap-8">
-          
+
           {/* Colonne Principale */}
           <div className="w-full md:w-2/3">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{incident.title}</h1>
-            
+
             {/* Métadonnées */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-400 mb-6 border-b border-gray-700 pb-4">
               <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
               </div>
               <ShareButton
                 title={incident.title}
-                text={`Découvrez cet incident : ${incident.title}`}
+                text={`No pasarán: ${incident.title}`}
                 labels={{ share: shareLabel, copied: copiedLabel }}
               />
             </div>
