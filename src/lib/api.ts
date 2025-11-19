@@ -4,20 +4,49 @@ import qs from 'qs';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
-// Fonction de base pour gérer les appels fetch
+// Fonction de base pour gérer les appels fetch - VERSION SÉCURISÉE SANS TOKEN
 async function fetchApi<T>(query: string): Promise<T> {
-  const res = await fetch(`${STRAPI_URL}/api/${query}`, {
-    // On met en cache pendant 60 secondes pour de meilleures performances
+  // On définit les options de la requête fetch
+  const fetchOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // On garde votre stratégie de cache (revalidation)
     next: { revalidate: 60 }
-  });
+  };
 
-  if (!res.ok) {
-    const error = await res.json();
-    console.error("Strapi API Error:", error.error);
-    throw new Error(`Failed to fetch API: ${res.status} ${res.statusText}`);
+  try {
+    // On exécute la requête
+    const res = await fetch(`${STRAPI_URL}/api/${query}`, fetchOptions);
+
+    // VÉRIFICATION CRUCIALE : On s'assure que la réponse est bien du JSON
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      // Si ce n'est pas du JSON (c'est probablement une page d'erreur HTML),
+      // on lit le texte pour le débogage et on lance une erreur claire.
+      const responseText = await res.text();
+      console.error("Strapi API did not return JSON. This is likely due to a 404 or 500 error on the Strapi server. Response body:", responseText);
+      throw new Error(`Expected a JSON response from Strapi, but received '${contentType}'.`);
+    }
+
+    // Si la réponse n'est pas "ok" (ex: erreur 400, 403, 404), mais que c'est bien du JSON
+    // (Strapi renvoie des erreurs formatées en JSON)
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Strapi API Error (JSON):", errorData.error);
+      throw new Error(`Failed to fetch API: ${res.status} ${res.statusText}`);
+    }
+
+    // Si tout va bien, on retourne les données JSON
+    return res.json();
+
+  } catch (error) {
+    // On attrape toutes les autres erreurs (réseau, etc.)
+    console.error(`An error occurred in fetchApi for query "${query}":`, error);
+    // On propage l'erreur pour que le build de Next.js échoue proprement
+    throw error;
   }
-
-  return res.json();
 }
 
 // Récupère la liste des incidents, triés par date
