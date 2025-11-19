@@ -39,6 +39,9 @@ export interface Incident {
   localizations?: {
     data: Incident[];
   };
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export interface StrapiApiCollectionResponse<T> {
