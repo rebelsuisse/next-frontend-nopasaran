@@ -21,6 +21,9 @@
      "manifesto": "Manifeste",
      "credits": "Crédits"
   },
+  "Metadata": {
+    "siteDescription": "Registre des dérapages de l'extrême droite en Suisse."
+  },
   "Placeholder": {
     "searchTitle": "Page en Construction",
     "searchMessage": "La fonctionnalité de recherche est en cours de développement et sera bientôt disponible. Merci pour votre patience !"

@@ -49,7 +49,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
   const translations = await getPageTranslations(lang);
 
   // On compile le MDX et on extrait le 'frontmatter' en plus du 'content'
-  const { content, frontmatter } = await compileMDX<{ title?: string }>({
+  const { content, frontmatter } = await compileMDX<{ title?: string; datePublished?: string }>({
     source: source,
     components: getCustomMDXComponents(),
     options: {
@@ -57,23 +57,51 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     },
   });
 
+  // CRÉER L'OBJET JSON-LD POUR L'ARTICLE
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article', // On utilise 'Article'
+    headline: frontmatter?.title || 'Manifesto',
+    // On peut lire la date depuis le frontmatter pour plus de précision
+    datePublished: frontmatter?.datePublished || new Date().toISOString(),
+    author: {
+      '@type': 'Organization',
+      name: 'Rebel Suisse',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'No pasaran - The Wall of Shame',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.nopasaran.ch/logo.png',
+      },
+    },
+  };
+
   return (
-    <div className="container mx-auto p-8">
-      <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 pb-4 border-b border-gray-700">
-        <h1 className="text-4xl font-bold text-white">
-          {frontmatter?.title || 'Manifesto'}
-        </h1>
-        <div className="flex-shrink-0">
-          <ShareButton
-            title={translations.shareTitle}
-            text={translations.shareText}
-            labels={{ share: translations.shareLabel, copied: translations.copiedLabel }}
-          />
-        </div>
-      </header>
-      <article>
-        {content}
-      </article>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+
+      <div className="container mx-auto p-8">
+        <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 pb-4 border-b border-gray-700">
+          <h1 className="text-4xl font-bold text-white">
+            {frontmatter?.title || 'Manifesto'}
+          </h1>
+          <div className="flex-shrink-0">
+            <ShareButton
+              title={translations.shareTitle}
+              text={translations.shareText}
+              labels={{ share: translations.shareLabel, copied: translations.copiedLabel }}
+            />
+          </div>
+        </header>
+        <article>
+          {content}
+        </article>
+      </div>
+    </>
   );
 }
