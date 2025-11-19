@@ -4,30 +4,44 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getTranslations } from 'next-intl/server';
 import { ReactNode } from "react";
+import type { Metadata } from "next";
 
-interface LangLayoutProps {
-  children: ReactNode;
+// On définit une interface claire pour les props, qui sera utilisée partout
+interface LangLayoutParams {
   params: {
     lang: string;
   };
 }
 
-export default async function LangLayout({ children, params: paramsPromise }: { children: ReactNode; params: Promise<LangLayoutProps['params']> }) {
-  // On attend la promesse pour obtenir l'objet params simple.
-  const params = await paramsPromise;
+export async function generateMetadata({ params }: LangLayoutParams): Promise<Metadata> {
+  // On "déballe" la promesse de manière sûre, même si ce n'est pas toujours une promesse.
+  // C'est la méthode la plus robuste.
+  const resolvedParams = await Promise.resolve(params);
+  
+  // On utilise la langue résolue pour récupérer les traductions.
+  const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
 
-  const t = await getTranslations('Header');
+  return {
+    title: "No pasaran - The Wall of Shame",
+    description: t('siteDescription'),
+  };
+}
+
+export default async function LangLayout({ children, params }: LangLayoutParams & { children: ReactNode }) {
+  // On applique la même méthode robuste ici.
+  const resolvedParams = await Promise.resolve(params);
+
+  const tHeader = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
 
-  // On définit l'objet JSON-LD pour le schéma du site web
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'No pasaran - The Wall of Shame',
-    url: 'https://www.nopasaran.ch', // URL principale de votre site
+    url: 'https://www.nopasaran.ch',
     publisher: {
       '@type': 'Organization',
-      name: 'Rebel Suisse', // Le nom de l'organisation qui publie
+      name: 'Rebel Suisse',
       logo: {
         '@type': 'ImageObject',
         url: 'https://www.nopasaran.ch/logo.png',
@@ -37,24 +51,19 @@ export default async function LangLayout({ children, params: paramsPromise }: { 
   };
 
   return (
-    // Le layout racine DOIT contenir les balises <html> et <body>
-    <html lang={params.lang}>
-      {/* C'est une bonne pratique de mettre les styles de fond sur le body */}
+    <html lang={resolvedParams.lang}>
       <body className="min-h-screen bg-gray-900 text-gray-200">
-
-        {/* On injecte le script JSON-LD juste après l'ouverture du body */}
+      
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         
-        {/* Votre structure existante est préservée */}
-        <Header lang={params.lang} t={t} />
-        {/* La balise <main> n'a plus besoin des classes de style, car elles sont sur <body> */}
+        <Header lang={resolvedParams.lang} t={tHeader} />
         <main>
           {children}
         </main>
-        <Footer lang={params.lang} />
+        <Footer lang={resolvedParams.lang} />
       </body>
     </html>
   );
