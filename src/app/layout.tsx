@@ -1,26 +1,18 @@
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import {NextIntlClientProvider} from 'next-intl';
+import { ReactNode } from "react";
+// On a seulement besoin de l'import des styles globaux ici
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
+// Les métadonnées ici serviront de fallback si une page n'en définit pas
 export const metadata: Metadata = {
   title: "No pasaran - The Wall of Shame",
   description: "Un registre des incidents liés à l'extrême droite en Suisse.",
 };
 
-// Ce layout est simple. Il ne reçoit que 'children'.
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html>
-      <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
-      </body>
-    </html>
-  );
+// Le layout racine ne fait plus qu'une seule chose : rendre ses enfants.
+// PAS de <html>, PAS de <body>, PAS de Provider.
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return children;
 }
