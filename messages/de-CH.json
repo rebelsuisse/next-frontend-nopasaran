@@ -21,6 +21,9 @@
      "manifesto": "Manifest",
      "credits": "Danksagung"
   },
+  "Metadata": {
+    "siteDescription": "Register der rechtsextremen Ausschreitungen in der Schweiz."
+  },
   "Placeholder": {
     "searchTitle": "Seite im Aufbau",
     "searchMessage": "Die Suchfunktion befindet sich in der Entwicklung und wird bald verfügbar sein. Vielen Dank für Ihre Geduld!"
