@@ -67,6 +67,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     author: {
       '@type': 'Organization',
       name: 'Rebel Suisse',
+      url: 'https://www.instagram.com/rebel_suisse/',
     },
     publisher: {
       '@type': 'Organization',
