@@ -41,15 +41,50 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
   const sujet = incident.sujet;
   const STRAPI_HOST = process.env.NEXT_PUBLIC_STRAPI_HOST;
 
+  const subjectName = sujet?.name || 'Sujet non spécifié';
+  let aboutObject;
+
+  // Votre règle : si le nom contient "SVP" ou "FDP" (PLR), c'est une organisation.
+  // On peut l'étendre facilement. On met en majuscules pour être insensible à la casse.
+  if (subjectName.toUpperCase().includes('SVP') || subjectName.toUpperCase().includes('UDC') || subjectName.toUpperCase().includes('PLR') || subjectName.toUpperCase().includes('FDP')) {
+    aboutObject = {
+      '@type': 'Organization',
+      name: subjectName,
+    };
+  } else {
+    aboutObject = {
+      '@type': 'Person',
+      name: subjectName,
+    };
+  }
+  
+  const imageUrls: string[] = [];
+
+  // Ajouter l'image du sujet en priorité si elle existe
+  if (sujet?.picture?.url) {
+    imageUrls.push(`${STRAPI_HOST}${sujet.picture.url}`);
+  }
+
+  // Ajouter les images de preuve (s'il y en a) à la suite
+  if (incident.evidence_image && incident.evidence_image.length > 0) {
+    incident.evidence_image.forEach(image => {
+      if (image?.url) {
+        imageUrls.push(`${STRAPI_HOST}${image.url}`);
+      }
+    });
+  }
+
  // CRÉER L'OBJET JSON-LD POUR LE SCHEMA.ORG
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: incident.title,
+    image: imageUrls,
     datePublished: incident.createdAt, // La date de création de l'entrée
     dateModified: incident.updatedAt,  // La date de la dernière modification
     author: {
       '@type': 'Organization',
+      url: 'https://www.instagram.com/rebel_suisse/',
       name: 'Rebel Suisse',
     },
     publisher: {
@@ -62,10 +97,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
     },
     description: incident.description.substring(0, 150), // Un court extrait de la description
     // Liez l'article au sujet principal
-    about: {
-      '@type': 'Person',
-      name: sujet?.name || 'Sujet non spécifié',
-    }
+    about: aboutObject,
   };
 
   const descriptionHtml = incident.description || '';
