@@ -13,7 +13,7 @@ interface LangLayoutProps {
 }
 
 export default async function LangLayout({ children, params }: LangLayoutProps) {
-  const resolvedParams = await params;
+  const resolvedParams = await Promise.resolve(params);
   const t = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
 
