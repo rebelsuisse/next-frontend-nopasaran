@@ -5,14 +5,14 @@ import Footer from "@/components/Footer";
 import { getTranslations } from 'next-intl/server';
 import { ReactNode } from "react";
 
-interface RootLayoutProps {
+interface LangLayoutProps {
   children: ReactNode;
   params: {
     lang: string;
   };
 }
 
-export default async function LangLayout({ children, params }: RootLayoutProps) {
+export default async function LangLayout({ children, params }: LangLayoutProps) {
   const resolvedParams = await params;
   const t = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
