@@ -1,41 +1,36 @@
 // src/app/sitemap.ts
 
 import { MetadataRoute } from 'next';
-import { getAllIncidentsForSitemap } from '@/lib/api';
+import { getIncidentsForSitemapByLocale } from '@/lib/api';
 
 // URL de base de votre site
 const BASE_URL = 'https://www.nopasaran.ch';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const languages = ['fr-CH', 'de-CH', 'it-CH', 'en'];
+  const languages = ['fr-CH', 'de-CH'];
 
-  // 1. Ajouter les pages statiques pour chaque langue
   const staticPages = languages.flatMap(lang => [
-    {
-      url: `${BASE_URL}/${lang}`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${BASE_URL}/${lang}/manifesto`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${BASE_URL}/${lang}/search`,
-      lastModified: new Date(),
-    },
+    { url: `${BASE_URL}/${lang}`, lastModified: new Date() },
+    { url: `${BASE_URL}/${lang}/manifesto`, lastModified: new Date() },
+    { url: `${BASE_URL}/${lang}/search`, lastModified: new Date() },
   ]);
 
-  // 2. Ajouter les pages dynamiques des incidents
-  const response = await getAllIncidentsForSitemap();
-  const incidents = response.data || [];
+  const promises = languages.map(lang => getIncidentsForSitemapByLocale(lang));
 
-  const incidentPages = incidents.flatMap(incident => 
-    languages.map(lang => ({
-      url: `${BASE_URL}/${lang}/the-wall-of-shame/${incident.slug}`,
-      lastModified: new Date(incident.updatedAt), // On utilise la date de mise à jour de l'incident
-    }))
-  );
+  // On attend que TOUS les appels API soient terminés en parallèle
+  const responsesByLocale = await Promise.all(promises);
+  
+  // On fusionne les résultats de tous les appels en une seule liste d'incidents
+  const allIncidents = responsesByLocale.flatMap(response => response.data || []);
 
-  // 3. Combiner les deux listes
+  // La logique pour transformer les incidents en URLs de sitemap est la même qu'avant
+  const incidentPages = allIncidents.map(incident => {
+    return {
+      url: `${BASE_URL}/${incident.locale}/the-wall-of-shame/${incident.slug}`,
+      lastModified: new Date(incident.updatedAt),
+    };
+  });
+
+  // On combine les pages statiques et dynamiques
   return [...staticPages, ...incidentPages];
 }
