@@ -4,10 +4,34 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getTranslations } from 'next-intl/server';
 import { ReactNode } from "react";
+import type { Metadata } from "next";
 
-export default async function LangLayout({ children, params }: { children: ReactNode; params: { lang: string } }) {
-  const resolvedParams = await Promise.resolve(params);
+// On définit une interface claire pour les props.
+interface LangLayoutParams {
+  children: ReactNode;
+  // ON DÉCLARE LA VÉRITÉ À TYPESCRIPT : params peut être l'un OU l'autre.
+  params: { lang: string } | Promise<{ lang: string }>;
+}
 
+// 1. generateMetadata : on utilise la même logique robuste
+export async function generateMetadata({ params }: LangLayoutParams): Promise<Metadata> {
+  // On attend la résolution, que ce soit une promesse ou non.
+  const resolvedParams = await params;
+  const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
+
+  return {
+    title: "No pasaran - The Wall of Shame",
+    description: t('siteDescription'),
+  };
+}
+
+// 2. Le layout : on utilise la même interface LangLayoutParams
+export default async function LangLayout({ children, params }: LangLayoutParams) {
+  
+  // ON ATTEND LA RÉSOLUTION. C'est la clé pour le runtime.
+  const resolvedParams = await params;
+
+  // Le reste de la logique est maintenant sûr et correct.
   const tHeader = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
 
