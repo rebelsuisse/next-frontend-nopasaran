@@ -165,3 +165,19 @@ export async function searchIncidents(
   
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
+
+export async function getAllIncidentsForSitemap() {
+  const queryObject = {
+    // On ne veut que les champs slug et updatedAt pour être ultra-rapide
+    fields: ['slug', 'updatedAt'],
+    // On récupère un grand nombre d'éléments pour être sûr de tout avoir
+    pagination: {
+      pageSize: 1000,
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+
+  // On utilise le endpoint de base car on veut toutes les langues
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+}
