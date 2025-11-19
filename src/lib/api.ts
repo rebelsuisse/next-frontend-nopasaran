@@ -169,7 +169,7 @@ export async function searchIncidents(
 export async function getAllIncidentsForSitemap() {
   const queryObject = {
     // On ne veut que les champs slug et updatedAt pour être ultra-rapide
-    fields: ['slug', 'updatedAt'],
+    fields: ['slug', 'updatedAt', 'locale'],
     // On récupère un grand nombre d'éléments pour être sûr de tout avoir
     pagination: {
       pageSize: 1000,
@@ -179,5 +179,21 @@ export async function getAllIncidentsForSitemap() {
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
 
   // On utilise le endpoint de base car on veut toutes les langues
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+}
+
+export async function getIncidentsForSitemapByLocale(locale: string) {
+  const queryObject = {
+    // On spécifie la langue demandée
+    locale: locale,
+    
+    fields: ['slug', 'updatedAt', 'locale'],
+    pagination: {
+      pageSize: 1000, 
+    },
+  };
+  
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+  
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
