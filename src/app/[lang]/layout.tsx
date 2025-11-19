@@ -6,19 +6,17 @@ import { getTranslations } from 'next-intl/server';
 import { ReactNode } from "react";
 import type { Metadata } from "next";
 
-// On définit une interface claire pour les props, qui sera utilisée partout
+// On définit une interface claire pour les props.
 interface LangLayoutParams {
+  children: ReactNode;
   params: {
     lang: string;
   };
 }
 
+// 1. generateMetadata: on attend les params
 export async function generateMetadata({ params }: LangLayoutParams): Promise<Metadata> {
-  // On "déballe" la promesse de manière sûre, même si ce n'est pas toujours une promesse.
-  // C'est la méthode la plus robuste.
-  const resolvedParams = await Promise.resolve(params);
-  
-  // On utilise la langue résolue pour récupérer les traductions.
+  const resolvedParams = await Promise.resolve(params); // Méthode robuste
   const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
 
   return {
@@ -27,10 +25,13 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   };
 }
 
-export default async function LangLayout({ children, params }: LangLayoutParams & { children: ReactNode }) {
-  // On applique la même méthode robuste ici.
-  const resolvedParams = await Promise.resolve(params);
+// 2. Le layout: on accepte un type plus large, puis on attend
+export default async function LangLayout({ children, params }: { children: ReactNode; params: { lang: string } | Promise<{ lang: string }> }) {
+  
+  // LA LIGNE CLÉ QUI RÉSOUD LE PROBLÈME DE RUNTIME
+  const resolvedParams = await params;
 
+  // Le reste de la logique est maintenant sûr
   const tHeader = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
 
@@ -53,7 +54,6 @@ export default async function LangLayout({ children, params }: LangLayoutParams 
   return (
     <html lang={resolvedParams.lang}>
       <body className="min-h-screen bg-gray-900 text-gray-200">
-      
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
