@@ -6,9 +6,36 @@ import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink, FaShareAlt } from 'react-ico
 import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 
 interface DetailPageProps {
-  params: any; 
+  params: {
+    slug: string;
+    lang: string;
+  }; 
+}
+
+export async function generateMetadata({ params }: DetailPageProps): Promise<Metadata> {
+  // On "déballe" la promesse pour obtenir l'objet params simple.
+  // C'est la méthode la plus sûre qui fonctionnera dans tous les cas.
+  const resolvedParams = await Promise.resolve(params);
+
+  // On utilise maintenant les paramètres résolus pour l'appel API
+  const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
+
+  if (!response.data || response.data.length === 0) {
+    return {
+      title: "Incident non trouvé | The Wall of Shame",
+    };
+  }
+
+  const incident = response.data[0];
+
+  return {
+    title: `${incident.title} | The Wall of Shame`,
+    description: incident.description.substring(0, 160),
+    openGraph: { /* ... votre configuration Open Graph ... */ },
+  };
 }
 
 async function getPageTranslations(locale: string) {
