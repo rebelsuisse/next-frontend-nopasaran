@@ -12,8 +12,10 @@ interface LangLayoutProps {
   };
 }
 
-export default async function LangLayout({ children, params }: LangLayoutProps) {
-  const resolvedParams = await Promise.resolve(params);
+export default async function LangLayout({ children, params: paramsPromise }: { children: ReactNode; params: Promise<LangLayoutProps['params']> }) {
+  // On attend la promesse pour obtenir l'objet params simple.
+  const params = await paramsPromise;
+
   const t = await getTranslations('Header');
   const tMetadata = await getTranslations('Metadata');
 
@@ -36,7 +38,7 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
 
   return (
     // Le layout racine DOIT contenir les balises <html> et <body>
-    <html lang={resolvedParams.lang}>
+    <html lang={params.lang}>
       {/* C'est une bonne pratique de mettre les styles de fond sur le body */}
       <body className="min-h-screen bg-gray-900 text-gray-200">
 
@@ -47,12 +49,12 @@ export default async function LangLayout({ children, params }: LangLayoutProps) 
         />
         
         {/* Votre structure existante est préservée */}
-        <Header lang={resolvedParams.lang} t={t} />
+        <Header lang={params.lang} t={t} />
         {/* La balise <main> n'a plus besoin des classes de style, car elles sont sur <body> */}
         <main>
           {children}
         </main>
-        <Footer lang={resolvedParams.lang} />
+        <Footer lang={params.lang} />
       </body>
     </html>
   );
