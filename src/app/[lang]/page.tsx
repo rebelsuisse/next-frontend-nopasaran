@@ -27,7 +27,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const currentPage = Number(resolvedSearchParams.page) || 1;
-  const pageSize = 10;
+  const pageSize = 20;
   const response = await getIncidents(resolvedParams.lang, currentPage, pageSize);
   const incidents = response.data;
   const meta = response.meta;
