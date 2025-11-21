@@ -43,5 +43,19 @@
     "shareText": "Pour un cordon sanitaire autour de l'extrême droite",
     "shareLabel": "Partager",
     "copiedLabel": "Copié !"
+  },
+  "ContactPage": {
+    "title": "Contactez-nous",
+    "description": "Envoyez un message à l'équipe de No Pasaran.",
+    "intro": "Vous avez une question, une suggestion ou vous voulez signaler un nouveau dérapage? Utilisez le formulaire ci-dessous. Si vous laissez votre email, nous essaierons de vous répondre.",
+    "backHome": "Retour à l'accueil",
+    "emailLabel": "Votre Email",
+    "emailPlaceholder": "exemple@email.com",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Écrivez votre message ici...",
+    "sendButton": "Envoyer le message",
+    "sending": "Envoi en cours...",
+    "successMessage": "Merci ! Votre message a bien été envoyé.",
+    "errorMessage": "Oups, une erreur est survenue. Veuillez réessayer."
   }
 }
