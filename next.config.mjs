@@ -4,59 +4,42 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
-const withMDX = createMDX({
-  // On laisse vide, géré par vos pages
-});
+const withMDX = createMDX({});
 
-// --- Définition de la CSP (Sécurité) ---
-// On l'écrit en une seule chaîne pour être sûr qu'elle ne provoque pas d'erreur de logique
+// CSP PROPRE (Sans localhost)
 const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https: https://api.nopasaran.ch http://localhost:1337;
+    img-src 'self' blob: data: https: https://api.nopasaran.ch;
     font-src 'self' data:;
     object-src 'none';
     base-uri 'self';
     form-action 'self' https://formspree.io;
     frame-ancestors 'none';
-    connect-src 'self' https://formspree.io https: https://api.nopasaran.ch http://localhost:1337;
-`.replace(/\s{2,}/g, ' ').trim(); // Enlève les sauts de ligne inutiles
+    connect-src 'self' https://formspree.io https: https://api.nopasaran.ch;
+`.replace(/\s{2,}/g, ' ').trim();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 1. On réactive les headers de sécurité
+  // Masque le fait que vous utilisez Next.js (Sécurité par obscurité)
+  poweredByHeader: false,
+
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: cspHeader,
-          },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'Content-Security-Policy', value: cspHeader },
         ],
       },
     ];
   },
 
-  // 2. On garde la config images qui fonctionne (sans le "new URL()" dynamique)
   images: {
     remotePatterns: [
       {
@@ -65,6 +48,7 @@ const nextConfig = {
         port: '',
         pathname: '/uploads/**',
       },
+      // On peut laisser localhost ici pour le dev local, ça ne sort pas dans les headers HTTP
       {
         protocol: 'http',
         hostname: 'localhost',
