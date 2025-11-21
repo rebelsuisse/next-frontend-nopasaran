@@ -43,5 +43,19 @@
     "shareText": "Für einen Schutzwall gegen die extreme Rechte",
     "shareLabel": "Teilen",
     "copiedLabel": "Kopiert!"
+  },
+  "ContactPage": {
+    "title": "Kontakt",
+    "description": "Senden Sie eine Nachricht an das No Pasaran-Team.",
+    "intro": "Haben Sie eine Frage, einen Vorschlag oder möchten Sie einen Vorfall melden? Nutzen Sie das untenstehende Formular. Wenn Sie Ihre E-Mail-Adresse hinterlassen, werden wir versuchen, Ihnen zu antworten.",
+    "backHome": "Zurück zur Startseite",
+    "emailLabel": "Ihre E-Mail",
+    "emailPlaceholder": "beispiel@email.com",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Schreiben Sie hier Ihre Nachricht...",
+    "sendButton": "Nachricht senden",
+    "sending": "Wird gesendet...",
+    "successMessage": "Danke! Ihre Nachricht wurde erfolgreich gesendet.",
+    "errorMessage": "Hoppla, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
   }
 }
