@@ -5,10 +5,39 @@ import SearchForm from '@/components/SearchForm';
 import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
 
 interface SearchPageProps {
   params: { lang: string };
   searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export async function generateMetadata({ params, searchParams }: SearchPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  
+  const page = Number(resolvedSearchParams.page) || 1;
+  const query = resolvedSearchParams.q ? `&q=${resolvedSearchParams.q}` : '';
+
+  // Construction de l'URL canonique
+  // Exemple: /fr-CH/search?page=2&q=udc
+  let canonicalUrl = `/${resolvedParams.lang}/search`;
+  
+  // On ajoute les params seulement s'ils sont pertinents pour l'indexation
+  if (page > 1) {
+    canonicalUrl += `?page=${page}`;
+    if (query) canonicalUrl += query;
+  } else if (query) {
+    // Page 1 mais avec recherche
+    canonicalUrl += `?q=${resolvedSearchParams.q}`; 
+  }
+
+  return {
+    title: `Recherche | No pasaran`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
 }
 
 async function getPageTranslations(locale: string) {
