@@ -5,10 +5,34 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import PaginationControls from '@/components/PaginationControls';
 import ShareButton from '@/components/ShareButton';
+import { Metadata } from 'next';
 
 interface HomePageProps {
   params: { lang: string };
   searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export async function generateMetadata({ params, searchParams }: HomePageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'HomePage' });
+  
+  // Logique de pagination pour l'URL Canonique
+  const page = Number(resolvedSearchParams.page) || 1;
+  
+  // Si on est page 1, l'URL canonique est propre (/fr-CH). 
+  // Sinon, on ajoute ?page=X (/fr-CH?page=2)
+  const canonicalUrl = page > 1 
+    ? `/${resolvedParams.lang}?page=${page}` 
+    : `/${resolvedParams.lang}`;
+
+  return {
+    title: "No pasaran - The Wall of Shame",
+    description: t('noIncidents'), // Ou une autre description
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
 }
 
 async function getPageTranslations(locale: string) {
