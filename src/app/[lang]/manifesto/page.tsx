@@ -8,6 +8,7 @@ import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
+import remarkGfm from 'remark-gfm';
 
 interface ManifestoPageProps {
   params: any;
@@ -54,6 +55,9 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     components: getCustomMDXComponents(),
     options: {
       parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+      },
     },
   });
 

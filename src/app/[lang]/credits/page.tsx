@@ -6,6 +6,7 @@ import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
+import remarkGfm from 'remark-gfm';
 
 interface CreditsPageProps {
   params: any;
@@ -40,6 +41,9 @@ export default async function CreditsPage({ params }: CreditsPageProps) {
     components: getCustomMDXComponents(), // On appelle la nouvelle fonction
     options: {
       parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+      },
     },
   });
 
