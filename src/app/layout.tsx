@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.nopasaran.ch'),
   title: "No pasaran - The Wall of Shame",
   description: "Un projet citoyen pour la transparence politique en Suisse.",
 };

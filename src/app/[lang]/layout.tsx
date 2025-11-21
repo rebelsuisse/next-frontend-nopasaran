@@ -22,6 +22,9 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   return {
     title: "No pasaran - The Wall of Shame",
     description: t('siteDescription'),
+    alternates: {
+      canonical: './', 
+    },
   };
 }
 
