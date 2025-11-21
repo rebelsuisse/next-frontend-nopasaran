@@ -45,7 +45,7 @@ export function getCustomMDXComponents(components: MDXComponents = {}): MDXCompo
       </li>
     ),
     strong: ({ children }) => (
-      <strong className="font-semibold text-white">{children}</strong>
+      <strong className="font-semibold">{children}</strong>
     ),
     a: ({ href, children }) => {
       const className = "text-blue-400 hover:underline";

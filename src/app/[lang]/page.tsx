@@ -42,7 +42,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
       <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-8">
         {/* Left side: Title and description */}
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             The Wall of Shame
           </h1>
           <p className="text-lg text-gray-400 mt-2">
@@ -73,7 +73,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
                 >
                   {/* Titre (prend toute la place disponible) */}
                   <div className="flex-grow mb-2 sm:mb-0">
-                    <p className="text-lg font-medium text-gray-100">{incident.title}</p>
+                    <p className="text-lg font-medium">{incident.title}</p>
                   </div>
                   
                   {/* Date (à droite, ne se réduit pas) */}
