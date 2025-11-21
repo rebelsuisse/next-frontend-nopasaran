@@ -88,7 +88,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
 
       <div className="container mx-auto p-8">
         <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 pb-4 border-b border-gray-700">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold">
             {frontmatter?.title || 'Manifesto'}
           </h1>
           <div className="flex-shrink-0">

@@ -13,7 +13,7 @@ interface LangLayoutParams {
   params: { lang: string } | Promise<{ lang: string }>;
 }
 
-// 1. generateMetadata : on utilise la même logique robuste
+// generateMetadata : on utilise la même logique robuste
 export async function generateMetadata({ params }: LangLayoutParams): Promise<Metadata> {
   // On attend la résolution, que ce soit une promesse ou non.
   const resolvedParams = await params;
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   };
 }
 
-// 2. Le layout : on utilise la même interface LangLayoutParams
+// Le layout : on utilise la même interface LangLayoutParams
 export default async function LangLayout({ children, params }: LangLayoutParams) {
   
   // ON ATTEND LA RÉSOLUTION. C'est la clé pour le runtime.
@@ -53,14 +53,19 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
 
   return (
     <html lang={resolvedParams.lang}>
-      <body className="min-h-screen bg-gray-900 text-gray-200">
+      {/*
+        By changing the body to a flex container with a column direction and
+        making the main content grow, the footer will be pushed to the bottom.
+      */}
+      <body className="flex flex-col min-h-screen">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         
         <Header lang={resolvedParams.lang} t={tHeader} />
-        <main>
+        {/* The 'flex-grow' class allows this element to take up any available space */}
+        <main className="flex-grow">
           {children}
         </main>
         <Footer lang={resolvedParams.lang} />

@@ -54,11 +54,11 @@ export default function SearchForm({ categories, cantons, initialValues, labels 
         // On utilise les props pour la valeur par défaut
         defaultValue={initialValues.query as string || ''}
         placeholder={labels.searchPlaceholder}
-        className="col-span-1 md:col-span-2 bg-gray-700 text-white rounded p-2"
+        className="col-span-1 md:col-span-2 bg-gray-700 rounded p-2"
       />
 
       {/* Selecteur d'année */}
-      <select name="year" defaultValue={initialValues.year as string || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="year" defaultValue={initialValues.year as string || ''} className="bg-gray-700 rounded p-2">
         <option value="">{labels.allYears}</option>
         {[...Array(10)].map((_, i) => {
           const year = new Date().getFullYear() - i;
@@ -67,20 +67,20 @@ export default function SearchForm({ categories, cantons, initialValues, labels 
       </select>
 
       {/* Sélecteur de catégorie */}
-      <select name="category" defaultValue={initialValues.category as string || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="category" defaultValue={initialValues.category as string || ''} className="bg-gray-700 rounded p-2">
         <option value="">{labels.allCategories}</option>
         {categories.map(cat => <option key={cat} value={cat} className="capitalize">{cat}</option>)}
       </select>
 
       {/* Sélecteur de canton */}
-      <select name="canton" defaultValue={initialValues.canton as string || ''} className="bg-gray-700 text-white rounded p-2">
+      <select name="canton" defaultValue={initialValues.canton as string || ''} className="bg-gray-700 rounded p-2">
         <option value="">{labels.allCantons}</option>
         {cantons.map(canton => <option key={canton} value={canton}>{canton}</option>)}
       </select>
 
       {/* Bouton de soumission */}
       <div className="md:col-span-4 flex justify-end gap-4">
-         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+         <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded">
           {labels.searchButton}
         </button>
       </div>

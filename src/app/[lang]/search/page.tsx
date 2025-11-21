@@ -57,7 +57,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold text-white mb-6">{searchTitle}</h1>
+      <h1 className="text-4xl font-bold mb-6">{searchTitle}</h1>
       
       {/* Le formulaire de recherche (Composant Client) */}
       <SearchForm 
@@ -97,7 +97,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-semibold text-white mt-2"> {/* J'ai augmenté la marge mt-1 à mt-2 */}
+                      <h3 className="text-xl font-semibold mt-2"> {/* J'ai augmenté la marge mt-1 à mt-2 */}
                         {incident.title}
                       </h3>
                     </div>
