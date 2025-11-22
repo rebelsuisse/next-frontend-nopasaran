@@ -1,6 +1,6 @@
 // src/app/[lang]/search/page.tsx
 
-import { searchIncidents } from '@/lib/api';
+import { searchIncidents, getCategoryStats } from '@/lib/api';
 import SearchForm from '@/components/SearchForm';
 import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
@@ -57,40 +57,40 @@ async function getPageTranslations(locale: string) {
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
   const resolvedParams = await params;
   const resolvedsearchParams = await searchParams;
-  // On utilise les params résolus
+  
   const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, searchButton } = await getPageTranslations(resolvedParams.lang);
 
   const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, searchButton};
 
   const currentPage = Number(resolvedsearchParams.page) || 1;
 
-  // On récupère les résultats en fonction des paramètres de l'URL
-  const response = await searchIncidents(resolvedParams.lang, {
-    year: resolvedsearchParams.year as string,
-    category: resolvedsearchParams.category as string,
-    canton: resolvedsearchParams.canton as string,
-    query: resolvedsearchParams.query as string,
-    page: currentPage,
-    pageSize: 10,
-  });
+  // Appel parallèle pour la performance
+  // On lance la recherche ET le calcul des catégories en même temps
+  const [response, categories] = await Promise.all([
+    searchIncidents(resolvedParams.lang, {
+      year: resolvedsearchParams.year as string,
+      category: resolvedsearchParams.category as string,
+      canton: resolvedsearchParams.canton as string,
+      query: resolvedsearchParams.query as string,
+      page: currentPage,
+      pageSize: 10,
+    }),
+    getCategoryStats(resolvedParams.lang) 
+  ]);
 
   const incidents = response.data;
   const meta = response.meta;
   const total = meta.pagination.total;
   const pageCount = meta.pagination.pageCount;
 
-  // On prépare les options pour les menus déroulants
-  // C'est mieux de les hardcoder si elles ne changent pas souvent, c'est plus performant
-  const categories = ["racism", "antisemitism", "sexism", "homophobia", "violence", "fraud", "transphobia", "islamophobia", "neonazism", "xenophobia", "conspiracism", "fascism", "validism", "traffic violation", "other offence", "lie", "other"];
   const cantons = ["CH", "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
 
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-4xl font-bold mb-6">{searchTitle}</h1>
       
-      {/* Le formulaire de recherche (Composant Client) */}
       <SearchForm 
-        categories={categories} 
+        categories={categories}
         cantons={cantons} 
         initialValues={resolvedsearchParams}
         labels={searchFormLabels}
