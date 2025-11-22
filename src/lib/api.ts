@@ -226,3 +226,39 @@ export async function getIncidentsForSitemapByLocale(locale: string) {
   
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
+
+export async function getCategoryStats(locale: string): Promise<string[]> {
+  // 1. On récupère TOUS les incidents, mais SEULEMENT le champ category
+  // Cela rend la requête très légère même s'il y a 1000 incidents
+  const queryObject = {
+    locale,
+    fields: ['category'], 
+    pagination: {
+      pageSize: 5000, // On met une limite haute pour être sûr de tout avoir
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+  
+  // On utilise fetchApi existant
+  const response = await fetchApi<StrapiApiCollectionResponse<{ category: string }>>(`the-wall-of-shames?${query}`);
+  
+  // 2. On compte les occurrences de chaque catégorie
+  const counts: Record<string, number> = {};
+
+  response.data.forEach((incident: any) => {
+    const cat = incident.category; 
+    
+    if (cat) {
+      counts[cat] = (counts[cat] || 0) + 1;
+    }
+  });
+
+  // 3. On transforme l'objet en tableau, on trie et on retourne les clés
+  // Exemple: { "racism": 10, "fraud": 2 } -> [ ["racism", 10], ["fraud", 2] ]
+  return Object.entries(counts)
+    // Tri par nombre décroissant (b - a)
+    .sort(([, countA], [, countB]) => countB - countA)
+    // On ne garde que le nom de la catégorie
+    .map(([category]) => category);
+}
