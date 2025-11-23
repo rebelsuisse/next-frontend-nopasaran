@@ -4,17 +4,20 @@ import qs from 'qs';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
-// Fonction de base pour gérer les appels fetch - VERSION SÉCURISÉE SANS TOKEN
-async function fetchApi<T>(query: string): Promise<T> {
-  // On définit les options de la requête fetch
-  const fetchOptions = {
+async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Promise<T> {
+  
+  const fetchOptions: RequestInit = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    // On garde votre stratégie de cache (revalidation)
-    next: { revalidate: 60 }
+    // Valeur par défaut (60s) SI rien n'est fourni dans customOptions
+    next: { revalidate: 60 },
+    
+    // On écrase les défauts avec les options personnalisées si elles existent
+    ...customOptions,
   };
+
 
   try {
     // On exécute la requête
@@ -203,7 +206,13 @@ export async function searchIncidents(
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   console.log("Search Query with Pagination:", `the-wall-of-shames?${query}`);
   
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(
+    `the-wall-of-shames?${query}`, 
+    { 
+      cache: 'no-store', // Dit à fetch de ne jamais stocker la réponse
+      next: { revalidate: 0 } // Force la revalidation immédiate
+    }
+  );
 }
 
 export async function getAllIncidentsForSitemap() {

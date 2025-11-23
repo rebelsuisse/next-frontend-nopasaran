@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 interface SearchPageProps {
   params: { lang: string };
   searchParams: { [key: string]: string | string[] | undefined };
