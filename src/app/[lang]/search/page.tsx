@@ -1,6 +1,6 @@
 // src/app/[lang]/search/page.tsx
 
-import { searchIncidents, getCategoryStats, getPartyStats } from '@/lib/api';
+import { searchIncidents, getCategoryStats, getPartyStats, getYearStats } from '@/lib/api';
 import SearchForm from '@/components/SearchForm';
 import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
@@ -71,7 +71,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   // 3. On ajoute getPartyStats dans le Promise.all
   // Cela permet de charger les incidents, les catégories et les partis en parallèle (rapide)
-  const [response, categories, partiesList] = await Promise.all([
+  const [response, categories, partiesList, years] = await Promise.all([
     searchIncidents(resolvedParams.lang, {
       year: getStringParam(resolvedsearchParams.year),
       category: getStringParam(resolvedsearchParams.category),
@@ -82,7 +82,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       pageSize: 10,
     }),
     getCategoryStats(resolvedParams.lang),
-    getPartyStats(resolvedParams.lang) // <--- NOUVEL APPEL
+    getPartyStats(resolvedParams.lang),
+    getYearStats(resolvedParams.lang)
   ]);
 
   // 4. On formate la liste dynamique pour l'affichage (Value + Label traduit)
@@ -105,7 +106,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <SearchForm 
         categories={categories} 
         cantons={cantons}
-        parties={formattedParties} // On passe la liste dynamique ici
+        parties={formattedParties}
+        years={years}
         initialValues={resolvedsearchParams}
         labels={searchFormLabels}
       />
