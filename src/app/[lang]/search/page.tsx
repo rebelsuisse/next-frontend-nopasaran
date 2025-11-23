@@ -126,9 +126,10 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                       <div className="flex justify-between text-sm text-gray-400">
                         <span>
                           {incident.sujet?.name}<br/>
-                          {tParties.has(incident.sujet?.affiliation) 
-                              ? tParties(incident.sujet?.affiliation) 
-                              : incident.sujet?.affiliation} - {incident.sujet?.canton}
+                          {/* On ajoute "|| ''" pour garantir à TypeScript que c'est une string */}
+                          {tParties.has(incident.sujet?.affiliation || '') 
+                            ? tParties(incident.sujet?.affiliation || '') 
+                            : incident.sujet?.affiliation} - {incident.sujet?.canton}
                         </span>
                         <span className="text-right">
                           {incident.category}<br/>
