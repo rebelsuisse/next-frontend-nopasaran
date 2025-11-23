@@ -119,7 +119,9 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
 
   const descriptionHtml = md.render(incident.description || '');
   const consequenceHtml = md.render(incident.consequence || '');
-  
+
+  const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
+
   return (
     <>
       <script
@@ -209,7 +211,11 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                 )}
                 <h3 className="text-2xl font-bold text-center text-gray-100">{sujet.name}</h3>
                 <p className="text-center text-gray-400 mb-1">{incident.subject_role}</p>
-                <p className="text-center text-sm text-gray-500">{sujet.affiliation} - {sujet.canton}</p>
+                <p className="text-center text-sm text-gray-500">
+                  {/* --- TRADUCTION ICI --- */}
+                    {tParties.has(sujet.affiliation) 
+                      ? tParties(sujet.affiliation) 
+                      : sujet.affiliation} - {sujet.canton}</p>
               </div>
               )}
             </aside>

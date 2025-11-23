@@ -36,6 +36,7 @@
     "allYears": "Alle Jahre",
     "allCategories": "Alle Kategorien",
     "allCantons": "Alle Kantone",
+    "allParties": "Alle Parteien",
     "searchButton": "Suchen"
   },
   "ManifestoPage": {
@@ -57,5 +58,26 @@
     "sending": "Wird gesendet...",
     "successMessage": "Danke! Ihre Nachricht wurde erfolgreich gesendet.",
     "errorMessage": "Hoppla, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  "Parties": {
+    "SVP": "SVP",
+    "FDP": "FDP",
+    "SP": "SP",
+    "Gruene": "Gruene",
+    "GLP": "GLP",
+    "Mitte": "Die Mitte",
+    "AutoP": "Auto Partei",
+    "JungeTat": "Junge Tat",
+    "EVP": "EVP",
+    "EDU": "EDU",
+    "Lega": "Lega",
+    "MCG": "MCG",
+    "MassVoll": "Mass-Voll",
+    "PCR": "PCR",
+    "Sol": "Sol",
+    "Pirat": "Pirat",
+    "PdA": "PdA",
+    "None": "Kein",
+    "Other": "Andere"
   }
 }

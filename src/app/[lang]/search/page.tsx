@@ -1,6 +1,6 @@
 // src/app/[lang]/search/page.tsx
 
-import { searchIncidents, getCategoryStats } from '@/lib/api';
+import { searchIncidents, getCategoryStats, getPartyStats } from '@/lib/api';
 import SearchForm from '@/components/SearchForm';
 import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
@@ -17,19 +17,17 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
   const resolvedSearchParams = await searchParams;
   
   const page = Number(resolvedSearchParams.page) || 1;
-  const query = resolvedSearchParams.q ? `&q=${resolvedSearchParams.q}` : '';
+  // CORRECTION : On utilise 'query' car c'est le nom du champ dans votre SearchForm
+  const q = resolvedSearchParams.query || resolvedSearchParams.q; 
+  const queryStr = q ? `&query=${q}` : '';
 
-  // Construction de l'URL canonique
-  // Exemple: /fr-CH/search?page=2&q=udc
   let canonicalUrl = `/${resolvedParams.lang}/search`;
   
-  // On ajoute les params seulement s'ils sont pertinents pour l'indexation
   if (page > 1) {
     canonicalUrl += `?page=${page}`;
-    if (query) canonicalUrl += query;
-  } else if (query) {
-    // Page 1 mais avec recherche
-    canonicalUrl += `?q=${resolvedSearchParams.q}`; 
+    if (queryStr) canonicalUrl += queryStr;
+  } else if (queryStr) {
+    canonicalUrl += `?query=${q}`; 
   }
 
   return {
@@ -50,33 +48,48 @@ async function getPageTranslations(locale: string) {
       allYears: t('allYears'),
       allCategories: t('allCategories'),
       allCantons: t('allCantons'),
+      allParties: t('allParties'),
       searchButton: t('searchButton'),
   };
 }
+
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
   const resolvedParams = await params;
   const resolvedsearchParams = await searchParams;
   
-  const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, searchButton } = await getPageTranslations(resolvedParams.lang);
-
-  const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, searchButton};
-
+  const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton } = await getPageTranslations(resolvedParams.lang);
+  const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
+  
+  const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton};
   const currentPage = Number(resolvedsearchParams.page) || 1;
 
-  // Appel parallèle pour la performance
-  // On lance la recherche ET le calcul des catégories en même temps
-  const [response, categories] = await Promise.all([
+  const getStringParam = (param: string | string[] | undefined): string | undefined => {
+    if (Array.isArray(param)) return param[0];
+    return param;
+  };
+
+  // 3. On ajoute getPartyStats dans le Promise.all
+  // Cela permet de charger les incidents, les catégories et les partis en parallèle (rapide)
+  const [response, categories, partiesList] = await Promise.all([
     searchIncidents(resolvedParams.lang, {
-      year: resolvedsearchParams.year as string,
-      category: resolvedsearchParams.category as string,
-      canton: resolvedsearchParams.canton as string,
-      query: resolvedsearchParams.query as string,
+      year: getStringParam(resolvedsearchParams.year),
+      category: getStringParam(resolvedsearchParams.category),
+      canton: getStringParam(resolvedsearchParams.canton),
+      query: getStringParam(resolvedsearchParams.query) || getStringParam(resolvedsearchParams.q),
+      affiliation: getStringParam(resolvedsearchParams.affiliation),
       page: currentPage,
       pageSize: 10,
     }),
-    getCategoryStats(resolvedParams.lang) 
+    getCategoryStats(resolvedParams.lang),
+    getPartyStats(resolvedParams.lang) // <--- NOUVEL APPEL
   ]);
+
+  // 4. On formate la liste dynamique pour l'affichage (Value + Label traduit)
+  const formattedParties = partiesList.map(partyKey => ({
+    value: partyKey,
+    label: tParties.has(partyKey) ? tParties(partyKey) : partyKey
+  }));
 
   const incidents = response.data;
   const meta = response.meta;
@@ -90,43 +103,39 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <h1 className="text-4xl font-bold mb-6">{searchTitle}</h1>
       
       <SearchForm 
-        categories={categories}
-        cantons={cantons} 
+        categories={categories} 
+        cantons={cantons}
+        parties={formattedParties} // On passe la liste dynamique ici
         initialValues={resolvedsearchParams}
         labels={searchFormLabels}
       />
-      {/* Affichage des résultats */}
+
       <div>
         <p className="text-gray-400 mb-4">{total} {searchFound}</p>
         
-        {/* Le conteneur extérieur a maintenant le fond et les coins arrondis */}
         <div className="bg-gray-800 rounded-lg shadow-lg">
           {incidents && incidents.length > 0 ? (
-            // On utilise une liste <ul> avec des séparateurs automatiques
             <ul className="divide-y divide-gray-700">
               {incidents.map(incident => (
-                // Chaque élément est un <li> pour une meilleure sémantique
                 <li key={incident.id}>
                   <Link
                     href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}
-                    // On rend tout le bloc cliquable
                     className="block" 
                   >
-                    {/* Le div intérieur n'a plus ni fond ni coins arrondis, juste du padding et un effet de survol */}
                     <div className="p-4 hover:bg-gray-700/50 transition-colors">
-
                       <div className="flex justify-between text-sm text-gray-400">
                         <span>
                           {incident.sujet?.name}<br/>
-                          {incident.sujet?.affiliation} - {incident.sujet?.canton}
+                          {tParties.has(incident.sujet?.affiliation) 
+                              ? tParties(incident.sujet?.affiliation) 
+                              : incident.sujet?.affiliation} - {incident.sujet?.canton}
                         </span>
                         <span className="text-right">
                           {incident.category}<br/>
                           {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
                         </span>
                       </div>
-
-                      <h3 className="text-xl font-semibold mt-2"> {/* J'ai augmenté la marge mt-1 à mt-2 */}
+                      <h3 className="text-xl font-semibold mt-2">
                         {incident.title}
                       </h3>
                     </div>
@@ -135,21 +144,18 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               ))}
             </ul>
           ) : (
-            // On garde le message pour l'absence de résultats, mais avec un padding
             <div className="p-10 text-center text-gray-500">
               <p>{searchNotFound}</p>
             </div>
           )}
         </div>
 
-        {/* Afficher les contrôles de pagination */}
         <div className="mt-8 flex justify-center">
           <PaginationControls
             currentPage={currentPage}
             pageCount={pageCount}
           />
         </div>
-
       </div>
     </div>
   );
