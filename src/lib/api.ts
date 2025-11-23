@@ -121,10 +121,11 @@ export async function getRandomIncident(locale: string = 'fr-CH') {
 export async function searchIncidents(
   locale: string,
   params: {
-    year?: string;
-    category?: string;
-    canton?: string;
-    query?: string;
+    year?: string;      // <--- ?
+    category?: string;  // <--- ?
+    canton?: string;    // <--- ?
+    query?: string;     // <--- ?
+    affiliation?: string; // <--- ?
     page?: number;
     pageSize?: number;
   }
@@ -170,6 +171,16 @@ export async function searchIncidents(
         { description: { $containsi: params.query } },
         { sujet: { name: { $containsi: params.query } } },
       ],
+    });
+  }
+
+ // Filtre par Parti (Affiliation)
+  // On suppose que c'est dans la relation 'sujet' -> champ 'affiliation'
+  if (params.affiliation) {
+    filters.$and.push({
+      sujet: {
+        affiliation: { $eq: params.affiliation },
+      },
     });
   }
 
@@ -261,4 +272,45 @@ export async function getCategoryStats(locale: string): Promise<string[]> {
     .sort(([, countA], [, countB]) => countB - countA)
     // On ne garde que le nom de la catégorie
     .map(([category]) => category);
+}
+
+export async function getPartyStats(locale: string): Promise<string[]> {
+  const queryObject = {
+    locale,
+    // On ne récupère que l'ID de l'incident pour être léger
+    fields: ['id'], 
+    // On doit "peupler" le sujet pour avoir son affiliation
+    populate: {
+      sujet: {
+        fields: ['affiliation'] // On ne veut que ce champ
+      }
+    },
+    pagination: {
+      pageSize: 5000, // On veut tout scanner
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+  
+  // On utilise 'any' ici pour simplifier le typage de la réponse imbriquée
+  const response = await fetchApi<StrapiApiCollectionResponse<any>>(`the-wall-of-shames?${query}`);
+  
+  const counts: Record<string, number> = {};
+
+  response.data.forEach((incident: any) => {
+    // L'affiliation se trouve dans l'objet sujet
+    // Attention à la structure Strapi : parfois c'est attributes.affiliation, parfois direct.
+    // Avec votre config actuelle, ça devrait être direct :
+    const affiliation = incident.sujet?.affiliation; 
+    
+    // On ne garde que si une affiliation est définie et n'est pas vide
+    if (affiliation && affiliation !== 'None') {
+      counts[affiliation] = (counts[affiliation] || 0) + 1;
+    }
+  });
+
+  // On trie par fréquence (les partis les plus cités en premier)
+  return Object.entries(counts)
+    .sort(([, countA], [, countB]) => countB - countA)
+    .map(([party]) => party);
 }
