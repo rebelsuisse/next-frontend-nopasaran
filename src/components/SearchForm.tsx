@@ -13,6 +13,7 @@ interface SearchFormProps {
   categories: string[];
   cantons: string[];
   parties: PartyOption[];
+  years: string[];
   initialValues: { [key: string]: string | string[] | undefined };
   labels: {
     searchPlaceholder: string;
@@ -24,7 +25,7 @@ interface SearchFormProps {
   };
 }
 
-export default function SearchForm({ categories, cantons, parties, initialValues, labels }: SearchFormProps) {
+export default function SearchForm({ categories, cantons, parties, years, initialValues, labels }: SearchFormProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -74,12 +75,17 @@ export default function SearchForm({ categories, cantons, parties, initialValues
       />
 
       {/* Selecteur d'année */}
-      <select name="year" defaultValue={getSafeValue('year')} className="bg-gray-700 rounded p-2 text-white">
+      <select 
+        name="year" 
+        defaultValue={getSafeValue('year')} 
+        className="bg-gray-700 rounded p-2 text-white"
+      >
         <option value="">{labels.allYears}</option>
-        {[...Array(10)].map((_, i) => {
-          const year = new Date().getFullYear() - i;
-          return <option key={year} value={year}>{year}</option>;
-        })}
+        
+        {/* On utilise la liste dynamique fournie par l'API */}
+        {years.map((year) => (
+          <option key={year} value={year}>{year}</option>
+        ))}
       </select>
 
       {/* Sélecteur de catégorie */}

@@ -314,3 +314,31 @@ export async function getPartyStats(locale: string): Promise<string[]> {
     .sort(([, countA], [, countB]) => countB - countA)
     .map(([party]) => party);
 }
+
+export async function getYearStats(locale: string): Promise<string[]> {
+  const queryObject = {
+    locale,
+    fields: ['incident_date'], // On ne récupère que la date
+    pagination: {
+      pageSize: 5000, // On veut tout scanner
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+  
+  // On récupère les données
+  const response = await fetchApi<StrapiApiCollectionResponse<{ incident_date: string }>>(`the-wall-of-shames?${query}`);
+  
+  // On extrait les années uniques
+  const yearsSet = new Set<string>();
+
+  response.data.forEach((incident: any) => {
+    if (incident.incident_date) {
+      const year = new Date(incident.incident_date).getFullYear().toString();
+      yearsSet.add(year);
+    }
+  });
+
+  // On convertit le Set en tableau et on trie du plus récent au plus ancien
+  return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+}
