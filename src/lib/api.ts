@@ -312,8 +312,7 @@ export async function getPartyStats(locale: string): Promise<string[]> {
     // Avec votre config actuelle, ça devrait être direct :
     const affiliation = incident.sujet?.affiliation; 
     
-    // On ne garde que si une affiliation est définie et n'est pas vide
-    if (affiliation && affiliation !== 'None') {
+    if (affiliation) { 
       counts[affiliation] = (counts[affiliation] || 0) + 1;
     }
   });
