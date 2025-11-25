@@ -17,6 +17,8 @@ export async function generateMetadata({ params, searchParams }: HomePageProps):
   const resolvedSearchParams = await searchParams;
   const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'HomePage' });
   
+  const tMeta = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
+
   // Logique de pagination pour l'URL Canonique
   const page = Number(resolvedSearchParams.page) || 1;
   
@@ -28,7 +30,7 @@ export async function generateMetadata({ params, searchParams }: HomePageProps):
 
   return {
     title: "No pasaran - The Wall of Shame",
-    description: t('noIncidents'), // Ou une autre description
+    description: tMeta('siteDescription'), 
     alternates: {
       canonical: canonicalUrl,
     },
