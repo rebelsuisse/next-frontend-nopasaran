@@ -24,7 +24,7 @@ export async function WebsiteSchema({ lang }: { lang: string }) {
       name: 'Rebel Suisse',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://www.nopasaran.ch/logo.png',
+        url: 'https://www.nopasaran.ch/icon.png',
       },
     },
     description: t('siteDescription'),
