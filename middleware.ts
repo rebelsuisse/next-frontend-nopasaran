@@ -47,6 +47,6 @@ export const config = {
     // - les assets Next.js (_next)
     // - les assets statiques (images, etc.)
     // - les fichiers de métadonnées (sitemap, robots, favicon, etc.)
-    '/((?!api|_next/static|_next/image|assets|favicon.ico|logo.png|sw.js|robots.txt|sitemap.xml).*)'
+    '/((?!api|_next|_vercel|.*\\..*).*)',
   ]
 };
