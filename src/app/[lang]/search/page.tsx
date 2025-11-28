@@ -115,7 +115,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       />
 
       <div>
-        <p className="text-gray-400 mb-4">{total} {searchFound}</p>
+        <p className="text-gray-300 mb-4">{total} {searchFound}</p>
         
         <div className="bg-gray-800 rounded-lg shadow-lg">
           {incidents && incidents.length > 0 ? (
@@ -127,7 +127,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                     className="block" 
                   >
                     <div className="p-4 hover:bg-gray-700/50 transition-colors">
-                      <div className="flex justify-between text-sm text-gray-400">
+                      <div className="flex justify-between text-sm text-gray-300">
                         <span>
                           {incident.sujet?.name}<br/>
                           {/* On ajoute "|| ''" pour garantir à TypeScript que c'est une string */}
@@ -149,7 +149,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               ))}
             </ul>
           ) : (
-            <div className="p-10 text-center text-gray-500">
+            <div className="p-10 text-center text-gray-400">
               <p>{searchNotFound}</p>
             </div>
           )}

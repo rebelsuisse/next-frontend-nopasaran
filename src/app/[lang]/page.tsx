@@ -71,7 +71,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             The Wall of Shame
           </h1>
-          <p className="text-lg text-gray-400 mt-2">
+          <p className="text-lg text-gray-300 mt-2">
             {title}
           </p>
         </div>
@@ -103,7 +103,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
                   </div>
                   
                   {/* Date (à droite, ne se réduit pas) */}
-                  <div className="flex-shrink-0 text-sm text-gray-400">
+                  <div className="flex-shrink-0 text-sm text-gray-300">
                     {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang, {
                       day: '2-digit',
                       month: 'short',
