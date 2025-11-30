@@ -63,7 +63,9 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
   const subjectName = sujet?.name || 'Sujet non spécifié';
   let aboutObject;
 
-  if (subjectName.toUpperCase().includes('SVP') || subjectName.toUpperCase().includes('UDC') || subjectName.toUpperCase().includes('PLR') || subjectName.toUpperCase().includes('FDP')) {
+  if (subjectName.toUpperCase().includes('SVP') || subjectName.toUpperCase().includes('UDC') ||
+      subjectName.toUpperCase().includes('PLR') || subjectName.toUpperCase().includes('FDP') ||
+      subjectName.toUpperCase().includes('LEGA') || subjectName.toUpperCase().includes('MOUVEMENT')) {
     aboutObject = {
       '@type': 'Organization',
       name: subjectName,
