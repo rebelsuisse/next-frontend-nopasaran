@@ -65,6 +65,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
 
   if (subjectName.toUpperCase().includes('SVP') || subjectName.toUpperCase().includes('UDC') ||
       subjectName.toUpperCase().includes('PLR') || subjectName.toUpperCase().includes('FDP') ||
+      subjectName.toUpperCase().includes('EGERKINGER') || subjectName.toUpperCase().includes('ASUN') ||
       subjectName.toUpperCase().includes('LEGA') || subjectName.toUpperCase().includes('MOUVEMENT')) {
     aboutObject = {
       '@type': 'Organization',
