@@ -34,19 +34,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Activer pour la page d'accueil (facultatif)
-    '/',
-
-    // Définir tous les chemins qui utiliseront le préfixe de langue
-    '/(de-CH|fr-CH|it-CH|en)/:path*',
-
-    // Activer un matcher pour exclure les fichiers importants.
-    // Cela empêche le middleware de s'exécuter sur les requêtes pour :
-    // - les routes API
-    // - les assets Next.js (_next)
-    // - les assets statiques (images, etc.)
-    // - les fichiers de métadonnées (sitemap, robots, favicon, etc.)
-    '/((?!api|_next|_vercel|.*\\..*).*)',
-  ]
+  // On ignore :
+  // - /api (routes API)
+  // - /_next (fichiers internes Next.js)
+  // - /_vercel (fichiers internes Vercel)
+  // - .*\\..* (Tous les fichiers qui ont un point, ex: robots.txt, sitemap.xml, favicon.ico)
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
 };
