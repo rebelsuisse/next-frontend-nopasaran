@@ -55,7 +55,7 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
   };
 
   return (
-    <html lang={resolvedParams.lang}>
+    <html lang={resolvedParams.lang} suppressHydrationWarning>
       {/*
         By changing the body to a flex container with a column direction and
         making the main content grow, the footer will be pushed to the bottom.
