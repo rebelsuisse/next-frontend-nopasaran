@@ -37,7 +37,8 @@
     "allCategories": "Alle Kategorien",
     "allCantons": "Alle Kantone",
     "allParties": "Alle Parteien",
-    "searchButton": "Suchen"
+    "searchButton": "Suchen",
+    "resetButton": "Zurücksetzen"
   },
   "ManifestoPage": {
     "shareTitle": "Entdecken Sie das Manifest von No pasarán",
