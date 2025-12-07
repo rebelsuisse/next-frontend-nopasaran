@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-// Suppression de useTranslations inutilisé ici
+import { useRef } from 'react';
 
 type PartyOption = {
   value: string;
@@ -22,12 +22,14 @@ interface SearchFormProps {
     allCantons: string;
     allParties: string;
     searchButton: string;
+    resetButton: string;
   };
 }
 
 export default function SearchForm({ categories, cantons, parties, years, initialValues, labels }: SearchFormProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Fonction utilitaire pour extraire une string propre pour les valeurs par défaut du formulaire
   const getSafeValue = (key: string): string => {
@@ -55,9 +57,29 @@ export default function SearchForm({ categories, cantons, parties, years, initia
     // On navigue
     router.replace(`${pathname}?${params.toString()}`);
   }
-  
+
+  function handleReset() {
+    // A. Nettoyage de l'URL (on recharge la page sans paramètres)
+    router.replace(pathname);
+
+    // B. Nettoyage visuel des champs du formulaire
+    if (formRef.current) {
+      formRef.current.reset(); // Remet les valeurs par défaut (qui sont celles de l'URL...)
+      
+      // Comme 'reset()' remet les defaultValue (qui contiennent la recherche actuelle),
+      // on doit forcer le vidage manuel des champs :
+      const inputs = formRef.current.querySelectorAll('input, select');
+      inputs.forEach((input) => {
+        if (input instanceof HTMLInputElement || input instanceof HTMLSelectElement) {
+          input.value = "";
+        }
+      });
+    }
+  }
+
   return (
       <form
+        ref={formRef}
         onSubmit={(e) => {
           e.preventDefault();
           handleSearch(new FormData(e.currentTarget));
@@ -114,9 +136,27 @@ export default function SearchForm({ categories, cantons, parties, years, initia
           ))}
         </select>
       
-      {/* Bouton de soumission */}
-      <div className="md:col-span-4 flex justify-end gap-4">
-         <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded text-white transition-colors">
+      {/* Boutons de soumission et reset */}
+      <div className="md:col-span-4 flex justify-end gap-4 pt-4 border-t border-gray-700 mt-4">
+         {/* Bouton Reset - Style Amélioré */}
+         <button 
+            type="button" 
+            onClick={handleReset}
+            // Changements :
+            // 1. font-bold : Pour avoir le même poids que le bouton de recherche
+            // 2. border-2 : Une bordure pour bien délimiter le bouton
+            // 3. text-gray-300 : Texte clair mais pas blanc pur (pour différencier du primaire)
+            // 4. hover : Effet d'éclaircissement au survol
+            className="border-2 border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white hover:bg-gray-700 font-bold py-2 px-6 rounded transition-all duration-200"
+         >
+          {labels.resetButton}
+        </button>
+
+         {/* Bouton Submit (Inchangé ou légèrement ajusté pour matcher) */}
+         <button 
+            type="submit" 
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition-colors shadow-lg shadow-blue-900/20"
+         >
           {labels.searchButton}
         </button>
       </div>

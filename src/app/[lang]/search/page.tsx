@@ -52,6 +52,7 @@ async function getPageTranslations(locale: string) {
       allCantons: t('allCantons'),
       allParties: t('allParties'),
       searchButton: t('searchButton'),
+      resetButton: t('resetButton'),
   };
 }
 
@@ -60,10 +61,10 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const resolvedParams = await params;
   const resolvedsearchParams = await searchParams;
   
-  const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton } = await getPageTranslations(resolvedParams.lang);
+  const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton, resetButton } = await getPageTranslations(resolvedParams.lang);
   const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
   
-  const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton};
+  const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton, resetButton};
   const currentPage = Number(resolvedsearchParams.page) || 1;
 
   const getStringParam = (param: string | string[] | undefined): string | undefined => {
