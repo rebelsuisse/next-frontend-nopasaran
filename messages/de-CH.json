@@ -85,5 +85,14 @@
     "AUNS": "AUNS",
     "None": "Kein",
     "Other": "Andere"
+  },
+  "NewsletterPage": {
+    "title": "Bleiben Sie informiert",
+    "description": "Erhalten Sie eine E-Mail, wenn mindestens 3 neue Vorfälle gemeldet wurden (maximal einmal pro Woche). Kein Spam, versprochen.",
+    "emailPlaceholder": "ihre@email.com",
+    "buttonLabel": "Abonnieren",
+    "successMessage": "Danke! Sie haben sich erfolgreich angemeldet.",
+    "errorMessage": "Hoppla, ein Fehler ist aufgetreten.",
+    "privacyNote": "Sie können sich jederzeit über den Link in der E-Mail abmelden."
   }
 }

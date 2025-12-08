@@ -85,5 +85,14 @@
     "AUNS": "ASIN",
     "None": "Aucun",
     "Other": "Autre"
+  },
+  "NewsletterPage": {
+    "title": "Restez informé",
+    "description": "Recevez un email lorsqu'il y a au moins 3 nouveaux incidents signalés (maximum une fois par semaine). Pas de spam, promis.",
+    "emailPlaceholder": "votre@email.com",
+    "buttonLabel": "S'abonner",
+    "successMessage": "Merci ! Vous êtes bien inscrit.",
+    "errorMessage": "Oups, une erreur est survenue.",
+    "privacyNote": "Vous pourrez vous désinscrire à tout moment via le lien dans l'email."
   }
 }
