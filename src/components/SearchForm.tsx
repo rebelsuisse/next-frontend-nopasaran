@@ -10,8 +10,8 @@ type PartyOption = {
 };
 
 interface SearchFormProps {
-  categories: string[];
-  cantons: string[];
+  categories: { value: string; label: string }[]; // C'est un tableau d'objets maintenant
+  cantons: { value: string; label: string }[];
   parties: PartyOption[];
   years: string[];
   initialValues: { [key: string]: string | string[] | undefined };
@@ -113,13 +113,23 @@ export default function SearchForm({ categories, cantons, parties, years, initia
       {/* Sélecteur de catégorie */}
       <select name="category" defaultValue={getSafeValue('category')} className="bg-gray-700 rounded p-2 text-white">
         <option value="">{labels.allCategories}</option>
-        {categories.map(cat => <option key={cat} value={cat} className="capitalize">{cat}</option>)}
+        {categories.map(cat => (
+          // On utilise .value et .label
+          <option key={cat.value} value={cat.value} className="capitalize">
+            {cat.label}
+          </option>
+        ))}
       </select>
 
       {/* Sélecteur de canton */}
       <select name="canton" defaultValue={getSafeValue('canton')} className="bg-gray-700 rounded p-2 text-white">
         <option value="">{labels.allCantons}</option>
-        {cantons.map(canton => <option key={canton} value={canton}>{canton}</option>)}
+        {cantons.map(c => (
+          // On utilise .value et .label
+          <option key={c.value} value={c.value}>
+            {c.label}
+          </option>
+        ))}
       </select>
 
       {/* Nouveau Select pour les Partis */}
