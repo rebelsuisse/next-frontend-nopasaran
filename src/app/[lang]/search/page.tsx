@@ -56,13 +56,18 @@ async function getPageTranslations(locale: string) {
   };
 }
 
+// Liste des cantons (abréviations)
+const CANTONS_LIST = ["CH", "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
   const resolvedParams = await params;
   const resolvedsearchParams = await searchParams;
   
   const { searchTitle, searchFound, searchNotFound, searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton, resetButton } = await getPageTranslations(resolvedParams.lang);
+  
+  // 1. CHARGEMENT DES TRADUCTEURS
   const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
+  const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
   
   const searchFormLabels = {searchPlaceholder, allYears, allCategories, allCantons, allParties, searchButton, resetButton};
   const currentPage = Number(resolvedsearchParams.page) || 1;
@@ -72,9 +77,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     return param;
   };
 
-  // 3. On ajoute getPartyStats dans le Promise.all
-  // Cela permet de charger les incidents, les catégories et les partis en parallèle (rapide)
-  const [response, categories, partiesList, years] = await Promise.all([
+  // 2. RÉCUPÉRATION DES DONNÉES API
+  // Note: j'ai renommé 'categories' en 'categoriesRaw' pour éviter la confusion
+  const [response, categoriesRaw, partiesList, years] = await Promise.all([
     searchIncidents(resolvedParams.lang, {
       year: getStringParam(resolvedsearchParams.year),
       category: getStringParam(resolvedsearchParams.category),
@@ -89,10 +94,24 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     getYearStats(resolvedParams.lang)
   ]);
 
-  // 4. On formate la liste dynamique pour l'affichage (Value + Label traduit)
+  // 3. FORMATAGE DES LISTES POUR LE FORMULAIRE (Objet {value, label})
+
+  // Formatage des Partis
   const formattedParties = partiesList.map(partyKey => ({
     value: partyKey,
     label: tParties.has(partyKey) ? tParties(partyKey) : partyKey
+  }));
+
+  // Formatage des Catégories (NOUVEAU)
+  const formattedCategories = categoriesRaw.map(catKey => ({
+    value: catKey,
+    label: tCats.has(catKey) ? tCats(catKey) : catKey
+  }));
+
+  // Formatage des Cantons (Pour uniformiser le type passé à SearchForm)
+  const formattedCantons = CANTONS_LIST.map(canton => ({
+    value: canton,
+    label: canton // On garde l'abréviation comme label
   }));
 
   const incidents = response.data;
@@ -100,15 +119,13 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   const total = meta.pagination.total;
   const pageCount = meta.pagination.pageCount;
 
-  const cantons = ["CH", "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
-
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-4xl font-bold mb-6">{searchTitle}</h1>
       
       <SearchForm 
-        categories={categories} 
-        cantons={cantons}
+        categories={formattedCategories} // On passe la liste d'objets traduits
+        cantons={formattedCantons}       // On passe la liste d'objets
         parties={formattedParties}
         years={years}
         initialValues={resolvedsearchParams}
@@ -131,13 +148,16 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                       <div className="flex justify-between text-sm text-gray-300">
                         <span>
                           {incident.sujet?.name}<br/>
-                          {/* On ajoute "|| ''" pour garantir à TypeScript que c'est une string */}
                           {tParties.has(incident.sujet?.affiliation || '') 
                             ? tParties(incident.sujet?.affiliation || '') 
                             : incident.sujet?.affiliation} - {incident.sujet?.canton}
                         </span>
                         <span className="text-right">
-                          {incident.category}<br/>
+                          {/* 4. AFFICHAGE TRADUIT DANS LES RÉSULTATS */}
+                          <span className="capitalize">
+                            {tCats.has(incident.category) ? tCats(incident.category) : incident.category}
+                          </span>
+                          <br/>
                           {new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
                         </span>
                       </div>

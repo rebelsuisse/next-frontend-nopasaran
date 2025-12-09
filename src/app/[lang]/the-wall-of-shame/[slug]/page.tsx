@@ -124,6 +124,8 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
   const consequenceHtml = md.render(incident.consequence || '');
 
   const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
+  const tLocs = await getTranslations({ locale: resolvedParams.lang, namespace: 'Locations' });
+  const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
 
   return (
     <>
@@ -147,11 +149,17 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                 </div>
                 <div className="flex items-center gap-2">
                   <FaTag />
-                  <span className="capitalize">{incident.category}</span>
+                  <span className="capitalize">
+                    {tCats.has(incident.category) ? tCats(incident.category) : incident.category}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FaMapMarkerAlt />
-                  <span>{incident.incident_location}</span>
+                  <span>
+                    {tLocs.has(incident.incident_location) 
+                      ? tLocs(incident.incident_location) 
+                      : incident.incident_location}
+                  </span>
                 </div>
                 <ShareButton
                   title={incident.title}
