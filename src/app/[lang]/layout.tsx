@@ -80,6 +80,13 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   };
 }
 
+export async function generateStaticParams() {
+  return [
+    { lang: 'fr-CH' },
+    { lang: 'de-CH' }
+  ];
+}
+
 export default async function LangLayout({ children, params }: LangLayoutParams) {
   const resolvedParams = await params;
   const tHeader = await getTranslations({ locale: resolvedParams.lang, namespace: 'Header' });
