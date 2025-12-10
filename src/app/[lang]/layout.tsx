@@ -1,42 +1,89 @@
 // src/app/[lang]/layout.tsx
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { getTranslations } from 'next-intl/server';
 import { ReactNode } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from 'next-intl/server';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+// 1. On déplace l'import CSS ici
+import "../globals.css"; 
 
-// On définit une interface claire pour les props.
 interface LangLayoutParams {
   children: ReactNode;
-  // ON DÉCLARE LA VÉRITÉ À TYPESCRIPT : params peut être l'un OU l'autre.
-  params: { lang: string } | Promise<{ lang: string }>;
+  params: Promise<{ lang: string }>;
 }
 
-// generateMetadata : on utilise la même logique robuste
 export async function generateMetadata({ params }: LangLayoutParams): Promise<Metadata> {
-  // On attend la résolution, que ce soit une promesse ou non.
   const resolvedParams = await params;
   const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
 
   return {
-    title: "No pasaran - The Wall of Shame",
+    // 2. On intègre les métadonnées qui étaient dans le fichier racine
+    metadataBase: new URL('https://www.nopasaran.ch'),
+    title: {
+      default: "No pasaran - The Wall of Shame",
+      template: "%s"
+    },
     description: t('siteDescription'),
-    alternates: {
-      canonical: './', 
+    
+    // Configuration Robots
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Validation Google Search Console
+    verification: {
+      google: 'zWLhyW2CSI08YzaprTyP9XfgOvClqBLNcT_Abj6JpuM', // Votre code
+    },
+
+    // Open Graph
+    openGraph: {
+      title: 'No pasaran - The Wall of Shame',
+      description: 'Record of far-right extremist incidents in Switzerland',
+      url: 'https://www.nopasaran.ch',
+      siteName: 'No pasaran',
+      images: [
+        {
+          url: 'https://www.nopasaran.ch/icon.png',
+          width: 1200,
+          height: 630,
+          alt: 'Logo No pasaran',
+        },
+      ],
+      type: 'website',
+    },
+
+    // Twitter
+    twitter: {
+      card: 'summary_large_image',
+      title: 'No pasaran - The Wall of Shame',
+      description: 'Record of far-right extremist incidents in Switzerland',
+      images: ['https://www.nopasaran.ch/icon.png'],
+    },
+
+    // Icônes
+    icons: {
+      icon: '/icon.png',
+      shortcut: '/favicon.ico',
+      apple: '/icon.png',
     },
   };
 }
 
-// Le layout : on utilise la même interface LangLayoutParams
 export default async function LangLayout({ children, params }: LangLayoutParams) {
-  
-  // ON ATTEND LA RÉSOLUTION. C'est la clé pour le runtime.
   const resolvedParams = await params;
-
-  // Le reste de la logique est maintenant sûr et correct.
-  const tHeader = await getTranslations('Header');
-  const tMetadata = await getTranslations('Metadata');
+  const tHeader = await getTranslations({ locale: resolvedParams.lang, namespace: 'Header' });
+  const tMetadata = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
 
   const websiteJsonLd = {
     '@context': 'https://schema.org',
@@ -56,10 +103,6 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
 
   return (
     <html lang={resolvedParams.lang} suppressHydrationWarning>
-      {/*
-        By changing the body to a flex container with a column direction and
-        making the main content grow, the footer will be pushed to the bottom.
-      */}
       <body className="flex flex-col min-h-screen">
         <script
           type="application/ld+json"
@@ -67,7 +110,6 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
         />
         
         <Header lang={resolvedParams.lang} t={tHeader} />
-        {/* The 'flex-grow' class allows this element to take up any available space */}
         <main className="flex-grow">
           {children}
         </main>
