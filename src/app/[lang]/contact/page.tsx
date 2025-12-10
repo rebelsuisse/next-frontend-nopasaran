@@ -15,6 +15,9 @@ export async function generateMetadata({ params }: ContactPageProps) {
   return {
     title: t('title'),
     description: t('description'),
+    alternates: {
+      canonical: `/${resolvedParams.lang}/contact`,
+    },
   };
 }
 
