@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from 'next-intl/server';
+import { Analytics } from "@vercel/analytics/react"; 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 // 1. On déplace l'import CSS ici
@@ -121,6 +122,7 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
           {children}
         </main>
         <Footer lang={resolvedParams.lang} />
+        <Analytics /> 
       </body>
     </html>
   );
