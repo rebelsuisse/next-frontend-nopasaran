@@ -8,6 +8,7 @@ import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import MarkdownIt from 'markdown-it';
+import InstagramButton from '@/components/InstagramButton';
 
 interface DetailPageProps {
   params: {
@@ -165,6 +166,13 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                   title={incident.title}
                   text={`No pasarán: ${incident.title}`}
                   labels={{ share: shareLabel, copied: copiedLabel }}
+                />
+                <InstagramButton 
+                  title={incident.title}
+                  category={tCats.has(incident.category) ? tCats(incident.category) : incident.category}
+                  date={new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
+                  // On passe l'URL de l'image principale si elle existe
+                  imageUrl={incident.sujet?.picture?.url ? `${STRAPI_HOST}${incident.sujet.picture.url}` : undefined}
                 />
               </div>
 
