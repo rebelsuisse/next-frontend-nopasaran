@@ -261,9 +261,12 @@ export async function getCategoryStats(locale: string): Promise<string[]> {
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   
   // On utilise fetchApi existant
-  const response = await fetchApi<StrapiApiCollectionResponse<{ category: string }>>(`the-wall-of-shames?${query}`);
+  const response = await fetchApi<StrapiApiCollectionResponse<{ category: string }>>(
+    `the-wall-of-shames?${query}`,
+    { cache: 'no-store', next: { revalidate: 0 } }
+  );
   
-  // 2. On compte les occurrences de chaque catégorie
+  // On compte les occurrences de chaque catégorie
   const counts: Record<string, number> = {};
 
   response.data.forEach((incident: any) => {
@@ -274,7 +277,7 @@ export async function getCategoryStats(locale: string): Promise<string[]> {
     }
   });
 
-  // 3. On transforme l'objet en tableau, on trie et on retourne les clés
+  // On transforme l'objet en tableau, on trie et on retourne les clés
   // Exemple: { "racism": 10, "fraud": 2 } -> [ ["racism", 10], ["fraud", 2] ]
   return Object.entries(counts)
     // Tri par nombre décroissant (b - a)
@@ -302,7 +305,10 @@ export async function getPartyStats(locale: string): Promise<string[]> {
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   
   // On utilise 'any' ici pour simplifier le typage de la réponse imbriquée
-  const response = await fetchApi<StrapiApiCollectionResponse<any>>(`the-wall-of-shames?${query}`);
+  const response = await fetchApi<StrapiApiCollectionResponse<any>>(
+    `the-wall-of-shames?${query}`,
+    { cache: 'no-store', next: { revalidate: 0 } }
+  );
   
   const counts: Record<string, number> = {};
 
@@ -335,7 +341,10 @@ export async function getYearStats(locale: string): Promise<string[]> {
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   
   // On récupère les données
-  const response = await fetchApi<StrapiApiCollectionResponse<{ incident_date: string }>>(`the-wall-of-shames?${query}`);
+  const response = await fetchApi<StrapiApiCollectionResponse<{ incident_date: string }>>(
+    `the-wall-of-shames?${query}`,
+    { cache: 'no-store', next: { revalidate: 0 } }
+  );
   
   // On extrait les années uniques
   const yearsSet = new Set<string>();
