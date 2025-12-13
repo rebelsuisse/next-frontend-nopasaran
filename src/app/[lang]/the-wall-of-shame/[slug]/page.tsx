@@ -169,6 +169,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                 />
                 <InstagramButton 
                   title={incident.title}
+                  subjectName={sujet?.name || ''} 
                   category={tCats.has(incident.category) ? tCats(incident.category) : incident.category}
                   date={new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
                   // On passe l'URL de l'image principale si elle existe
