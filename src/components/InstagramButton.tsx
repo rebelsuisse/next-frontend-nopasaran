@@ -6,7 +6,7 @@ import { FaInstagram } from 'react-icons/fa';
 
 interface InstagramButtonProps {
   title: string;
-  subjectName: string; // <--- NOUVELLE PROP
+  subjectName: string;
   category: string;
   date: string;
   imageUrl?: string;
@@ -59,35 +59,31 @@ export default function InstagramButton({ title, subjectName, category, date, im
           className="w-[1080px] h-[1920px] bg-gray-900 text-white flex flex-col items-center relative"
           style={{ background: 'linear-gradient(135deg, #111827 0%, #374151 100%)' }}
         >
-          {/* 1. Header (Catégorie + Date) */}
-          <div className="mt-48 flex flex-col items-center gap-4">
-             <div className="flex gap-4">
-                <span className="bg-red-600 text-white px-8 py-4 rounded-xl text-4xl font-bold uppercase tracking-wider shadow-lg">
+          {/* 1. Header */}
+          <div className="mt-40 flex flex-col items-center gap-4">
+             <div className="flex gap-6">
+                <span className="bg-red-600 text-white px-8 py-3 rounded-xl text-3xl font-bold uppercase tracking-wider shadow-lg border border-red-500">
                   {category}
                 </span>
-                <span className="bg-white/20 text-gray-200 px-8 py-4 rounded-xl text-4xl font-medium shadow-lg">
+                <span className="bg-white/20 text-gray-200 px-8 py-3 rounded-xl text-3xl font-medium shadow-lg backdrop-blur-sm">
                   {date}
                 </span>
              </div>
           </div>
 
           {/* 2. SUJET ET TITRE */}
-          <div className="px-24 mt-16 mb-12 w-full text-center">
-            
-            {/* NOUVEAU : Le Nom du Sujet */}
-            <p className="text-5xl font-bold text-gray-400 uppercase tracking-widest mb-6 drop-shadow-md">
+          <div className="px-24 mt-16 mb-10 w-full text-center">
+            <p className="text-4xl font-bold text-gray-400 uppercase tracking-widest mb-6 drop-shadow-md">
               {subjectName}
             </p>
-
-            {/* Le Titre de l'incident */}
-            <h1 className="text-6xl font-black leading-snug text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-200 drop-shadow-sm">
+            <h1 className="text-6xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 drop-shadow-lg">
               {title}
             </h1>
           </div>
 
-          {/* 3. Image de l'incident */}
+          {/* 3. Image (Taille augmentée à 720px grâce au gain de place) */}
           {imageUrl && (
-            <div className="w-[750px] h-[750px] relative rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-gray-600">
+            <div className="w-[720px] h-[720px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={imageUrl} 
@@ -98,25 +94,34 @@ export default function InstagramButton({ title, subjectName, category, date, im
             </div>
           )}
 
-          {/* 4. Footer */}
-          <div className="absolute bottom-52 flex flex-col items-center gap-8">
-            <div className="w-32 h-32 bg-white rounded-full p-2 shadow-xl flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/icon.png" alt="Logo" className="w-full h-full object-contain" />
-            </div>
+          {/* 4. FOOTER COMPACT (Ligne horizontale) */}
+          <div className="absolute bottom-32 flex flex-col items-center gap-8">
+            
+            {/* Conteneur Ligne : Logo + Texte */}
+            <div className="flex items-center gap-6 bg-white/5 px-8 py-4 rounded-full border border-white/10 backdrop-blur-sm">
+                
+                {/* Logo Rond */}
+                <div className="w-24 h-24 bg-white rounded-full p-2 shadow-xl flex-shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/icon.png" alt="Logo" className="w-full h-full object-contain" />
+                </div>
 
-            <div className="text-center">
-                <p className="text-6xl font-bold tracking-tighter text-white mb-3 drop-shadow-md">
-                    nopasaran.ch
-                </p>
-                <p className="text-4xl text-gray-400 font-light tracking-wide">
-                    The Wall of Shame
-                </p>
+                {/* Textes alignés à gauche */}
+                <div className="text-left flex flex-col justify-center">
+                    <p className="text-5xl font-bold tracking-tighter text-white mb-1 drop-shadow-md leading-none">
+                        nopasaran.ch
+                    </p>
+                    <p className="text-2xl text-gray-400 font-light tracking-wide uppercase leading-none">
+                        The Wall of Shame
+                    </p>
+                </div>
             </div>
             
-            <div className="mt-6 bg-white/10 px-8 py-4 rounded-full border border-white/20">
-                <p className="text-2xl text-white">🔗 Lien en bio / sticker</p>
+            {/* Sticker (Toujours en dessous pour inciter au clic) */}
+            <div className="bg-red-600/90 text-white px-8 py-3 rounded-full text-2xl font-bold shadow-lg">
+                🔗 Lien en bio / Sticker
             </div>
+
           </div>
 
         </div>
