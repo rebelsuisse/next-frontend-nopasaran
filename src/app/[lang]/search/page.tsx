@@ -154,7 +154,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                         </span>
                         <span className="text-right">
                           {/* 4. AFFICHAGE TRADUIT DANS LES RÉSULTATS */}
-                          <span className="capitalize">
+                          <span>
                             {tCats.has(incident.category) ? tCats(incident.category) : incident.category}
                           </span>
                           <br/>
