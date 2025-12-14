@@ -115,7 +115,7 @@ export default function SearchForm({ categories, cantons, parties, years, initia
         <option value="">{labels.allCategories}</option>
         {categories.map(cat => (
           // On utilise .value et .label
-          <option key={cat.value} value={cat.value} className="capitalize">
+          <option key={cat.value} value={cat.value}>
             {cat.label}
           </option>
         ))}

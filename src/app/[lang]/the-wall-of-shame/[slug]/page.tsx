@@ -150,7 +150,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                 </div>
                 <div className="flex items-center gap-2">
                   <FaTag />
-                  <span className="capitalize">
+                  <span>
                     {tCats.has(incident.category) ? tCats(incident.category) : incident.category}
                   </span>
                 </div>
