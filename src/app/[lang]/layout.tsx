@@ -6,7 +6,6 @@ import { getTranslations } from 'next-intl/server';
 import { Analytics } from "@vercel/analytics/react"; 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-// 1. On déplace l'import CSS ici
 import "../globals.css"; 
 
 interface LangLayoutParams {
@@ -19,7 +18,6 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   const t = await getTranslations({ locale: resolvedParams.lang, namespace: 'Metadata' });
 
   return {
-    // 2. On intègre les métadonnées qui étaient dans le fichier racine
     metadataBase: new URL('https://www.nopasaran.ch'),
     title: {
       default: "No pasaran - The Wall of Shame",
@@ -44,7 +42,7 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
 
     // Validation Google Search Console
     verification: {
-      google: 'zWLhyW2CSI08YzaprTyP9XfgOvClqBLNcT_Abj6JpuM', // Votre code
+      google: 'zWLhyW2CSI08YzaprTyP9XfgOvClqBLNcT_Abj6JpuM',
     },
 
     // Open Graph
@@ -77,6 +75,20 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
       icon: '/icon.png',
       shortcut: '/favicon.ico',
       apple: '/icon.png',
+    },
+
+    alternates: {
+      // Points to the current page language version
+      canonical: `/${resolvedParams.lang}`,
+
+      // Tells Google about other versions and the default fallback
+      languages: {
+        'fr-CH': '/fr-CH',
+        'de-CH': '/de-CH',
+        // Critical: tells Google that /fr-CH is the default for generic users
+        // This fixes the "Duplicate page" error for the root URL
+        'x-default': '/fr-CH', 
+      },
     },
   };
 }
