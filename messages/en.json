@@ -1,18 +1,146 @@
 {
   "HomePage": {
-    "title": "The Latest Incidents",
-    "noIncidents": "No incidents to display at the moment."
+    "title": "Registry of far-right extremist incidents in Switzerland.",
+    "noIncidents": "No incidents to display at the moment.",
+    "shareTitle": "No pasarán, The Wall of Shame",
+    "shareText": "Registry of far-right extremist incidents in Switzerland",
+    "shareLabel": "Share",
+    "copiedLabel": "Copied!"
   },
   "IncidentPage": {
     "involvedSubject": "Subject Involved",
-    "descriptionTitle": "Description of the Facts",
+    "descriptionTitle": "Description of events",
     "consequencesTitle": "Consequences",
     "evidenceTitle": "Evidence",
-    "sourcesTitle": "Sources"
+    "sourcesTitle": "Sources",
+    "shareLabel": "Share",
+    "copiedLabel": "Copied!"
   },
   "Header": {
-    "search": "Search",
-    "manifesto": "Manifesto",
-    "credits": "Credits"
+     "search": "Search",
+     "manifesto": "Manifesto",
+     "credits": "Credits"
+  },
+  "Metadata": {
+    "siteDescription": "Registry of far-right extremist incidents in Switzerland."
+  },
+  "Placeholder": {
+    "searchTitle": "Page Under Construction",
+    "searchMessage": "The search functionality is currently under development and will be available soon. Thank you for your patience!"
+  },
+  "SearchPage": {
+    "searchTitle": "Search parameters",
+    "searchFound": "result(s) found",
+    "searchNotFound": "No incident matches your search.",
+    "searchPlaceholder": "Search by name or keyword...",
+    "allYears": "All years",
+    "allCategories": "All categories",
+    "allCantons": "All cantons",
+    "allParties": "All affiliations", 
+    "searchButton": "Search",
+    "resetButton": "Reset"
+  },
+  "ManifestoPage": {
+    "shareTitle": "Discover the No pasarán manifesto",
+    "shareText": "For a cordon sanitaire against the far right",
+    "shareLabel": "Share",
+    "copiedLabel": "Copied!"
+  },
+  "ContactPage": {
+    "title": "Contact us",
+    "description": "Send a message to the No Pasaran team.",
+    "intro": "Do you have a question, a suggestion, or want to report a new incident? Use the form below. If you leave your email, we will try to get back to you.",
+    "backHome": "Back to home",
+    "emailLabel": "Your Email",
+    "emailPlaceholder": "example@email.com",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Write your message here...",
+    "sendButton": "Send message",
+    "sending": "Sending...",
+    "successMessage": "Thank you! Your message has been sent successfully.",
+    "errorMessage": "Oops, something went wrong. Please try again."
+  },
+  "Parties": {
+    "SVP": "SVP (Swiss People's Party)",
+    "FDP": "FDP (The Liberals)",
+    "SP": "SP (Social Democrats)",
+    "Gruene": "The Greens",
+    "GLP": "Green Liberals",
+    "Mitte": "The Centre",
+    "AutoP": "Car Party",
+    "JungeTat": "Junge Tat",
+    "EVP": "EPP (Evangelical People's Party)",
+    "EDU": "EDU (Federal Democratic Union)",
+    "Lega": "Lega dei Ticinesi",
+    "MCG": "MCG",
+    "MassVoll": "Mass-Voll",
+    "PCR": "PCR",
+    "Sol": "solidaritéS",
+    "Pirat": "Pirate Party",
+    "PdA": "Swiss Party of Labour",
+    "PNOS": "PNOS",
+    "Résistance Helvétique": "Résistance Helvétique",
+    "RRP": "RRP",
+    "Egerkinger Komitee": "Egerkingen Committee",
+    "AUNS": "AUNS",
+    "None": "None / Independent",
+    "Other": "Other"
+  },
+  "NewsletterPage": {
+    "title": "Stay informed",
+    "description": "Receive an email when at least 3 new incidents are reported (maximum once a week). No spam, promised.",
+    "emailPlaceholder": "your@email.com",
+    "buttonLabel": "Subscribe",
+    "successMessage": "Thank you! You have successfully subscribed.",
+    "errorMessage": "Oops, an error occurred.",
+    "privacyNote": "You can unsubscribe at any time via the link in the email."
+  },
+  "Categories": {
+    "racism": "Racism",
+    "antisemitism": "Antisemitism",
+    "holocaust denial": "Holocaust denial",
+    "sexism": "Sexism",
+    "homophobia": "Homophobia",
+    "violence": "Violence / Threats",
+    "fraud": "Fraud",
+    "corruption": "Corruption",
+    "transphobia": "Transphobia",
+    "islamophobia": "Islamophobia",
+    "neonazism": "Neo-Nazism",
+    "xenophobia": "Xenophobia",
+    "conspiracism": "Conspiracy theories",
+    "climate denial": "Climate change denial",
+    "science denialism": "Science denialism",
+    "authoritarianism": "Authoritarianism",
+    "fascism": "Fascism",
+    "colonialism": "Colonialism",
+    "validism": "Ableism",
+    "social stigmatization": "Social stigmatization",
+    "traffic violation": "Traffic violation",
+    "other offence": "Other offence",
+    "slander": "Slander",
+    "defamation": "Defamation",
+    "insult": "Insult",
+    "populism": "Populism",
+    "lie": "Lie",
+    "other": "Other"
+  },
+  "Locations": {
+    "Facebook": "Facebook",
+    "Twitter_X": "X (Twitter)",
+    "Instagram": "Instagram",
+    "TikTok": "TikTok",
+    "WhatsApp": "WhatsApp",
+    "Telegram": "Telegram",
+    "YouTube": "YouTube",
+    "OtherInternet": "Other on Internet",
+    "Parliament": "Parliament",
+    "Television": "Television",
+    "Newspaper": "Newspaper / Press",
+    "OtherMedia": "Other media",
+    "Campaign": "Political campaign",
+    "Statement": "Statement / Press release",
+    "Public": "Public space",
+    "Other": "Other"
   }
 }
