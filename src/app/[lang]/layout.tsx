@@ -85,6 +85,8 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
       languages: {
         'fr-CH': '/fr-CH',
         'de-CH': '/de-CH',
+        'it-CH': '/it-CH',
+        'en': '/en',
         // Critical: tells Google that /fr-CH is the default for generic users
         // This fixes the "Duplicate page" error for the root URL
         'x-default': '/fr-CH', 
@@ -96,7 +98,9 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
 export async function generateStaticParams() {
   return [
     { lang: 'fr-CH' },
-    { lang: 'de-CH' }
+    { lang: 'de-CH' },
+    { lang: 'it-CH' },
+    { lang: 'en' }
   ];
 }
 

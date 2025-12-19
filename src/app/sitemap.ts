@@ -7,7 +7,7 @@ import { getIncidentsForSitemapByLocale } from '@/lib/api';
 const BASE_URL = 'https://www.nopasaran.ch';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const languages = ['fr-CH', 'de-CH'];
+  const languages = ['fr-CH', 'de-CH', 'it-CH', 'en'];
 
   const staticPages = languages.flatMap(lang => [
     { url: `${BASE_URL}/${lang}`, lastModified: new Date() },
