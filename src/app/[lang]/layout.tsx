@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
   return {
     metadataBase: new URL('https://www.nopasaran.ch'),
     title: {
-      default: "No pasaran - The Wall of Shame",
+      default: "No pasarán - The Wall of Shame",
       template: "%s"
     },
     description: t('siteDescription'),
@@ -47,16 +47,16 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
 
     // Open Graph
     openGraph: {
-      title: 'No pasaran - The Wall of Shame',
+      title: 'No pasarán - The Wall of Shame',
       description: 'Record of far-right extremist incidents in Switzerland',
       url: 'https://www.nopasaran.ch',
-      siteName: 'No pasaran',
+      siteName: 'No pasarán',
       images: [
         {
           url: 'https://www.nopasaran.ch/icon.png',
           width: 1200,
           height: 630,
-          alt: 'Logo No pasaran',
+          alt: 'Logo No pasarán',
         },
       ],
       type: 'website',
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
     // Twitter
     twitter: {
       card: 'summary_large_image',
-      title: 'No pasaran - The Wall of Shame',
+      title: 'No pasarán - The Wall of Shame',
       description: 'Record of far-right extremist incidents in Switzerland',
       images: ['https://www.nopasaran.ch/icon.png'],
     },
@@ -112,7 +112,7 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'No pasaran - The Wall of Shame',
+    name: 'No pasarán - The Wall of Shame',
     url: 'https://www.nopasaran.ch',
     publisher: {
       '@type': 'Organization',

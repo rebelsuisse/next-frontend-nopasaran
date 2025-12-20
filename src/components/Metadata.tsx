@@ -17,7 +17,7 @@ export async function WebsiteSchema({ lang }: { lang: string }) {
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'No pasaran - The Wall of Shame',
+    name: 'No pasarán - The Wall of Shame',
     url: 'https://www.nopasaran.ch',
     publisher: {
       '@type': 'Organization',

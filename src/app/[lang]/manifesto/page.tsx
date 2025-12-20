@@ -75,7 +75,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'No pasaran - The Wall of Shame',
+      name: 'No pasarán - The Wall of Shame',
       logo: {
         '@type': 'ImageObject',
         url: 'https://www.nopasaran.ch/logo.png',

@@ -44,14 +44,14 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const seoTitle = incident.title;
 
   return {
-    title: `${seoTitle} | No pasaran`, 
+    title: `${seoTitle} | No pasarán`, 
     description: incident.description.substring(0, 160),
     
     openGraph: {
       title: seoTitle,
       description: incident.description.substring(0, 160),
       url: `https://www.nopasaran.ch/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`,
-      siteName: 'No pasaran',
+      siteName: 'No pasarán',
       images: [
         {
           url: ogImageUrl, 
@@ -142,7 +142,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
     },
     publisher: {
       '@type': 'Organization',
-      name: 'No pasaran - The Wall of Shame',
+      name: 'No pasarán - The Wall of Shame',
       logo: {
         '@type': 'ImageObject',
         url: 'https://www.nopasaran.ch/logo.png',
