@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }: HomePageProps):
     : `/${resolvedParams.lang}`;
 
   return {
-    title: "No pasaran - The Wall of Shame",
+    title: "No pasarán - The Wall of Shame",
     description: tMeta('siteDescription'), 
     alternates: {
       canonical: canonicalUrl,
