@@ -33,7 +33,7 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
   }
 
   return {
-    title: `Recherche | No pasaran`,
+    title: `Recherche | No pasarán`,
     alternates: {
       canonical: canonicalUrl,
     },
