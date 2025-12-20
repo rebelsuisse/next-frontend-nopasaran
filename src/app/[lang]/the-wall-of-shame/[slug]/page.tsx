@@ -22,16 +22,53 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
 
   if (!response.data || response.data.length === 0) {
-    return {
-      title: "Incident non trouvé | The Wall of Shame",
-    };
+    return { title: "Incident non trouvé | The Wall of Shame" };
   }
 
   const incident = response.data[0];
+  const STRAPI_HOST = process.env.NEXT_PUBLIC_STRAPI_HOST || "https://api.nopasaran.ch";
+
+  // Image par défaut (Logo du site)
+  let ogImageUrl = 'https://www.nopasaran.ch/icon.png';
+
+  // PRIORITÉ 1 : Image de preuve (Evidence)
+  // On vérifie s'il y en a au moins une
+  if (incident.evidence_image && incident.evidence_image.length > 0 && incident.evidence_image[0]?.url) {
+    ogImageUrl = `${STRAPI_HOST}${incident.evidence_image[0].url}`;
+  } 
+  // PRIORITÉ 2 : Photo du Sujet (S'il n'y a pas de preuve)
+  else if (incident.sujet?.picture?.url) {
+    ogImageUrl = `${STRAPI_HOST}${incident.sujet.picture.url}`;
+  }
+
+  const seoTitle = incident.title;
 
   return {
-    title: `${incident.title} | The Wall of Shame`,
+    title: `${seoTitle} | No pasaran`, 
     description: incident.description.substring(0, 160),
+    
+    openGraph: {
+      title: seoTitle,
+      description: incident.description.substring(0, 160),
+      url: `https://www.nopasaran.ch/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`,
+      siteName: 'No pasaran',
+      images: [
+        {
+          url: ogImageUrl, 
+          width: 1200,
+          height: 630,
+          alt: incident.title,
+        },
+      ],
+      type: 'article',
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title: seoTitle,
+      description: incident.description.substring(0, 160),
+      images: [ogImageUrl],
+    }
   };
 }
 
