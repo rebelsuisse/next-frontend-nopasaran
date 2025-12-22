@@ -2,6 +2,7 @@
 
 import { getIncidentBySlug } from '@/lib/api';
 import Image from 'next/image';
+import Link from 'next/link'; 
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink, FaShareAlt } from 'react-icons/fa';
 import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
@@ -266,7 +267,15 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
                     />
                   </div>
                 )}
-                <h3 className="text-2xl font-bold text-center text-gray-100">{sujet.name}</h3>
+                <h3 className="text-2xl font-bold text-center text-gray-100">
+                  <Link 
+                    href={`/${resolvedParams.lang}/search?query=${encodeURIComponent(sujet.name)}`}
+                    className="hover:text-blue-400 hover:underline transition-colors"
+                    title={`Voir tous les incidents liés à ${sujet.name}`}
+                  >
+                    {sujet.name}
+                  </Link>
+                </h3>
                 <p className="text-center text-gray-300 mb-1">{incident.subject_role}</p>
                 <p className="text-center text-sm text-gray-300">
                   {/* --- TRADUCTION ICI --- */}
