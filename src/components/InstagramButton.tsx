@@ -116,12 +116,6 @@ export default function InstagramButton({ title, subjectName, category, date, im
                     </p>
                 </div>
             </div>
-            
-            {/* Sticker (Toujours en dessous pour inciter au clic) */}
-            <div className="bg-red-600/90 text-white px-8 py-3 rounded-full text-2xl font-bold shadow-lg">
-                🔗 Lien en bio / Sticker
-            </div>
-
           </div>
 
         </div>
