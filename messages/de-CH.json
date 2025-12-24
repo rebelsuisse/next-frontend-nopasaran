@@ -5,7 +5,8 @@
     "shareTitle": "No pasarán, The Wall of Shame",
     "shareText": "Register der rechtsextremen Ausschreitungen in der Schweiz",
     "shareLabel": "Teilen",
-    "copiedLabel": "Kopiert!"
+    "copiedLabel": "Kopiert!",
+    "randomButton": "Zufällig"
   },
   "IncidentPage": {
     "involvedSubject": "Beteiligtes Subjekt",

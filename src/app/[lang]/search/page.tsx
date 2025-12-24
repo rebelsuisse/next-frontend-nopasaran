@@ -142,7 +142,14 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               {incidents.map(incident => (
                 <li key={incident.id}>
                   <Link
-                    href={`/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`}
+                    href={{
+                      pathname: `/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`,
+                      query: { 
+                        ctx: 'search', 
+                        // On propage les filtres actuels pour que la page de détail puisse calculer le suivant
+                        ...resolvedsearchParams 
+                      }
+                    }}
                     className="block" 
                   >
                     <div className="p-4 hover:bg-gray-700/50 transition-colors">

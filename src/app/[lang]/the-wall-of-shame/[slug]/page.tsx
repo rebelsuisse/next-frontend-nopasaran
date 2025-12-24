@@ -1,6 +1,5 @@
 // src/app/[lang]/the-wall-of-shame/[slug]/page.tsx
 
-import { getIncidentBySlug } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link'; 
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink, FaShareAlt } from 'react-icons/fa';
@@ -11,12 +10,12 @@ import type { Metadata } from 'next';
 import MarkdownIt from 'markdown-it';
 import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
+import IncidentNavigation from '@/components/IncidentNavigation';
+import { getIncidentBySlug, getAdjacentSlugs } from '@/lib/api';
 
 interface DetailPageProps {
-  params: {
-    slug: string;
-    lang: string;
-  }; 
+  params: Promise<{ slug: string; lang: string }>; 
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: DetailPageProps): Promise<Metadata> {
@@ -87,8 +86,9 @@ async function getPageTranslations(locale: string) {
   };
 }
 
-export default async function DetailPageOfAnIncident({ params }: DetailPageProps) {
+export default async function DetailPageOfAnIncident({ params, searchParams }: DetailPageProps) {
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
   const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle, shareLabel, copiedLabel } = await getPageTranslations(resolvedParams.lang);
 
@@ -128,6 +128,42 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
         imageUrls.push(`${STRAPI_HOST}${image.url}`);
       }
     });
+  }
+
+  const ctx = resolvedSearchParams.ctx as string; // 'random', 'search', ou undefined
+  const isRandom = ctx === 'random';
+  const isSearch = ctx === 'search';
+
+  let prevLink = null;
+  let nextLink = null;
+
+  if (!isRandom) {
+    // Si pas random, on cherche les voisins
+    const { prev: prevSlug, next: nextSlug } = await getAdjacentSlugs(
+      resolvedParams.slug,
+      resolvedParams.lang,
+      isSearch ? 'search' : 'default',
+      resolvedSearchParams // On passe tous les filtres (q, category, etc.)
+    );
+
+    // On reconstruit les liens en gardant le contexte !
+    const buildLink = (slug: string | null) => {
+      if (!slug) return null;
+      let url = `/${resolvedParams.lang}/the-wall-of-shame/${slug}`;
+      
+      // Si on est en recherche, on remet tous les params dans l'URL suivante
+      if (isSearch) {
+        const queryParams = new URLSearchParams();
+        Object.entries(resolvedSearchParams).forEach(([key, val]) => {
+          if (val && key !== 'slug') queryParams.set(key, val as string);
+        });
+        url += `?${queryParams.toString()}`;
+      }
+      return url;
+    };
+
+    prevLink = buildLink(prevSlug);
+    nextLink = buildLink(nextSlug);
   }
 
   const jsonLd = {
@@ -176,6 +212,13 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
       />
 
       <div className="container mx-auto p-4 md:p-8">
+        <IncidentNavigation 
+          prevLink={prevLink}
+          nextLink={nextLink}
+          isRandomContext={isRandom}
+          isSearchContext={isSearch}
+          lang={resolvedParams.lang}
+        />
         <article className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg text-gray-300">
           <div className="flex flex-col md:flex-row gap-8">
 
