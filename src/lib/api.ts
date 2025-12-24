@@ -3,6 +3,7 @@ import { StrapiApiCollectionResponse, Incident } from "@/types";
 import qs from 'qs';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
+const STANDARD_SORT = ['incident_date:desc', 'createdAt:desc'];
 
 async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Promise<T> {
   
@@ -55,14 +56,12 @@ async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Prom
 // Récupère la liste des incidents, triés par date
 export async function getIncidents(
   locale: string = 'fr-CH',
-  // On ajoute les paramètres pour la pagination avec des valeurs par défaut
   page: number = 1,
   pageSize: number = 10
 ) {
-  // On construit la requête avec qs pour la robustesse
   const queryObject = {
     locale,
-    sort: ['incident_date:desc'],
+    sort: STANDARD_SORT, 
     populate: 'sujet',
     pagination: {
       page: page,
@@ -191,7 +190,7 @@ export async function searchIncidents(
   const queryObject = {
     locale,
     filters,
-    sort: 'incident_date:desc',
+    sort: STANDARD_SORT,
     populate: 'sujet',
     pagination: {
       page: page,
@@ -391,7 +390,7 @@ export async function getAdjacentSlugs(
       locale,
       filters: filters.$and.length > 0 ? filters : undefined,
       // Tri identique à l'affichage : Date, puis date de création pour départager les ex aequo
-      sort: ['incident_date:desc', 'createdAt:desc'], 
+      sort: STANDARD_SORT,
       fields: ['slug'],
       pagination: { pageSize: 5000 }, // On récupère tout
     };
@@ -402,7 +401,7 @@ export async function getAdjacentSlugs(
     queryObject = {
       locale,
       // Tri IMPORTANT : Doit être exactement le même que sur la Homepage
-      sort: ['incident_date:desc', 'createdAt:desc'], 
+      sort: STANDARD_SORT, // On utilise la constante 
       fields: ['slug'],
       pagination: { pageSize: 5000 }, 
     };
