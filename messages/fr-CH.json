@@ -5,7 +5,8 @@
     "shareTitle": "No pasarán, The Wall of Shame",
     "shareText": "Registre des dérapages de l'extrême droite en Suisse",
     "shareLabel": "Partager",
-    "copiedLabel": "Copié !"
+    "copiedLabel": "Copié !",
+    "randomButton": "Au hasard"
   },
   "IncidentPage": {
     "involvedSubject": "Sujet Impliqué",

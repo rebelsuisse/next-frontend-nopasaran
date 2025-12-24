@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import PaginationControls from '@/components/PaginationControls';
 import ShareButton from '@/components/ShareButton';
 import { Metadata } from 'next';
+import RandomButton from '@/components/RandomButton';
 
 interface HomePageProps {
   params: { lang: string };
@@ -46,6 +47,7 @@ async function getPageTranslations(locale: string) {
       shareText: t('shareText'),
       shareLabel: t('shareLabel'),
       copiedLabel: t('copiedLabel'),
+      randomButton: t('randomButton'), 
   };
 }
 
@@ -60,7 +62,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const pageCount = meta.pagination.pageCount;
 
   // On utilise les params résolus
-  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel } = await getPageTranslations(resolvedParams.lang);
+  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton } = await getPageTranslations(resolvedParams.lang);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -76,8 +78,16 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           </p>
         </div>
 
-        {/* Right side: Share button */}
-        <div className="flex-shrink-0 pt-2 sm:pt-0">
+        {/* Zone des boutons (Droite) */}
+        <div className="flex flex-shrink-0 gap-3 pt-2 sm:pt-0">
+          
+          {/* BOUTON RANDOM */}
+          <RandomButton 
+            label={randomButton} 
+            lang={resolvedParams.lang} 
+          />
+
+          {/* BOUTON SHARE EXISTANT */}
           <ShareButton
             title={shareTitle}
             text={shareText}
