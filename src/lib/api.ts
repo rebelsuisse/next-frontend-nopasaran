@@ -221,7 +221,7 @@ export async function getAllIncidentsForSitemap() {
     fields: ['slug', 'updatedAt', 'locale'],
     // On récupère un grand nombre d'éléments pour être sûr de tout avoir
     pagination: {
-      pageSize: 1000,
+      pageSize: 5000,
     },
   };
 
@@ -238,7 +238,7 @@ export async function getIncidentsForSitemapByLocale(locale: string) {
     
     fields: ['slug', 'updatedAt', 'locale'],
     pagination: {
-      pageSize: 1000, 
+      pageSize: 5000, 
     },
   };
   
@@ -249,7 +249,7 @@ export async function getIncidentsForSitemapByLocale(locale: string) {
 
 export async function getCategoryStats(locale: string): Promise<string[]> {
   // 1. On récupère TOUS les incidents, mais SEULEMENT le champ category
-  // Cela rend la requête très légère même s'il y a 1000 incidents
+  // Cela rend la requête très légère même s'il y a 5000 incidents
   const queryObject = {
     locale,
     fields: ['category'], 
@@ -367,18 +367,16 @@ export async function getAdjacentSlugs(
   searchParams?: any
 ): Promise<{ prev: string | null; next: string | null }> {
   
-  // CAS 1 : CONTEXTE RECHERCHE
+  let queryObject: any;
+
+  // 1. DÉFINITION DU TRI ET DES FILTRES
   if (context === 'search') {
-    // On réutilise la logique de recherche pour avoir la liste EXACTE des résultats
-    // On force un grand pageSize pour avoir la liste complète et trouver les voisins
-    // On ne récupère que le slug pour être léger
-    
-    // On reconstruit les filtres comme dans searchIncidents
+    // --- CONTEXTE RECHERCHE (Filtres appliqués) ---
     const filters: any = { $and: [] };
     if (searchParams.year) filters.$and.push({ incident_date: { $gte: `${searchParams.year}-01-01`, $lte: `${searchParams.year}-12-31` } });
     if (searchParams.category) filters.$and.push({ category: { $eq: searchParams.category } });
     if (searchParams.canton) filters.$and.push({ sujet: { canton: { $eq: searchParams.canton } } });
-    if (searchParams.affiliation) filters.$and.push({ sujet: { affiliation: { $eq: searchParams.affiliation } } }); // Ajout affiliation
+    if (searchParams.affiliation) filters.$and.push({ sujet: { affiliation: { $eq: searchParams.affiliation } } });
     if (searchParams.query) {
       filters.$and.push({
         $or: [
@@ -389,70 +387,50 @@ export async function getAdjacentSlugs(
       });
     }
 
-    const queryObject = {
+    queryObject = {
       locale,
       filters: filters.$and.length > 0 ? filters : undefined,
-      sort: 'incident_date:desc', // Le tri est important : du plus récent au plus ancien
-      fields: ['slug'], // On ne veut que les slugs
-      pagination: { pageSize: 1000 }, // On espère que la liste tient dans 1000
+      // Tri identique à l'affichage : Date, puis date de création pour départager les ex aequo
+      sort: ['incident_date:desc', 'createdAt:desc'], 
+      fields: ['slug'],
+      pagination: { pageSize: 5000 }, // On récupère tout
     };
 
-    const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-    
-    // Pas de cache pour respecter le contexte de recherche immédiat
-    const response = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(
-      `the-wall-of-shames?${query}`, 
-      { cache: 'no-store' }
-    );
-
-    const slugs = response.data.map(i => i.slug);
-    const currentIndex = slugs.indexOf(currentSlug);
-
-    if (currentIndex === -1) return { prev: null, next: null };
-
-    // Dans une liste triée DESC (Récent -> Ancien) :
-    // Index - 1 = Plus récent (Gauche)
-    // Index + 1 = Plus ancien (Droite)
-    return {
-      prev: slugs[currentIndex - 1] || null, // Plus récent
-      next: slugs[currentIndex + 1] || null, // Plus ancien
+  } else {
+    // --- CONTEXTE DÉFAUT (Chronologique pur) ---
+    // C'est ici que ça change : on récupère TOUT au lieu de faire < ou >
+    queryObject = {
+      locale,
+      // Tri IMPORTANT : Doit être exactement le même que sur la Homepage
+      sort: ['incident_date:desc', 'createdAt:desc'], 
+      fields: ['slug'],
+      pagination: { pageSize: 5000 }, 
     };
   }
 
-  // CAS 2 : CONTEXTE CHRONOLOGIQUE (DEFAUT)
-  // Il nous faut la date de l'incident actuel pour trouver les voisins
-  // On fait d'abord une petite requête pour avoir la date de l'incident courant
-  const currentRes = await getIncidentBySlug(currentSlug, locale);
-  if (!currentRes.data || currentRes.data.length === 0) return { prev: null, next: null };
+  // 2. EXÉCUTION DE LA REQUÊTE
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   
-  const currentDate = currentRes.data[0].incident_date;
+  // En mode recherche on ne cache pas, en mode défaut on peut cacher un peu (60s)
+  const fetchOptions = context === 'search' ? { cache: 'no-store' } as RequestInit : undefined;
 
-  // Trouver le "Précédent" (Plus récent que currentDate)
-  // On cherche: date > currentDate, trié par date ASC (le plus proche dans le futur), limit 1
-  const prevQueryObj = {
-    locale,
-    filters: { incident_date: { $gt: currentDate } },
-    sort: 'incident_date:asc', 
-    fields: ['slug'],
-    pagination: { pageSize: 1 },
-  };
-  const prevQuery = qs.stringify(prevQueryObj, { encodeValuesOnly: true });
-  const prevRes = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(`the-wall-of-shames?${prevQuery}`);
+  const response = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(
+    `the-wall-of-shames?${query}`, 
+    fetchOptions
+  );
 
-  // Trouver le "Suivant" (Plus ancien que currentDate)
-  // On cherche: date < currentDate, trié par date DESC (le plus proche dans le passé), limit 1
-  const nextQueryObj = {
-    locale,
-    filters: { incident_date: { $lt: currentDate } },
-    sort: 'incident_date:desc',
-    fields: ['slug'],
-    pagination: { pageSize: 1 },
-  };
-  const nextQuery = qs.stringify(nextQueryObj, { encodeValuesOnly: true });
-  const nextRes = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(`the-wall-of-shames?${nextQuery}`);
+  // 3. RECHERCHE DES VOISINS DANS LA LISTE
+  const slugs = response.data.map(i => i.slug);
+  const currentIndex = slugs.indexOf(currentSlug);
 
+  if (currentIndex === -1) return { prev: null, next: null };
+
+  // Rappel : la liste est triée du plus récent (0) au plus ancien (N)
+  // Prev (Gauche) = Index - 1 (Plus récent)
+  // Next (Droite) = Index + 1 (Plus ancien)
+  
   return {
-    prev: prevRes.data[0]?.slug || null, // Flèche gauche (plus récent)
-    next: nextRes.data[0]?.slug || null  // Flèche droite (plus ancien)
+    prev: slugs[currentIndex - 1] || null,
+    next: slugs[currentIndex + 1] || null,
   };
 }
