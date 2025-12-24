@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
 import remarkGfm from 'remark-gfm';
+import { formatText } from '@/lib/format'; 
 
 interface ManifestoPageProps {
   params: any;
@@ -51,7 +52,7 @@ export default async function ManifestoPage({ params }: ManifestoPageProps) {
 
   // On compile le MDX et on extrait le 'frontmatter' en plus du 'content'
   const { content, frontmatter } = await compileMDX<{ title?: string; datePublished?: string }>({
-    source: source,
+    source: formatText(source),
     components: getCustomMDXComponents(),
     options: {
       parseFrontmatter: true,

@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import MarkdownIt from 'markdown-it';
 import InstagramButton from '@/components/InstagramButton';
+import { formatText } from '@/lib/format';
 
 interface DetailPageProps {
   params: {
@@ -159,7 +160,8 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
     linkify: true     // Autoconvert URL-like text to links
   });
 
-  const descriptionHtml = md.render(incident.description || '');
+  const cleanTitle = formatText(incident.title);
+  const descriptionHtml = md.render(formatText(incident.description || ''));
   const consequenceHtml = md.render(incident.consequence || '');
 
   const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
@@ -179,7 +181,7 @@ export default async function DetailPageOfAnIncident({ params }: DetailPageProps
 
             <div className="w-full md:w-2/3">
               {/* Using text-gray-100 (or removing class to use global) for better contrast on dark bg */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-100 mb-4">{incident.title}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-100 mb-4">{cleanTitle}</h1>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-400 mb-6 border-b border-gray-700 pb-4">
                 <div className="flex items-center gap-2">
