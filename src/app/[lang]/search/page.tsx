@@ -6,6 +6,7 @@ import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import { formatText } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,7 +163,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                         </span>
                       </div>
                       <h3 className="text-xl font-semibold mt-2">
-                        {incident.title}
+                        {formatText(incident.title)}
                       </h3>
                     </div>
                   </Link>
