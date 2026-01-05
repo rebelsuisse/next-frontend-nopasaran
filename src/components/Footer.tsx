@@ -27,7 +27,8 @@ export default function Footer({ lang }: HeaderProps) {
         
         <p className="text-sm text-gray-400" style={{ whiteSpace: 'pre-line' }}>
           nopasaran.ch {formattedVersion && ` ${formattedVersion}`} | © {new Date().getFullYear()} Rebel Suisse{"\n"}
-          Licensed under the <a href="https://www.mozilla.org/en-US/MPL/2.0/" target="_blank" rel="noopener noreferrer">Mozilla Public License 2.0</a>
+          Source code under <a href="https://www.mozilla.org/en-US/MPL/2.0/" target="_blank" rel="noopener noreferrer">Mozilla Public License 2.0{"\n"}</a>
+          Data under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener noreferrer">Creative Commons BY-NC-SA 4.0</a>
         </p>
       </div>
     </footer>

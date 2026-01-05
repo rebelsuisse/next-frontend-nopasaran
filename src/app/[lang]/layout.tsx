@@ -112,6 +112,11 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "copyrightHolder": {
+      "@type": "Organization",
+      "name": "Rebel Suisse"
+    },
     name: 'No pasarán - The Wall of Shame',
     url: 'https://www.nopasaran.ch',
     publisher: {
