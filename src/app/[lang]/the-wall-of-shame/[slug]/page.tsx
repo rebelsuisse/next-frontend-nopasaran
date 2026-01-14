@@ -212,7 +212,12 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   
   // 2. Les autres langues (venant de Strapi)
   if (incident.localizations) {
-    incident.localizations.forEach((loc: any) => {
+    const locs = incident.localizations as any;
+    
+    // Si c'est un tableau direct, on le prend. Sinon, on cherche .data. Sinon tableau vide.
+    const list = Array.isArray(locs) ? locs : (locs.data || []);
+
+    list.forEach((loc: any) => {
        slugsMap[loc.locale] = loc.slug;
     });
   }
