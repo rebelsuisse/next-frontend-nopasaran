@@ -12,6 +12,7 @@ import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
 import IncidentNavigation from '@/components/IncidentNavigation';
 import { getIncidentBySlug, getAdjacentSlugs } from '@/lib/api';
+import SlugUpdater from '@/components/SlugUpdater'; 
 
 interface DetailPageProps {
   params: Promise<{ slug: string; lang: string }>; 
@@ -204,12 +205,26 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   const tLocs = await getTranslations({ locale: resolvedParams.lang, namespace: 'Locations' });
   const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
 
+  const slugsMap: Record<string, string> = {};
+  
+  // 1. La langue actuelle
+  slugsMap[resolvedParams.lang] = incident.slug;
+  
+  // 2. Les autres langues (venant de Strapi)
+  if (incident.localizations) {
+    incident.localizations.forEach((loc: any) => {
+       slugsMap[loc.locale] = loc.slug;
+    });
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <SlugUpdater slugs={slugsMap} />
 
       <div className="container mx-auto p-4 md:p-8">
         <IncidentNavigation 
