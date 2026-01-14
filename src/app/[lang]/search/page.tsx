@@ -1,12 +1,12 @@
 // src/app/[lang]/search/page.tsx
 
-import { searchIncidents, getCategoryStats, getPartyStats, getYearStats } from '@/lib/api';
 import SearchForm from '@/components/SearchForm';
 import PaginationControls from '@/components/PaginationControls';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { formatText } from '@/lib/format';
+import { searchIncidents, getSearchFilters } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,20 +80,22 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   // 2. RÉCUPÉRATION DES DONNÉES API
   // Note: j'ai renommé 'categories' en 'categoriesRaw' pour éviter la confusion
-  const [response, categoriesRaw, partiesList, years] = await Promise.all([
+  const [response, filters] = await Promise.all([
     searchIncidents(resolvedParams.lang, {
-      year: getStringParam(resolvedsearchParams.year),
-      category: getStringParam(resolvedsearchParams.category),
-      canton: getStringParam(resolvedsearchParams.canton),
-      query: getStringParam(resolvedsearchParams.query) || getStringParam(resolvedsearchParams.q),
-      affiliation: getStringParam(resolvedsearchParams.affiliation),
-      page: currentPage,
-      pageSize: 10,
+       // ... (vos paramètres inchangés) ...
+       year: getStringParam(resolvedsearchParams.year),
+       category: getStringParam(resolvedsearchParams.category),
+       canton: getStringParam(resolvedsearchParams.canton),
+       query: getStringParam(resolvedsearchParams.query) || getStringParam(resolvedsearchParams.q),
+       affiliation: getStringParam(resolvedsearchParams.affiliation),
+       page: currentPage,
+       pageSize: 10,
     }),
-    getCategoryStats(resolvedParams.lang),
-    getPartyStats(resolvedParams.lang),
-    getYearStats(resolvedParams.lang)
+    getSearchFilters(resolvedParams.lang)
   ]);
+
+  // On déstructure le résultat
+  const { categories: categoriesRaw, parties: partiesList, years } = filters;
 
   // 3. FORMATAGE DES LISTES POUR LE FORMULAIRE (Objet {value, label})
 

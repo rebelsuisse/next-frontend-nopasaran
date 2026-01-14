@@ -5,6 +5,12 @@ import qs from 'qs';
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 const STANDARD_SORT = ['incident_date:desc', 'createdAt:desc'];
 
+interface SearchFilters {
+  categories: string[];
+  parties: string[];
+  years: string[];
+}
+
 async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Promise<T> {
   
   const fetchOptions: RequestInit = {
@@ -428,4 +434,69 @@ export async function getAdjacentSlugs(
     prev: slugs[currentIndex - 1] || null,
     next: slugs[currentIndex + 1] || null,
   };
+}
+
+export async function getSearchFilters(locale: string): Promise<SearchFilters> {
+  // 1. On prépare une requête UNIQUE pour tout récupérer
+  // On demande 5000 items (grâce à la config Strapi modifiée)
+  const queryObject = {
+    locale,
+    fields: ['category', 'incident_date', 'createdAt'], // On prend juste ce qu'il faut
+    populate: {
+      sujet: {
+        fields: ['affiliation']
+      }
+    },
+    sort: ['createdAt:desc'],
+    pagination: {
+      limit: 5000, // On utilise 'limit' au lieu de pageSize pour être sûr avec la nouvelle config
+    },
+  };
+
+  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+
+  // 2. Appel API avec Cache (1 heure)
+  const response = await fetchApi<StrapiApiCollectionResponse<any>>(
+    `the-wall-of-shames?${query}`,
+    { next: { revalidate: 3600 } }
+  );
+
+  const incidents = response.data;
+
+  // 3. Calcul des statistiques en mémoire (Javascript est super rapide pour ça)
+  const catCounts: Record<string, number> = {};
+  const partyCounts: Record<string, number> = {};
+  const yearsSet = new Set<string>();
+
+  incidents.forEach((incident: any) => {
+    // Catégories
+    if (incident.category) {
+      catCounts[incident.category] = (catCounts[incident.category] || 0) + 1;
+    }
+    
+    // Partis
+    const affiliation = incident.sujet?.affiliation;
+    if (affiliation) {
+      partyCounts[affiliation] = (partyCounts[affiliation] || 0) + 1;
+    }
+
+    // Années
+    if (incident.incident_date) {
+      const year = new Date(incident.incident_date).getFullYear().toString();
+      yearsSet.add(year);
+    }
+  });
+
+  // 4. Tri et Formatage
+  const categories = Object.entries(catCounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([key]) => key);
+
+  const parties = Object.entries(partyCounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([key]) => key);
+
+  const years = Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+
+  return { categories, parties, years };
 }
