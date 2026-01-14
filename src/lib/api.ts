@@ -247,115 +247,111 @@ export async function getIncidentsForSitemapByLocale(locale: string) {
 }
 
 export async function getCategoryStats(locale: string): Promise<string[]> {
-  // 1. On récupère TOUS les incidents, mais SEULEMENT le champ category
-  // Cela rend la requête très légère même s'il y a 5000 incidents
-  const queryObject = {
-    locale,
-    fields: ['category'], 
-    pagination: {
-      pageSize: 5000, // On met une limite haute pour être sûr de tout avoir
-    },
-  };
+  let allIncidents: any[] = [];
+  let currentPage = 1;
+  let pageCount = 1;
 
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-  
-  // On utilise fetchApi existant
-  const response = await fetchApi<StrapiApiCollectionResponse<{ category: string }>>(
-    `the-wall-of-shames?${query}`,
-    { cache: 'no-store', next: { revalidate: 0 } }
-  );
-  
-  // On compte les occurrences de chaque catégorie
-  const counts: Record<string, number> = {};
-
-  response.data.forEach((incident: any) => {
-    const cat = incident.category; 
+  do {
+    const queryObject = {
+      locale,
+      fields: ['category'], 
+      pagination: { page: currentPage, pageSize: 100 },
+    };
+    const query = qs.stringify(queryObject, { encodeValuesOnly: true });
     
-    if (cat) {
-      counts[cat] = (counts[cat] || 0) + 1;
-    }
+    // Cache 1h ---
+    const response = await fetchApi<StrapiApiCollectionResponse<{ category: string }>>(
+      `the-wall-of-shames?${query}`,
+      { next: { revalidate: 3600 } }
+    );
+
+    allIncidents = [...allIncidents, ...response.data];
+    pageCount = response.meta.pagination.pageCount;
+    currentPage++;
+  } while (currentPage <= pageCount);
+  
+  const counts: Record<string, number> = {};
+  allIncidents.forEach((incident: any) => {
+    const cat = incident.category; 
+    if (cat) counts[cat] = (counts[cat] || 0) + 1;
   });
 
-  // On transforme l'objet en tableau, on trie et on retourne les clés
-  // Exemple: { "racism": 10, "fraud": 2 } -> [ ["racism", 10], ["fraud", 2] ]
   return Object.entries(counts)
-    // Tri par nombre décroissant (b - a)
     .sort(([, countA], [, countB]) => countB - countA)
-    // On ne garde que le nom de la catégorie
     .map(([category]) => category);
 }
 
 export async function getPartyStats(locale: string): Promise<string[]> {
-  const queryObject = {
-    locale,
-    // On ne récupère que l'ID de l'incident pour être léger
-    fields: ['id'], 
-    // On doit "peupler" le sujet pour avoir son affiliation
-    populate: {
-      sujet: {
-        fields: ['affiliation'] // On ne veut que ce champ
-      }
-    },
-    pagination: {
-      pageSize: 5000, // On veut tout scanner
-    },
-  };
+  let allIncidents: any[] = [];
+  let currentPage = 1;
+  let pageCount = 1;
 
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-  
-  // On utilise 'any' ici pour simplifier le typage de la réponse imbriquée
-  const response = await fetchApi<StrapiApiCollectionResponse<any>>(
-    `the-wall-of-shames?${query}`,
-    { cache: 'no-store', next: { revalidate: 0 } }
-  );
-  
+  // On garde la boucle pour être exhaustif
+  do {
+    const queryObject = {
+      locale,
+      fields: ['id'], 
+      populate: { sujet: { fields: ['affiliation'] } },
+      pagination: { page: currentPage, pageSize: 100 },
+    };
+    const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+
+    // Au lieu de cache: 'no-store', on met un cache long (3600s = 1 heure)
+    // Vercel ne refera ce calcul lourd qu'une fois par heure.
+    const response = await fetchApi<StrapiApiCollectionResponse<any>>(
+      `the-wall-of-shames?${query}`,
+      { next: { revalidate: 3600 } } 
+    );
+
+    allIncidents = [...allIncidents, ...response.data];
+    pageCount = response.meta.pagination.pageCount;
+    currentPage++;
+
+  } while (currentPage <= pageCount);
+
   const counts: Record<string, number> = {};
-
-  response.data.forEach((incident: any) => {
-    // L'affiliation se trouve dans l'objet sujet
-    // Attention à la structure Strapi : parfois c'est attributes.affiliation, parfois direct.
-    // Avec votre config actuelle, ça devrait être direct :
+  allIncidents.forEach((incident: any) => {
     const affiliation = incident.sujet?.affiliation; 
-    
-    if (affiliation) { 
-      counts[affiliation] = (counts[affiliation] || 0) + 1;
-    }
+    if (affiliation) counts[affiliation] = (counts[affiliation] || 0) + 1;
   });
 
-  // On trie par fréquence (les partis les plus cités en premier)
   return Object.entries(counts)
     .sort(([, countA], [, countB]) => countB - countA)
     .map(([party]) => party);
 }
 
 export async function getYearStats(locale: string): Promise<string[]> {
-  const queryObject = {
-    locale,
-    fields: ['incident_date'], // On ne récupère que la date
-    pagination: {
-      pageSize: 5000, // On veut tout scanner
-    },
-  };
+  let allIncidents: any[] = [];
+  let currentPage = 1;
+  let pageCount = 1;
 
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+  do {
+    const queryObject = {
+      locale,
+      fields: ['incident_date'],
+      pagination: { page: currentPage, pageSize: 100 },
+    };
+    const query = qs.stringify(queryObject, { encodeValuesOnly: true });
+    
+    // Cache 1h ---
+    const response = await fetchApi<StrapiApiCollectionResponse<{ incident_date: string }>>(
+      `the-wall-of-shames?${query}`,
+      { next: { revalidate: 3600 } }
+    );
+
+    allIncidents = [...allIncidents, ...response.data];
+    pageCount = response.meta.pagination.pageCount;
+    currentPage++;
+  } while (currentPage <= pageCount);
   
-  // On récupère les données
-  const response = await fetchApi<StrapiApiCollectionResponse<{ incident_date: string }>>(
-    `the-wall-of-shames?${query}`,
-    { cache: 'no-store', next: { revalidate: 0 } }
-  );
-  
-  // On extrait les années uniques
   const yearsSet = new Set<string>();
-
-  response.data.forEach((incident: any) => {
+  allIncidents.forEach((incident: any) => {
     if (incident.incident_date) {
       const year = new Date(incident.incident_date).getFullYear().toString();
       yearsSet.add(year);
     }
   });
 
-  // On convertit le Set en tableau et on trie du plus récent au plus ancien
   return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
 }
 
