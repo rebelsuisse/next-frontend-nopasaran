@@ -6,7 +6,8 @@
     "shareText": "Registre des dérapages de l'extrême droite en Suisse",
     "shareLabel": "Partager",
     "copiedLabel": "Copié !",
-    "randomButton": "Au hasard"
+    "randomButton": "Au hasard",
+    "reportButton": "Signaler"
   },
   "IncidentPage": {
     "involvedSubject": "Sujet Impliqué",

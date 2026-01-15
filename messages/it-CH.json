@@ -6,7 +6,8 @@
     "shareText": "Registro delle derive di estrema destra in Svizzera",
     "shareLabel": "Condividi",
     "copiedLabel": "Copiato!",
-    "randomButton": "A caso"
+    "randomButton": "A caso",
+    "reportButton": "Segnalare"
   },
   "IncidentPage": {
     "involvedSubject": "Soggetto coinvolto",
