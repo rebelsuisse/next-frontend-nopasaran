@@ -83,26 +83,29 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
         {/* Zone des boutons (Droite) */}
         <div className="flex flex-shrink-0 gap-3 pt-2 sm:pt-0">
           
+          {/* 1. RANDOM : On passe la taille Large */}
           <RandomButton 
             label={randomButton} 
-            lang={resolvedParams.lang} 
+            lang={resolvedParams.lang}
+            size="large" 
           />
 
-          {/* BOUTON SIGNALER */}
           <Link
             href={`/${resolvedParams.lang}/contact`}
-            className="flex items-center gap-2 px-3 py-1 text-sm bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-full transition-colors shadow-md"
+            // AJOUTEZ 'leading-6' (ou leading-normal) pour garantir la hauteur du texte
+            className="flex items-center gap-2 px-5 py-2.5 text-base leading-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-full transition-colors shadow-md"
             title={reportButton}
           >
-            <FaBullhorn /> 
-            {/* Texte caché sur mobile */}
+            <FaBullhorn size={20} /> 
             <span className="hidden sm:inline">{reportButton}</span>
           </Link>
 
+          {/* 3. PARTAGER : On passe la taille Large */}
           <ShareButton
             title={shareTitle}
             text={shareText}
             labels={{ share: shareLabel, copied: copiedLabel }}
+            size="large"
           />
         </div>
       </div>
