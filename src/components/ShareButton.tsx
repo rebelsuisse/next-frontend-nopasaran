@@ -17,7 +17,6 @@ export default function ShareButton({ title, text, labels, size = 'small' }: Sha
 
   const handleShare = async () => {
     const url = window.location.origin + window.location.pathname;
-    // ... (reste de la logique inchangée) ...
     if (navigator.share) {
         try { await navigator.share({ title, text, url }); } catch (e) { console.error(e); }
     } else {
@@ -30,10 +29,16 @@ export default function ShareButton({ title, text, labels, size = 'small' }: Sha
     }
   };
 
-  // Styles dynamiques
   const sizeClasses = size === 'large' 
-    ? "px-5 py-2.5 text-lg" 
+    ? "px-5 py-2.5 text-base" 
     : "px-3 py-1 text-sm";
+
+  const textVisibility = size === 'large' ? "hidden sm:inline" : "inline";
+
+  // --- CORRECTION ICI ---
+  // Si Large (Homepage) -> 20px
+  // Si Small (Detail) -> undefined (laisse l'icône s'adapter à la taille du texte, comme pour le bouton Story)
+  const iconSize = size === 'large' ? 20 : undefined;
 
   return (
     <button
@@ -41,10 +46,11 @@ export default function ShareButton({ title, text, labels, size = 'small' }: Sha
       className={`flex items-center gap-2 ${sizeClasses} bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-colors shadow-md`}
     >
       {isCopied 
-        ? <FaCheck size={size === 'large' ? 20 : undefined} /> 
-        : <FaShareAlt size={size === 'large' ? 20 : undefined} />
+        ? <FaCheck size={iconSize} /> 
+        : <FaShareAlt size={iconSize} />
       }
-      <span className="hidden sm:inline">{buttonText}</span>
+      
+      <span className={textVisibility}>{buttonText}</span>
     </button>
   );
 }
