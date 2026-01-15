@@ -18,19 +18,33 @@ export default function ShareButton({ title, text, labels }: ShareButtonProps) {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleShare = async () => {
-    // ... (votre logique existante ne change pas) ...
-    const url = window.location.href;
+    // On reconstruit l'URL propre sans les paramètres
+    // window.location.origin = "https://www.nopasaran.ch"
+    // window.location.pathname = "/fr-CH/the-wall-of-shame/slug"
+    const url = window.location.origin + window.location.pathname;
+
     if (navigator.share) {
       try {
-        await navigator.share({ title, text, url });
-      } catch (error) { console.error(error); }
+        await navigator.share({
+          title: title,
+          text: text,
+          url: url,
+        });
+      } catch (error) {
+        console.error('Erreur partage:', error);
+      }
     } else {
       try {
         await navigator.clipboard.writeText(url);
         setIsCopied(true);
         setButtonText(labels.copied);
-        setTimeout(() => { setIsCopied(false); setButtonText(labels.share); }, 2000);
-      } catch (error) { alert("Erreur copie"); }
+        setTimeout(() => {
+          setIsCopied(false);
+          setButtonText(labels.share);
+        }, 2000);
+      } catch (error) {
+        alert("Impossible de copier le lien.");
+      }
     }
   };
 
