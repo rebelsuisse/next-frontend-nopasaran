@@ -282,7 +282,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
 
               <h2 className="text-2xl font-semibold mb-3 text-gray-100">{descriptionTitle}</h2>
               <div
-                className="prose prose-lg max-w-none prose-invert"
+                className="prose max-w-none prose-invert"
                 dangerouslySetInnerHTML={{ __html: descriptionHtml }}
               />
 
@@ -312,7 +312,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
                 <div className="mt-8">
                   <h2 className="text-2xl font-semibold mb-3 text-gray-100">{consequencesTitle}</h2>
                   <div
-                    className="prose prose-lg max-w-none prose-invert"
+                    className="prose max-w-none prose-invert"
                     dangerouslySetInnerHTML={{ __html: consequenceHtml }}
                   />
                 </div>
