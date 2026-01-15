@@ -1,13 +1,12 @@
 // src/components/ShareButton.tsx
-'use client'; // <-- Très important ! Marque ce composant comme un Client Component.
+'use client';
 
-import { useState, useEffect } from 'react';
-import { FaShareAlt, FaCheck } from 'react-icons/fa'; // Importez une icône de coche pour le feedback
+import { useState } from 'react';
+import { FaShareAlt, FaCheck } from 'react-icons/fa';
 
 interface ShareButtonProps {
   title: string;
   text: string;
-  // On passe les traductions en props pour les labels
   labels: {
     share: string;
     copied: string;
@@ -19,47 +18,30 @@ export default function ShareButton({ title, text, labels }: ShareButtonProps) {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleShare = async () => {
-    // On récupère l'URL actuelle côté client
+    // ... (votre logique existante ne change pas) ...
     const url = window.location.href;
-
-    // On vérifie si l'API Web Share est disponible
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: title,
-          text: text,
-          url: url,
-        });
-        console.log('Contenu partagé avec succès !');
-      } catch (error) {
-        console.error('Erreur lors du partage :', error);
-      }
+        await navigator.share({ title, text, url });
+      } catch (error) { console.error(error); }
     } else {
-      // Fallback pour les navigateurs qui ne supportent pas l'API Web Share
-      // On copie l'URL dans le presse-papiers
       try {
         await navigator.clipboard.writeText(url);
         setIsCopied(true);
         setButtonText(labels.copied);
-        // On réinitialise le bouton après 2 secondes
-        setTimeout(() => {
-          setIsCopied(false);
-          setButtonText(labels.share);
-        }, 2000);
-      } catch (error) {
-        console.error('Erreur lors de la copie dans le presse-papiers :', error);
-        alert("Impossible de copier le lien. Veuillez le copier manuellement depuis la barre d'adresse.");
-      }
+        setTimeout(() => { setIsCopied(false); setButtonText(labels.share); }, 2000);
+      } catch (error) { alert("Erreur copie"); }
     }
   };
 
   return (
     <button
       onClick={handleShare}
-      className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-colors"
+      className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-colors shadow-md"
     >
       {isCopied ? <FaCheck /> : <FaShareAlt />}
-      <span>{buttonText}</span>
+      {/* Texte caché sur mobile */}
+      <span className="hidden sm:inline">{buttonText}</span>
     </button>
   );
 }

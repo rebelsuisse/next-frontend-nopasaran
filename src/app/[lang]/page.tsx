@@ -7,6 +7,7 @@ import PaginationControls from '@/components/PaginationControls';
 import ShareButton from '@/components/ShareButton';
 import { Metadata } from 'next';
 import RandomButton from '@/components/RandomButton';
+import { FaBullhorn } from 'react-icons/fa';
 
 interface HomePageProps {
   params: { lang: string };
@@ -48,6 +49,7 @@ async function getPageTranslations(locale: string) {
       shareLabel: t('shareLabel'),
       copiedLabel: t('copiedLabel'),
       randomButton: t('randomButton'), 
+      reportButton: t('reportButton'),
   };
 }
 
@@ -62,7 +64,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const pageCount = meta.pagination.pageCount;
 
   // On utilise les params résolus
-  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton } = await getPageTranslations(resolvedParams.lang);
+  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton } = await getPageTranslations(resolvedParams.lang);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -81,13 +83,22 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
         {/* Zone des boutons (Droite) */}
         <div className="flex flex-shrink-0 gap-3 pt-2 sm:pt-0">
           
-          {/* BOUTON RANDOM */}
           <RandomButton 
             label={randomButton} 
             lang={resolvedParams.lang} 
           />
 
-          {/* BOUTON SHARE EXISTANT */}
+          {/* BOUTON SIGNALER */}
+          <Link
+            href={`/${resolvedParams.lang}/contact`}
+            className="flex items-center gap-2 px-3 py-1 text-sm bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-full transition-colors shadow-md"
+            title={reportButton}
+          >
+            <FaBullhorn /> 
+            {/* Texte caché sur mobile */}
+            <span className="hidden sm:inline">{reportButton}</span>
+          </Link>
+
           <ShareButton
             title={shareTitle}
             text={shareText}

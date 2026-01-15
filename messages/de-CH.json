@@ -6,7 +6,8 @@
     "shareText": "Register der rechtsextremen Ausschreitungen in der Schweiz",
     "shareLabel": "Teilen",
     "copiedLabel": "Kopiert!",
-    "randomButton": "Zufällig"
+    "randomButton": "Zufällig",
+    "reportButton": "Melden"
   },
   "IncidentPage": {
     "involvedSubject": "Beteiligtes Subjekt",

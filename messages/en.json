@@ -6,7 +6,8 @@
     "shareText": "Registry of far-right extremist incidents in Switzerland",
     "shareLabel": "Share",
     "copiedLabel": "Copied!",
-    "randomButton": "Random"
+    "randomButton": "Random",
+    "reportButton": "Report"
   },
   "IncidentPage": {
     "involvedSubject": "Subject Involved",
