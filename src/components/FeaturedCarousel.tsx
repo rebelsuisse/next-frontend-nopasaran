@@ -9,9 +9,10 @@ import { Incident } from '@/types';
 interface FeaturedCarouselProps {
   incidents: Incident[];
   lang: string;
+  translations: Record<string, string>; 
 }
 
-export default function FeaturedCarousel({ incidents, lang }: FeaturedCarouselProps) {
+export default function FeaturedCarousel({ incidents, lang, translations }: FeaturedCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const router = useRouter(); // <--- Hook de navigation
@@ -122,7 +123,7 @@ export default function FeaturedCarousel({ incidents, lang }: FeaturedCarouselPr
                   {/* 2. Badges compacts (gap réduit, mb réduit, police minuscule sur mobile) */}
                   <div className="flex flex-wrap gap-1.5 md:gap-3 mb-1.5 md:mb-3 justify-center md:justify-start">
                       <span className="bg-red-600 text-white px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                          <FaTag /> {incident.category}
+                          <FaTag /> {translations[incident.category] || incident.category}
                       </span>
                       <span className="bg-white/20 backdrop-blur-md text-gray-100 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-sm font-medium flex items-center gap-1 shadow-sm">
                           <FaCalendar /> {new Date(incident.incident_date).toLocaleDateString(lang)}
