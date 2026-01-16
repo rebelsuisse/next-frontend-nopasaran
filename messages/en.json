@@ -7,7 +7,8 @@
     "shareLabel": "Share",
     "copiedLabel": "Copied!",
     "randomButton": "Random",
-    "reportButton": "Report"
+    "reportButton": "Report",
+    "latestIncidents": "Latest reports"
   },
   "IncidentPage": {
     "involvedSubject": "Subject Involved",
