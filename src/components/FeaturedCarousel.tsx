@@ -116,34 +116,36 @@ export default function FeaturedCarousel({ incidents, lang }: FeaturedCarouselPr
 
             {/* CONTENU */}
             {/* 3. MOBILE : Réduction du padding (p-5 au lieu de p-10) */}
-            <div className={`absolute bottom-0 left-0 right-0 p-5 md:p-10 transition-opacity duration-300 ${isCenter ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-10 transition-opacity duration-300 ${isCenter ? 'opacity-100' : 'opacity-0'}`}>
               <div className="max-w-4xl mx-auto text-center md:text-left">
                   
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-2 md:gap-3 mb-3 justify-center md:justify-start">
-                      <span className="bg-red-600 text-white px-2 py-1 md:px-3 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider flex items-center gap-1 md:gap-2 shadow-sm">
+                  {/* 2. Badges compacts (gap réduit, mb réduit, police minuscule sur mobile) */}
+                  <div className="flex flex-wrap gap-1.5 md:gap-3 mb-1.5 md:mb-3 justify-center md:justify-start">
+                      <span className="bg-red-600 text-white px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm">
                           <FaTag /> {incident.category}
                       </span>
-                      <span className="bg-white/20 backdrop-blur-md text-gray-100 px-2 py-1 md:px-3 rounded-full text-[10px] md:text-sm font-medium flex items-center gap-1 md:gap-2 shadow-sm">
+                      <span className="bg-white/20 backdrop-blur-md text-gray-100 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-sm font-medium flex items-center gap-1 shadow-sm">
                           <FaCalendar /> {new Date(incident.incident_date).toLocaleDateString(lang)}
                       </span>
                   </div>
 
-                  {/* TITRE (Modifié pour mobile) */}
+                  {/* 3. TITRE (Plus petit mais plus de lignes) */}
                   <h2 className="
-                    text-xl md:text-3xl lg:text-4xl 
-                    font-black text-white leading-tight mb-2 
+                    text-lg sm:text-xl md:text-3xl lg:text-4xl  /* Mobile: Text-lg (18px) */
+                    font-black text-white 
+                    leading-tight md:leading-tight 
+                    mb-1 md:mb-2 
                     drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] 
                     hover:text-blue-400 transition-colors
-                    line-clamp-3 md:line-clamp-2
+                    line-clamp-4 md:line-clamp-2                /* Mobile: 4 lignes autorisées */
                   ">
                       {incident.title}
                   </h2>
 
-                  {/* Sujet */}
+                  {/* 4. Sujet (Réduit) */}
                   {incident.sujet && (
-                      <p className="text-sm md:text-lg text-gray-300 font-medium line-clamp-1 drop-shadow-md">
-                          {incident.sujet.name} <span className="text-gray-500 mx-2">|</span> {incident.sujet.affiliation}
+                      <p className="text-xs md:text-lg text-gray-300 font-medium line-clamp-1 drop-shadow-md mt-0.5 md:mt-0">
+                          {incident.sujet.name} <span className="text-gray-500 mx-1 md:mx-2">|</span> {incident.sujet.affiliation}
                       </p>
                   )}
               </div>
