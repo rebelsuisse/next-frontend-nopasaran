@@ -67,8 +67,18 @@ export async function getIncidents(
 ) {
   const queryObject = {
     locale,
-    sort: STANDARD_SORT, 
-    populate: 'sujet',
+    sort: ['incident_date:desc', 'createdAt:desc'], // (Notre tri standard)
+    
+    // On demande explicitement les images
+    populate: {
+      sujet: {
+        populate: {
+          picture: true // <--- Photo du sujet
+        }
+      },
+      evidence_image: true, // <--- Images de preuve
+    },
+    
     pagination: {
       page: page,
       pageSize: pageSize,

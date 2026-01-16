@@ -38,9 +38,14 @@ export default function FeaturedCarousel({ incidents, lang }: FeaturedCarouselPr
   const getImageUrl = (incident: Incident) => {
     if (incident.evidence_image && incident.evidence_image.length > 0 && incident.evidence_image[0]?.url) {
       return `${STRAPI_HOST}${incident.evidence_image[0].url}`;
-    } else if (incident.sujet?.picture?.url) {
+    } 
+    
+    // 2. Sinon, on prend la photo du politicien/sujet
+    else if (incident.sujet?.picture?.url) {
       return `${STRAPI_HOST}${incident.sujet.picture.url}`;
     }
+    
+    // 3. Sinon, le logo par défaut
     return '/icon.png';
   };
 
