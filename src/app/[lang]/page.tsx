@@ -69,7 +69,22 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   // On utilise les params résolus
   const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton, latestIncidents } = await getPageTranslations(resolvedParams.lang);
 
+  const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
+
   const featuredIncidents = incidents ? incidents.slice(0, 10) : [];
+
+  // CRÉATION DU DICTIONNAIRE DE TRADUCTION
+  // On crée un objet simple : { "racism": "Racisme", "fraud": "Fraude", ... }
+  // On ne traduit que celles dont on a besoin pour le carrousel
+  const categoryTranslations: Record<string, string> = {};
+  featuredIncidents.forEach(incident => {
+    if (incident.category) {
+        // On vérifie si la clé existe, sinon on met la clé brute
+        categoryTranslations[incident.category] = tCats.has(incident.category) 
+            ? tCats(incident.category) 
+            : incident.category;
+    }
+  });
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -125,7 +140,11 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
             {latestIncidents}
           </h2>
 
-          <FeaturedCarousel incidents={featuredIncidents} lang={resolvedParams.lang} />
+          <FeaturedCarousel 
+             incidents={featuredIncidents} 
+             lang={resolvedParams.lang} 
+             translations={categoryTranslations}
+          />
         </section>
       )}
 
