@@ -69,7 +69,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   // On utilise les params résolus
   const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton, latestIncidents } = await getPageTranslations(resolvedParams.lang);
 
-  const featuredIncidents = incidents ? incidents.slice(0, 5) : [];
+  const featuredIncidents = incidents ? incidents.slice(0, 10) : [];
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -116,7 +116,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
       </div>
 
       {/* CARROUSEL */}
-      {featuredIncidents.length > 0 && (
+      {featuredIncidents.length > 0 && currentPage === 1 && (
         <section className="mb-16"> {/* J'ai mis une section pour espacer */}
           
           {/* LE TITRE AJOUTÉ */}
