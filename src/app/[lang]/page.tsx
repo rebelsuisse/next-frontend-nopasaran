@@ -8,6 +8,8 @@ import ShareButton from '@/components/ShareButton';
 import { Metadata } from 'next';
 import RandomButton from '@/components/RandomButton';
 import { FaBullhorn } from 'react-icons/fa';
+import FeaturedCarousel from '@/components/FeaturedCarousel';
+import { FaFire } from 'react-icons/fa';
 
 interface HomePageProps {
   params: { lang: string };
@@ -50,6 +52,7 @@ async function getPageTranslations(locale: string) {
       copiedLabel: t('copiedLabel'),
       randomButton: t('randomButton'), 
       reportButton: t('reportButton'),
+      latestIncidents: t('latestIncidents'),
   };
 }
 
@@ -64,7 +67,9 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const pageCount = meta.pagination.pageCount;
 
   // On utilise les params résolus
-  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton } = await getPageTranslations(resolvedParams.lang);
+  const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton, latestIncidents } = await getPageTranslations(resolvedParams.lang);
+
+  const featuredIncidents = incidents ? incidents.slice(0, 5) : [];
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-8">
@@ -109,6 +114,20 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           />
         </div>
       </div>
+
+      {/* CARROUSEL */}
+      {featuredIncidents.length > 0 && (
+        <section className="mb-16"> {/* J'ai mis une section pour espacer */}
+          
+          {/* LE TITRE AJOUTÉ */}
+          <h2 className="text-2xl font-bold text-white mb-6 flex items-center justify-center gap-2 px-2">
+            <FaFire className="text-orange-500" />
+            {latestIncidents}
+          </h2>
+
+          <FeaturedCarousel incidents={featuredIncidents} lang={resolvedParams.lang} />
+        </section>
+      )}
 
       {/* Conteneur de la liste */}
       <div className="bg-gray-800 rounded-lg shadow-lg">
