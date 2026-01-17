@@ -126,7 +126,8 @@
     "insult": "Insult",
     "populism": "Populism",
     "lie": "Lie",
-    "other": "Other"
+    "other": "Other",
+    "multiple": "Multiple"
   },
   "Locations": {
     "Facebook": "Facebook",
