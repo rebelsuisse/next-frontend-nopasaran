@@ -126,7 +126,8 @@
     "insult": "Ingiuria",
     "populism": "Populismo",
     "lie": "Menzogna",
-    "other": "Altro"
+    "other": "Altro",
+    "multiple": "Multipli"
   },
   "Locations": {
     "Facebook": "Facebook",
