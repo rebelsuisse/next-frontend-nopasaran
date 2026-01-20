@@ -146,7 +146,9 @@ export default function FeaturedCarousel({ incidents, lang, translations }: Feat
                   {/* 4. Sujet (Réduit) */}
                   {incident.sujet && (
                       <p className="text-xs md:text-lg text-gray-300 font-medium line-clamp-1 drop-shadow-md mt-0.5 md:mt-0">
-                          {incident.sujet.name} <span className="text-gray-500 mx-1 md:mx-2">|</span> {incident.sujet.affiliation}
+                          {incident.sujet.name} 
+                          <span className="text-gray-500 mx-1 md:mx-2">|</span> 
+                          {translations[incident.sujet.affiliation] || incident.sujet.affiliation}
                       </p>
                   )}
               </div>

@@ -70,19 +70,27 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
   const { title, noIncidents, shareTitle, shareText, shareLabel, copiedLabel, randomButton, reportButton, latestIncidents } = await getPageTranslations(resolvedParams.lang);
 
   const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
+  const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
 
   const featuredIncidents = incidents ? incidents.slice(0, 10) : [];
 
   // CRÉATION DU DICTIONNAIRE DE TRADUCTION
   // On crée un objet simple : { "racism": "Racisme", "fraud": "Fraude", ... }
   // On ne traduit que celles dont on a besoin pour le carrousel
-  const categoryTranslations: Record<string, string> = {};
+  const carouselTranslations: Record<string, string> = {};
   featuredIncidents.forEach(incident => {
+    // Traduction de la Catégorie
     if (incident.category) {
-        // On vérifie si la clé existe, sinon on met la clé brute
-        categoryTranslations[incident.category] = tCats.has(incident.category) 
+        carouselTranslations[incident.category] = tCats.has(incident.category) 
             ? tCats(incident.category) 
             : incident.category;
+    }
+    // Traduction du Parti (Affiliation)
+    if (incident.sujet?.affiliation) {
+        const aff = incident.sujet.affiliation;
+        carouselTranslations[aff] = tParties.has(aff) 
+            ? tParties(aff) 
+            : aff;
     }
   });
 
@@ -143,7 +151,8 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
           <FeaturedCarousel 
              incidents={featuredIncidents} 
              lang={resolvedParams.lang} 
-             translations={categoryTranslations}
+             // On passe le dictionnaire complet
+             translations={carouselTranslations} 
           />
         </section>
       )}
