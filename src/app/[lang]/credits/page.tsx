@@ -7,6 +7,7 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
 import remarkGfm from 'remark-gfm';
+import Image from 'next/image';
 
 interface CreditsPageProps {
   params: any;
@@ -52,6 +53,16 @@ export default async function CreditsPage({ params }: CreditsPageProps) {
       <article>
         {content}
       </article>
+      <div className="mt-6 flex flex-col items-center justify-center">
+          <Image 
+            src="/icon.png" 
+            alt="Logo No Pasaran"
+            width={100} 
+            height={100}
+            className="mb-2"
+          />
+          <p className="text-center text-sm text-gray-200">Rebel Suisse</p>
+      </div>
     </div>
   );
 }
