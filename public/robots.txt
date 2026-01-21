@@ -1,8 +1,13 @@
 # robots.txt for nopasaran.ch
 
-# Règles pour tous les robots standards
+# Règles pour tous les robots standards (Google, Bing, etc.)
 User-agent: *
 Allow: /
+# Bloquer les dossiers techniques
+Disallow: /api/
+Disallow: /admin/
+# --- Bloquer toutes les URLs avec paramètres (pagination, recherche, contexte) ---
+Disallow: /*?*
 
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 
