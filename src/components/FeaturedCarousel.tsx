@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation'; // <--- Pour la navigation au clic
 import { FaChevronLeft, FaChevronRight, FaTag, FaCalendar } from 'react-icons/fa';
 import { Incident } from '@/types';
+import { formatText } from '@/lib/format';
 
 interface FeaturedCarouselProps {
   incidents: Incident[];
@@ -140,7 +141,7 @@ export default function FeaturedCarousel({ incidents, lang, translations }: Feat
                     hover:text-blue-400 transition-colors
                     line-clamp-4 md:line-clamp-2                /* Mobile: 4 lignes autorisées */
                   ">
-                      {incident.title}
+                      {formatText(incident.title)}
                   </h2>
 
                   {/* 4. Sujet (Réduit) */}
