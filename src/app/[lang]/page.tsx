@@ -10,6 +10,7 @@ import RandomButton from '@/components/RandomButton';
 import { FaBullhorn } from 'react-icons/fa';
 import FeaturedCarousel from '@/components/FeaturedCarousel';
 import { FaFire } from 'react-icons/fa';
+import { formatText } from '@/lib/format';
 
 interface HomePageProps {
   params: { lang: string };
@@ -170,7 +171,7 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
                 >
                   {/* Titre (prend toute la place disponible) */}
                   <div className="flex-grow mb-2 sm:mb-0">
-                    <p className="text-lg font-medium">{incident.title}</p>
+                    <p className="text-lg font-medium">{formatText(incident.title)}</p>
                   </div>
                   
                   {/* Date (à droite, ne se réduit pas) */}
