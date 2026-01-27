@@ -116,7 +116,7 @@ export default function FeaturedCarousel({ incidents, lang, translations }: Feat
             <div className="absolute bottom-0 left-0 right-0 min-h-32 md:min-h-40 bg-black/20 backdrop-blur-md z-10" />
 
             {/* CONTENU */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-10 z-20 pt-12 md:pt-16">
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-10 z-20 pb-5 md:pb-6">
               <div className="max-w-4xl mx-auto text-center md:text-left">
 
                 {/* BADGES */}
