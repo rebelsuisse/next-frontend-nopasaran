@@ -113,7 +113,7 @@ export default function FeaturedCarousel({ incidents, lang, translations }: Feat
             </div>
 
             {/* FOND VERRE DÉPOLI POUR LE TEXTE */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-black/20 backdrop-blur-md z-10" />
+            <div className="absolute bottom-0 left-0 right-0 min-h-32 md:min-h-40 bg-black/20 backdrop-blur-md z-10" />
 
             {/* CONTENU */}
             <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-10 z-20">
