@@ -32,6 +32,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const translations = {
     emailLabel: t('emailLabel'),
     messageLabel: t('messageLabel'),
+    attachmentLabel: t('attachmentLabel'),
     sendButton: t('sendButton'),
     sending: t('sending'),
     successMessage: t('successMessage'),
