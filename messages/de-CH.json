@@ -61,7 +61,8 @@
     "sendButton": "Nachricht senden",
     "sending": "Wird gesendet...",
     "successMessage": "Danke! Ihre Nachricht wurde erfolgreich gesendet.",
-    "errorMessage": "Hoppla, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    "errorMessage": "Hoppla, ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "attachmentLabel": "Screenshot oder Datei"
   },
   "Parties": {
     "SVP": "SVP",

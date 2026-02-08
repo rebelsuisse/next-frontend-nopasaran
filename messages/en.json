@@ -61,7 +61,8 @@
     "sendButton": "Send message",
     "sending": "Sending...",
     "successMessage": "Thank you! Your message has been sent successfully.",
-    "errorMessage": "Oops, something went wrong. Please try again."
+    "errorMessage": "Oops, something went wrong. Please try again.",
+    "attachmentLabel": "Screenshot or file"
   },
   "Parties": {
     "SVP": "SVP (Swiss People's Party)",

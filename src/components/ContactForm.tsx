@@ -1,12 +1,14 @@
+// src/components/ContactForm.tsx
 "use client";
 
 import { useState, FormEvent } from "react";
-import { FaPaperPlane } from "react-icons/fa";
+import { FaPaperPlane, FaPaperclip } from "react-icons/fa";
 
 interface ContactFormProps {
   translations: {
     emailLabel: string;
     messageLabel: string;
+    attachmentLabel: string;
     sendButton: string;
     sending: string;
     successMessage: string;
@@ -32,6 +34,8 @@ export default function ContactForm({ translations, formId }: ContactFormProps) 
         body: formData,
         headers: {
           Accept: "application/json",
+          // Ne PAS mettre 'Content-Type': 'multipart/form-data' ici.
+          // Le navigateur le fait automatiquement avec le bon "boundary" quand on utilise FormData.
         },
       });
 
@@ -48,7 +52,7 @@ export default function ContactForm({ translations, formId }: ContactFormProps) 
 
   if (status === "success") {
     return (
-      <div className="bg-green-900/30 border border-green-600 text-green-200 p-6 rounded-lg text-center">
+      <div className="bg-green-900/30 border border-green-600 text-green-200 p-6 rounded-lg text-center animate-fade-in">
         <h3 className="text-xl font-bold mb-2">✓ {translations.successMessage}</h3>
       </div>
     );
@@ -81,7 +85,29 @@ export default function ContactForm({ translations, formId }: ContactFormProps) 
           required
           rows={6}
           placeholder={translations.messagePlaceholder}
-          className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y"
+        />
+      </div>
+
+      {/* Attachment Field (New) */}
+      <div>
+        <label htmlFor="attachment" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+          <FaPaperclip className="text-gray-400" />
+          {translations.attachmentLabel} <span className="text-gray-500 text-xs">(Max 10MB)</span>
+        </label>
+        <input
+          id="attachment"
+          type="file"
+          name="attachment" // Formspree reconnaitra ce champ comme un fichier
+          accept="image/*,.pdf" // Accepte images et PDF
+          className="w-full text-sm text-gray-400
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border-0
+            file:text-sm file:font-semibold
+            file:bg-gray-600 file:text-white
+            hover:file:bg-gray-500
+            cursor-pointer file:cursor-pointer
+            bg-gray-800 rounded-lg border border-gray-600"
         />
       </div>
 
