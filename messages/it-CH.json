@@ -62,7 +62,7 @@
     "sending": "Invio in corso...",
     "successMessage": "Grazie! Il tuo messaggio è stato inviato correttamente.",
     "errorMessage": "Ops, si è verificato un errore. Riprova per favore.",
-    "attachmentLabel": "Screenshot or file"
+    "attachmentLabel": "Screenshot o file"
   },
   "Parties": {
     "SVP": "UDC",
