@@ -154,5 +154,15 @@
     "Statement": "Déclaration / Communiqué",
     "Public": "Espace public",
     "Other": "Autre"
+  },
+  "Footer": {
+    "github": "https://github.com/rebelsuisse",
+    "instagram": "https://www.instagram.com/nopasaran.ch_fr/",
+    "facebook": "https://www.facebook.com/profile.php?id=61575591752126",
+    "youtube": "https://www.youtube.com/@Rebel-ch",
+    "medium": "https://medium.com/@rebel.suisse",
+    "bluesky": "https://bsky.app/profile/nopasaran-ch-fr.bsky.social",
+    "x": "https://x.com/nopasaran_ch_fr",
+    "contact": "contact@nopasaran.ch"
   }
 }
