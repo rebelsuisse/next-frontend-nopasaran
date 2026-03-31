@@ -1,28 +1,29 @@
-import Link from 'next/link'; // Don't forget to import Link!
-import { FaGithub, FaTwitter, FaFacebook, FaInstagram, FaYoutube, FaMedium, FaEnvelope } from 'react-icons/fa';
+import { getTranslations } from 'next-intl/server';
+import { FaGithub, FaFacebook, FaInstagram, FaYoutube, FaMedium, FaEnvelope, FaTwitter } from 'react-icons/fa';
 
-interface HeaderProps {
+interface FooterProps {
   lang: string;
 }
 
 const appVersion = process.env.NEXT_PUBLIC_APP_VERSION;
 const formattedVersion = appVersion?.replace('-', '+').replace('g', '');
 
-export default function Footer({ lang }: HeaderProps) {
+export default async function Footer({ lang }: FooterProps) {
+  const t = await getTranslations('Footer');
+
   return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
       <div className="container mx-auto text-center">
         <div className="flex justify-center space-x-6 mb-4">
-          <a href="https://github.com/rebelsuisse" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
-          <a href="https://www.instagram.com/rebel_suisse/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram size={24} /></a>
-          <a href="https://www.facebook.com/people/Rebel-Suisse/61560481049078/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook size={24} /></a>
-          <a href="https://www.youtube.com/@Rebel-ch" target="_blank" rel="noopener noreferrer" aria-label="Youtube"><FaYoutube size={24} /></a>
-          <a href="https://medium.com/@rebel.suisse" target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
-          
-          {/* NEW CONTACT LINK */}
-          <Link href={`/${lang}/contact`} aria-label="Contact">
-            <FaEnvelope size={24} className="hover:text-blue-400 transition-colors" />
-          </Link>
+          <a href={t('instagram')} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram size={24} /></a>
+          <a href={t('facebook')} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook size={24} /></a>
+          <a href={t('x')} target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
+          <a href={t('bluesky')} target="_blank" rel="noopener noreferrer" aria-label="Bluesky">
+            <img src="/icons/bluesky.svg" alt="Bluesky" width={24} height={24} style={{ filter: 'brightness(0) invert(1)' }} />
+          </a>
+          <a href={t('medium')} target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
+          <a href={t('github')} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
+          <a href={`mailto:${t('contact')}`} aria-label="Email"><FaEnvelope size={24} /></a>
         </div>
         
         <p className="text-sm text-gray-400" style={{ whiteSpace: 'pre-line' }}>
