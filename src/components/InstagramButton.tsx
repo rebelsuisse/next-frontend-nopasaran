@@ -83,7 +83,7 @@ export default function InstagramButton({ title, subjectName, category, date, im
 
           {/* 3. Image (Taille augmentée à 720px grâce au gain de place) */}
           {imageUrl && (
-            <div className="w-[720px] h-[720px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50">
+            <div className="w-[720px] h-[720px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50 mt-12 mb-12">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={imageUrl} 
@@ -95,7 +95,7 @@ export default function InstagramButton({ title, subjectName, category, date, im
           )}
 
           {/* 4. FOOTER COMPACT (Ligne horizontale) */}
-          <div className="absolute bottom-32 flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center gap-8">
             
             {/* Conteneur Ligne : Logo + Texte */}
             <div className="flex items-center gap-6 bg-white/5 px-8 py-4 rounded-full border border-white/10 backdrop-blur-sm">
