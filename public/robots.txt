@@ -3,47 +3,47 @@
 # Règles pour tous les robots standards (Google, Bing, etc.)
 User-agent: *
 Allow: /
-# Bloquer les dossiers techniques
+
+# Autoriser explicitement les fichiers techniques de Next.js (très important)
+Allow: /_next/
+
+# Bloquer les dossiers d'administration
 Disallow: /api/
 Disallow: /admin/
-# --- Bloquer toutes les URLs avec paramètres (pagination, recherche, contexte) ---
-Disallow: /*?*
+
+# --- Bloquer spécifiquement les paramètres problématiques (recherche, contexte) ---
+# Au lieu de tout bloquer, on cible les URL de recherche
+Disallow: /*?query=*
+Disallow: /*?ctx=*
+# Si vous avez un paramètre de langue dans l'url, ne le bloquez pas.
+# Si vous avez une pagination de type ?page=2, il vaut mieux la laisser explorable.
 
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 
-# Amazon (souvent utilisé pour scraper)
 User-agent: Amazonbot
 Disallow: /
 
-# Apple AI
 User-agent: Applebot-Extended
 Disallow: /
 
-# TikTok / ByteDance
 User-agent: Bytespider
 Disallow: /
 
-# Common Crawl (utilisé pour entraîner ChatGPT)
 User-agent: CCBot
 Disallow: /
 
-# Claude AI (Anthropic)
 User-agent: ClaudeBot
 Disallow: /
 
-# Google Gemini / Vertex AI (mais laisse passer Google Search)
 User-agent: Google-Extended
 Disallow: /
 
-# ChatGPT
 User-agent: GPTBot
 Disallow: /
 
-# Facebook / Meta AI
 User-agent: meta-externalagent
 Disallow: /
 
-# Oribi Bot (marketing analysis)
 User-agent: OribiBot
 Disallow: /
 
