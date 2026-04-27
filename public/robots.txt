@@ -15,9 +15,8 @@ Disallow: /_next/*?*
 Disallow: /api/
 Disallow: /admin/
 
-# Bloquer la pagination des pages de contenu dynamique (protection supplémentaire)
-# noindex est géré via les meta tags, mais robots.txt les bloque aussi
-Disallow: /*?page=*
+# Note: La page /search a un noindex global, donc pas besoin de bloquer ?page= ou ?ctx=
+# Les incidents individuels (the-wall-of-shame) peuvent être accédés via ?ctx=search
 
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 

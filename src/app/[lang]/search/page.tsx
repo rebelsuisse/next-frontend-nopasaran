@@ -18,43 +18,14 @@ interface SearchPageProps {
 export async function generateMetadata({ params, searchParams }: SearchPageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
-  
-  const page = Number(resolvedSearchParams.page) || 1;
-  const query = resolvedSearchParams.query || resolvedSearchParams.q;
-  const year = resolvedSearchParams.year;
-  const category = resolvedSearchParams.category;
-  const canton = resolvedSearchParams.canton;
-  const affiliation = resolvedSearchParams.affiliation;
 
-  // Construire l'URL canonique avec les filtres (mais PAS le page parameter)
-  const params_array = [];
-  if (query) params_array.push(`query=${encodeURIComponent(query as string)}`);
-  if (year) params_array.push(`year=${encodeURIComponent(year as string)}`);
-  if (category) params_array.push(`category=${encodeURIComponent(category as string)}`);
-  if (canton) params_array.push(`canton=${encodeURIComponent(canton as string)}`);
-  if (affiliation) params_array.push(`affiliation=${encodeURIComponent(affiliation as string)}`);
-
-  let canonicalUrl = `/${resolvedParams.lang}/search`;
-  if (params_array.length > 0) {
-    canonicalUrl += `?${params_array.join('&')}`;
-  }
-
-  const metadata: Metadata = {
+  return {
     title: `Recherche | No pasarán`,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-  };
-
-  // Ajouter noindex pour les pages paginées (page > 1)
-  if (page > 1) {
-    metadata.robots = {
+    robots: {
       index: false,
       follow: true,
-    };
-  }
-
-  return metadata;
+    },
+  };
 }
 
 async function getPageTranslations(locale: string) {
