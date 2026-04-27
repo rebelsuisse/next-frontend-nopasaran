@@ -20,25 +20,41 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
   const resolvedSearchParams = await searchParams;
   
   const page = Number(resolvedSearchParams.page) || 1;
-  // CORRECTION : On utilise 'query' car c'est le nom du champ dans votre SearchForm
-  const q = resolvedSearchParams.query || resolvedSearchParams.q; 
-  const queryStr = q ? `&query=${q}` : '';
+  const query = resolvedSearchParams.query || resolvedSearchParams.q;
+  const year = resolvedSearchParams.year;
+  const category = resolvedSearchParams.category;
+  const canton = resolvedSearchParams.canton;
+  const affiliation = resolvedSearchParams.affiliation;
+
+  // Construire l'URL canonique avec les filtres (mais PAS le page parameter)
+  const params_array = [];
+  if (query) params_array.push(`query=${encodeURIComponent(query as string)}`);
+  if (year) params_array.push(`year=${encodeURIComponent(year as string)}`);
+  if (category) params_array.push(`category=${encodeURIComponent(category as string)}`);
+  if (canton) params_array.push(`canton=${encodeURIComponent(canton as string)}`);
+  if (affiliation) params_array.push(`affiliation=${encodeURIComponent(affiliation as string)}`);
 
   let canonicalUrl = `/${resolvedParams.lang}/search`;
-  
-  if (page > 1) {
-    canonicalUrl += `?page=${page}`;
-    if (queryStr) canonicalUrl += queryStr;
-  } else if (queryStr) {
-    canonicalUrl += `?query=${q}`; 
+  if (params_array.length > 0) {
+    canonicalUrl += `?${params_array.join('&')}`;
   }
 
-  return {
+  const metadata: Metadata = {
     title: `Recherche | No pasarán`,
     alternates: {
       canonical: canonicalUrl,
     },
   };
+
+  // Ajouter noindex pour les pages paginées (page > 1)
+  if (page > 1) {
+    metadata.robots = {
+      index: false,
+      follow: true,
+    };
+  }
+
+  return metadata;
 }
 
 async function getPageTranslations(locale: string) {

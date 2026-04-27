@@ -4,19 +4,20 @@
 User-agent: *
 Allow: /
 
-# Autoriser explicitement les fichiers techniques de Next.js (très important)
+# Autoriser les ressources Next.js sans paramètres (bundles statiques)
 Allow: /_next/
+
+# Bloquer les ressources Next.js avec paramètres de Query String (variantes inutiles)
+# Exemple: /_next/static/chunks/xxx.js?dpl=...
+Disallow: /_next/*?*
 
 # Bloquer les dossiers d'administration
 Disallow: /api/
 Disallow: /admin/
 
-# --- Bloquer spécifiquement les paramètres problématiques (recherche, contexte) ---
-# Au lieu de tout bloquer, on cible les URL de recherche
-Disallow: /*?query=*
-Disallow: /*?ctx=*
-# Si vous avez un paramètre de langue dans l'url, ne le bloquez pas.
-# Si vous avez une pagination de type ?page=2, il vaut mieux la laisser explorable.
+# Bloquer la pagination des pages de contenu dynamique (protection supplémentaire)
+# noindex est géré via les meta tags, mais robots.txt les bloque aussi
+Disallow: /*?page=*
 
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 
