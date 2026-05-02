@@ -15,8 +15,9 @@ Disallow: /_next/*?*
 Disallow: /api/
 Disallow: /admin/
 
-# Note: La page /search a un noindex global, donc pas besoin de bloquer ?page= ou ?ctx=
-# Les incidents individuels (the-wall-of-shame) peuvent être accédés via ?ctx=search
+# Bloquer les ressources Next.js avec paramètres de Query String (variantes inutiles)
+# Exemple: /_next/static/chunks/xxx.js?dpl=...
+Disallow: /_next/*?*
 
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 
