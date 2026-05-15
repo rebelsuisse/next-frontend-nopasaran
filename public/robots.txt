@@ -15,10 +15,6 @@ Disallow: /_next/*?*
 Disallow: /api/
 Disallow: /admin/
 
-# Bloquer les ressources Next.js avec paramètres de Query String (variantes inutiles)
-# Exemple: /_next/static/chunks/xxx.js?dpl=...
-Disallow: /_next/*?*
-
 # --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
 
 User-agent: Amazonbot
