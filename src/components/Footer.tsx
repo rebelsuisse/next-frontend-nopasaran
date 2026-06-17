@@ -9,7 +9,7 @@ const appVersion = process.env.NEXT_PUBLIC_APP_VERSION;
 const formattedVersion = appVersion?.replace('-', '+').replace('g', '');
 
 export default async function Footer({ lang }: FooterProps) {
-  const t = await getTranslations('Footer');
+  const t = await getTranslations({ locale: lang, namespace: 'Footer' });
 
   return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
