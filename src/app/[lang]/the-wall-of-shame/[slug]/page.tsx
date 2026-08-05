@@ -84,6 +84,7 @@ async function getPageTranslations(locale: string) {
     sourcesTitle: t('sourcesTitle'),
     shareLabel: t('shareLabel'),
     copiedLabel: t('copiedLabel'),
+    readOnLabel: t('readOnLabel'),
   };
 }
 
@@ -91,7 +92,8 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const response = await getIncidentBySlug(resolvedParams.slug, resolvedParams.lang);
-  const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle, shareLabel, copiedLabel } = await getPageTranslations(resolvedParams.lang);
+  const translations = await getPageTranslations(resolvedParams.lang);
+  const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle, shareLabel, copiedLabel } = translations;
 
   if (!response.data || response.data.length === 0) {
     return notFound();
@@ -275,6 +277,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
                   subjectName={sujet?.name || ''} 
                   category={tCats.has(incident.category) ? tCats(incident.category) : incident.category}
                   date={new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
+                  readOnLabel={translations.readOnLabel}
                   // On passe l'URL de l'image principale si elle existe
                   imageUrl={incident.sujet?.picture?.url ? `${STRAPI_HOST}${incident.sujet.picture.url}` : undefined}
                 />

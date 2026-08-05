@@ -17,7 +17,8 @@
     "evidenceTitle": "Evidence",
     "sourcesTitle": "Sources",
     "shareLabel": "Share",
-    "copiedLabel": "Copied!"
+    "copiedLabel": "Copied!",
+    "readOnLabel": "Read it on nopasaran.ch"
   },
   "Header": {
      "search": "Search",
