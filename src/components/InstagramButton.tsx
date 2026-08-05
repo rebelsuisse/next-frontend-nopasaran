@@ -23,6 +23,8 @@ export default function InstagramButton({
 }: InstagramButtonProps) {
   const storyRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
+  const readOnDomain = 'nopasaran.ch';
+  const [readOnPrefix, readOnSuffix] = readOnLabel.split(readOnDomain);
 
   const handleGenerateStory = async () => {
     if (!storyRef.current) return;
@@ -90,7 +92,7 @@ export default function InstagramButton({
 
           {/* 3. Image */}
           {imageUrl && (
-            <div className="w-[640px] h-[640px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50 mt-4 mb-8">
+            <div className="w-[640px] h-[640px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50 mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
@@ -112,9 +114,11 @@ export default function InstagramButton({
 
                 <div className="flex flex-col justify-center text-left">
                   <p className="text-3xl font-semibold tracking-[0.08em] leading-none text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
-                    {readOnLabel}
+                    {readOnPrefix}
+                    <strong className="font-bold">{readOnDomain}</strong>
+                    {readOnSuffix}
                   </p>
-                  <p className="mt-3 text-lg font-semibold uppercase tracking-[0.22em] leading-none text-gray-300">
+                  <p className="mt-3 text-lg font-semibold tracking-[0.22em] leading-none text-gray-300">
                     The Wall of Shame
                   </p>
                 </div>
