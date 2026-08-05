@@ -273,7 +273,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
                   labels={{ share: shareLabel, copied: copiedLabel }}
                 />
                 <InstagramButton 
-                  title={incident.title}
+                  title={cleanTitle}
                   subjectName={sujet?.name || ''} 
                   category={tCats.has(incident.category) ? tCats(incident.category) : incident.category}
                   date={new Date(incident.incident_date).toLocaleDateString(resolvedParams.lang)}
