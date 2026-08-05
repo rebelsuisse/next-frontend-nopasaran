@@ -69,7 +69,7 @@ export default function InstagramButton({
           style={{ background: 'linear-gradient(135deg, #111827 0%, #374151 100%)' }}
         >
           {/* 1. Header */}
-          <div className="mt-32 flex flex-col items-center gap-4">
+          <div className="mt-24 flex flex-col items-center gap-4">
             <div className="flex gap-6">
               <span className="bg-red-600 text-white px-8 py-3 rounded-xl text-3xl font-bold uppercase tracking-wider shadow-lg border border-red-500">
                 {category}
@@ -92,7 +92,7 @@ export default function InstagramButton({
 
           {/* 3. Image */}
           {imageUrl && (
-            <div className="w-[640px] h-[640px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50 mb-8">
+            <div className="w-[640px] h-[640px] relative rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-4 border-gray-600/50 mt-4 mb-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
