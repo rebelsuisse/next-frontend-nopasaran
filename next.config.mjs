@@ -9,7 +9,7 @@ const withMDX = createMDX({});
 // CSP PROPRE (Sans localhost)
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https: https://api.nopasaran.ch;
     font-src 'self' data:;
@@ -17,6 +17,7 @@ const cspHeader = `
     base-uri 'self';
     form-action 'self' https://formspree.io;
     frame-ancestors 'none';
+    frame-src https://www.googletagmanager.com;
     connect-src 'self' https://formspree.io https: https://api.nopasaran.ch;
 `.replace(/\s{2,}/g, ' ').trim();
 
