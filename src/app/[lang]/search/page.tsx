@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { formatText } from '@/lib/format';
 import { searchIncidents, getSearchFilters } from '@/lib/api';
+import { localeAlternates } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,15 +40,31 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
     canonicalUrl += `?${params_array.join('&')}`;
   }
 
+  // noindex, follow dès qu'un filtre OU une pagination est présent.
+  //
+  // Avant, seul « page > 1 » était en noindex : chaque combinaison de
+  // query × year × category × canton × affiliation était donc une page
+  // indexable et auto-canonique, soit un produit cartésien d'URLs de contenu
+  // pauvre (piège d'exploration classique des recherches à facettes).
+  // « follow » est conservé : Google continue de suivre les liens vers les
+  // fiches d'incident, qui sont, elles, les pages à indexer.
+  const hasFilters = Boolean(query || year || category || canton || affiliation);
+  const isIndexable = page === 1 && !hasFilters;
+
   const metadata: Metadata = {
     title: `Recherche | No pasarán`,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    // Seule la page /search nue entre dans une grappe hreflang. Sur les
+    // variantes filtrées ou paginées, en noindex, une grappe serait ignorée par
+    // Google : on s'y limite à la canonique auto-référente (params de filtre
+    // inclus, pagination exclue). On ne pointe PAS vers /search nu : combiner
+    // « noindex » et une canonique vers une autre page envoie deux signaux
+    // contradictoires.
+    alternates: isIndexable
+      ? localeAlternates(resolvedParams.lang, '/search')
+      : { canonical: canonicalUrl },
   };
 
-  // Ajouter noindex UNIQUEMENT pour les pages paginées (page > 1)
-  if (page > 1) {
+  if (!isIndexable) {
     metadata.robots = {
       index: false,
       follow: true,

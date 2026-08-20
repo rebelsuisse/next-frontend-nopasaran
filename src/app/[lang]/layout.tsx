@@ -77,21 +77,16 @@ export async function generateMetadata({ params }: LangLayoutParams): Promise<Me
       apple: '/icon.png',
     },
 
-    alternates: {
-      // Points to the current page language version
-      canonical: `/${resolvedParams.lang}`,
-
-      // Tells Google about other versions and the default fallback
-      languages: {
-        'fr-CH': '/fr-CH',
-        'de-CH': '/de-CH',
-        'it-CH': '/it-CH',
-        'en': '/en',
-        // Critical: tells Google that /fr-CH is the default for generic users
-        // This fixes the "Duplicate page" error for the root URL
-        'x-default': '/fr-CH', 
-      },
-    },
+    // Pas d'`alternates` ici, volontairement. Les métadonnées Next.js sont
+    // fusionnées de façon superficielle : le bloc `alternates` d'une page
+    // remplace entièrement celui du layout. Le déclarer ici produisait donc
+    // deux bugs opposés :
+    //   - les pages qui déclaraient une canonique (accueil, contact, recherche)
+    //     écrasaient le bloc et perdaient tous les hreflang ;
+    //   - les pages qui ne déclaraient rien (manifesto, credits, newsletter)
+    //     héritaient de `canonical: /${lang}` et se déclaraient donc
+    //     duplicatas de l'accueil.
+    // Chaque page appelle maintenant localeAlternates() de src/lib/seo.ts.
   };
 }
 

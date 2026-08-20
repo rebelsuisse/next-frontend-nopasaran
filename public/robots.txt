@@ -4,20 +4,28 @@
 User-agent: *
 Allow: /
 
-# Autoriser les ressources Next.js sans paramètres (bundles statiques)
-Allow: /_next/
-
-# Bloquer les ressources Next.js avec paramètres de Query String (variantes inutiles)
-# Exemple: /_next/static/chunks/xxx.js?dpl=...
-Disallow: /_next/*?*
-
-# Bloquer les dossiers d'administration
+# Bloquer les routes API internes
 Disallow: /api/
-Disallow: /admin/
 
-# --- BLOCAGE DES ROBOTS D'IA ET SCRAPERS ---
+# NB : on ne bloque PAS /_next/ (ni ses variantes avec query string).
+# /_next/image?url=... est l'optimiseur d'images Next.js : le bloquer
+# empêcherait Google d'explorer TOUTES les images du site (aucune photo
+# dans Google Images, et rendu des pages sans illustrations).
+
+# --- ROBOTS D'ENTRAÎNEMENT IA : BLOQUÉS ---
+# Ces agents collectent du contenu pour entraîner des modèles.
+# Les bloquer n'a aucun coût en visibilité (ils ne servent pas la recherche).
+
+User-agent: AI2Bot
+Disallow: /
+
+User-agent: Ai2Bot-Dolma
+Disallow: /
 
 User-agent: Amazonbot
+Disallow: /
+
+User-agent: anthropic-ai
 Disallow: /
 
 User-agent: Applebot-Extended
@@ -32,17 +40,69 @@ Disallow: /
 User-agent: ClaudeBot
 Disallow: /
 
-User-agent: Google-Extended
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: FacebookBot
 Disallow: /
 
 User-agent: GPTBot
 Disallow: /
 
+User-agent: ImagesiftBot
+Disallow: /
+
 User-agent: meta-externalagent
 Disallow: /
 
-User-agent: OribiBot
+User-agent: omgili
 Disallow: /
+
+User-agent: omgilibot
+Disallow: /
+
+User-agent: PanguBot
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: Webzio-Extended
+Disallow: /
+
+# --- RECHERCHE IA : AUTORISÉE (choix délibéré) ---
+# Ces agents ne servent pas (principalement) à l'entraînement : ils explorent
+# pour CITER des sources dans les réponses IA. Les autoriser permet au Wall of
+# Shame d'être cité par ChatGPT, Perplexity, Gemini, etc. C'est volontaire —
+# ne pas les déplacer dans la liste ci-dessus sans décision explicite.
+#
+# Cas particulier de Google-Extended : ce n'est pas un crawler (c'est toujours
+# Googlebot qui explore), mais un jeton qui autorise Google à réutiliser le
+# contenu déjà exploré pour Gemini / Vertex AI. Il commande à la fois le
+# « grounding » (citation) ET l'entraînement, sans possibilité de séparer les
+# deux : l'autoriser pour être cité par Gemini implique donc d'accepter aussi
+# l'usage en entraînement. Arbitrage assumé, cohérent avec la ligne ci-dessus.
+#
+# Rappel : un agent qui possède son propre groupe ignore complètement le
+# groupe « User-agent: * ». Le « Disallow: /api/ » est donc répété ici.
+
+User-agent: Google-Extended
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+User-agent: Meta-ExternalFetcher
+User-agent: YouBot
+Allow: /
+Disallow: /api/
 
 # --- SITEMAP ---
 Sitemap: https://www.nopasaran.ch/sitemap.xml

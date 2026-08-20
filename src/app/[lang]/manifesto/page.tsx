@@ -9,10 +9,21 @@ import { getTranslations } from 'next-intl/server';
 // On importe la fonction de style depuis notre fichier
 import { getCustomMDXComponents } from '@/mdx-components';
 import remarkGfm from 'remark-gfm';
-import { formatText } from '@/lib/format'; 
+import { formatText } from '@/lib/format';
+import { localeAlternates } from '@/lib/seo';
 
 interface ManifestoPageProps {
   params: any;
+}
+
+// Sans ce bloc, la page héritait de l'`alternates` du layout et se canonisait
+// vers /${lang}, soit un duplicata déclaré de l'accueil. On ne redéfinit que
+// les `alternates` : le titre et la description continuent de venir du layout.
+export async function generateMetadata({ params }: ManifestoPageProps) {
+  const resolvedParams = await params;
+  return {
+    alternates: localeAlternates(resolvedParams.lang, '/manifesto'),
+  };
 }
 
 async function getPageTranslations(locale: string) {
