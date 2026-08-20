@@ -42,12 +42,24 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
   const metadata: Metadata = {
     title: `Recherche | No pasarán`,
     alternates: {
+      // Canonique auto-référente (params de filtre inclus, pagination exclue).
+      // On ne pointe PAS vers /search nu : combiner « noindex » et une canonique
+      // vers une autre page envoie deux signaux contradictoires à Google.
       canonical: canonicalUrl,
     },
   };
 
-  // Ajouter noindex UNIQUEMENT pour les pages paginées (page > 1)
-  if (page > 1) {
+  // noindex, follow dès qu'un filtre OU une pagination est présent.
+  //
+  // Avant, seul « page > 1 » était en noindex : chaque combinaison de
+  // query × year × category × canton × affiliation était donc une page
+  // indexable et auto-canonique, soit un produit cartésien d'URLs de contenu
+  // pauvre (piège d'exploration classique des recherches à facettes).
+  // « follow » est conservé : Google continue de suivre les liens vers les
+  // fiches d'incident, qui sont, elles, les pages à indexer.
+  const hasFilters = Boolean(query || year || category || canton || affiliation);
+
+  if (page > 1 || hasFilters) {
     metadata.robots = {
       index: false,
       follow: true,

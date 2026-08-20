@@ -7,6 +7,7 @@ import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import type { Incident } from '@/types';
 import MarkdownIt from 'markdown-it';
 import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
@@ -17,6 +18,30 @@ import SlugUpdater from '@/components/SlugUpdater';
 interface DetailPageProps {
   params: Promise<{ slug: string; lang: string }>; 
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+/**
+ * Construit la table { locale -> slug } d'un incident, langue courante incluse.
+ *
+ * Les slugs sont traduits, donc différents d'une langue à l'autre. Strapi
+ * renvoie `localizations` soit en tableau direct, soit enveloppé dans `.data`
+ * selon la version : les deux formes sont acceptées.
+ */
+function buildSlugsByLocale(incident: Incident, currentLang: string): Record<string, string> {
+  const raw = incident.localizations;
+  const list: Array<Pick<Incident, 'locale' | 'slug'>> = Array.isArray(raw)
+    ? raw
+    : (raw?.data ?? []);
+
+  const slugsByLocale: Record<string, string> = { [currentLang]: incident.slug };
+
+  list.forEach(loc => {
+    if (loc?.locale && loc?.slug) {
+      slugsByLocale[loc.locale] = loc.slug;
+    }
+  });
+
+  return slugsByLocale;
 }
 
 export async function generateMetadata({ params }: DetailPageProps): Promise<Metadata> {
@@ -45,10 +70,32 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
 
   const seoTitle = incident.title;
 
+  // URL canonique = URL PROPRE, sans query string.
+  // Les liens venant de la recherche portent « ?ctx=search&query=... » (et ceux
+  // de /api/random « ?ctx=random ») : ces paramètres servent à la navigation
+  // précédent/suivant, mais chaque combinaison créait une URL distincte que
+  // Google devait dédupliquer lui-même, faute de balise canonique.
+  // Le chemin est relatif : il est résolu via le `metadataBase` du layout.
+  const canonicalPath = `/${resolvedParams.lang}/the-wall-of-shame/${incident.slug}`;
+
+  // hreflang : Strapi renvoie déjà les traductions via `populate.localizations`.
+  const slugsByLocale = buildSlugsByLocale(incident, resolvedParams.lang);
+  const languageAlternates = Object.fromEntries(
+    Object.entries(slugsByLocale).map(([locale, slug]) => [
+      locale,
+      `/${locale}/the-wall-of-shame/${slug}`,
+    ])
+  );
+
   return {
-    title: `${seoTitle} | No pasarán`, 
+    title: `${seoTitle} | No pasarán`,
     description: incident.description.substring(0, 160),
-    
+
+    alternates: {
+      canonical: canonicalPath,
+      languages: languageAlternates,
+    },
+
     openGraph: {
       title: seoTitle,
       description: incident.description.substring(0, 160),
@@ -207,22 +254,8 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   const tLocs = await getTranslations({ locale: resolvedParams.lang, namespace: 'Locations' });
   const tCats = await getTranslations({ locale: resolvedParams.lang, namespace: 'Categories' });
 
-  const slugsMap: Record<string, string> = {};
-  
-  // 1. La langue actuelle
-  slugsMap[resolvedParams.lang] = incident.slug;
-  
-  // 2. Les autres langues (venant de Strapi)
-  if (incident.localizations) {
-    const locs = incident.localizations as any;
-    
-    // Si c'est un tableau direct, on le prend. Sinon, on cherche .data. Sinon tableau vide.
-    const list = Array.isArray(locs) ? locs : (locs.data || []);
-
-    list.forEach((loc: any) => {
-       slugsMap[loc.locale] = loc.slug;
-    });
-  }
+  // Même table que celle utilisée pour les hreflang dans generateMetadata.
+  const slugsMap = buildSlugsByLocale(incident, resolvedParams.lang);
 
   return (
     <>
