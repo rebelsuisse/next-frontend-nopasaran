@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { formatText } from '@/lib/format';
 import { searchIncidents, getSearchFilters } from '@/lib/api';
+import { localeAlternates } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,16 +40,6 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
     canonicalUrl += `?${params_array.join('&')}`;
   }
 
-  const metadata: Metadata = {
-    title: `Recherche | No pasarán`,
-    alternates: {
-      // Canonique auto-référente (params de filtre inclus, pagination exclue).
-      // On ne pointe PAS vers /search nu : combiner « noindex » et une canonique
-      // vers une autre page envoie deux signaux contradictoires à Google.
-      canonical: canonicalUrl,
-    },
-  };
-
   // noindex, follow dès qu'un filtre OU une pagination est présent.
   //
   // Avant, seul « page > 1 » était en noindex : chaque combinaison de
@@ -58,8 +49,22 @@ export async function generateMetadata({ params, searchParams }: SearchPageProps
   // « follow » est conservé : Google continue de suivre les liens vers les
   // fiches d'incident, qui sont, elles, les pages à indexer.
   const hasFilters = Boolean(query || year || category || canton || affiliation);
+  const isIndexable = page === 1 && !hasFilters;
 
-  if (page > 1 || hasFilters) {
+  const metadata: Metadata = {
+    title: `Recherche | No pasarán`,
+    // Seule la page /search nue entre dans une grappe hreflang. Sur les
+    // variantes filtrées ou paginées, en noindex, une grappe serait ignorée par
+    // Google : on s'y limite à la canonique auto-référente (params de filtre
+    // inclus, pagination exclue). On ne pointe PAS vers /search nu : combiner
+    // « noindex » et une canonique vers une autre page envoie deux signaux
+    // contradictoires.
+    alternates: isIndexable
+      ? localeAlternates(resolvedParams.lang, '/search')
+      : { canonical: canonicalUrl },
+  };
+
+  if (!isIndexable) {
     metadata.robots = {
       index: false,
       follow: true,

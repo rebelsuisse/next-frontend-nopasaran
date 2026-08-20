@@ -2,6 +2,7 @@
 
 import { getTranslations } from 'next-intl/server';
 import ContactForm from '@/components/ContactForm';
+import { localeAlternates } from '@/lib/seo';
 
 const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID || "";
 
@@ -15,9 +16,7 @@ export async function generateMetadata({ params }: ContactPageProps) {
   return {
     title: t('title'),
     description: t('description'),
-    alternates: {
-      canonical: `/${resolvedParams.lang}/contact`,
-    },
+    alternates: localeAlternates(resolvedParams.lang, '/contact'),
   };
 }
 

@@ -8,9 +8,20 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 import { getCustomMDXComponents } from '@/mdx-components';
 import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
+import { localeAlternates } from '@/lib/seo';
 
 interface CreditsPageProps {
   params: any;
+}
+
+// Sans ce bloc, la page héritait de l'`alternates` du layout et se canonisait
+// vers /${lang}, soit un duplicata déclaré de l'accueil. On ne redéfinit que
+// les `alternates` : le titre et la description continuent de venir du layout.
+export async function generateMetadata({ params }: CreditsPageProps) {
+  const resolvedParams = await params;
+  return {
+    alternates: localeAlternates(resolvedParams.lang, '/credits'),
+  };
 }
 
 export default async function CreditsPage({ params }: CreditsPageProps) {

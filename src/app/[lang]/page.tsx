@@ -11,6 +11,7 @@ import { FaBullhorn } from 'react-icons/fa';
 import FeaturedCarousel from '@/components/FeaturedCarousel';
 import { FaFire } from 'react-icons/fa';
 import { formatText } from '@/lib/format';
+import { localeAlternates } from '@/lib/seo';
 
 interface HomePageProps {
   params: { lang: string };
@@ -35,10 +36,14 @@ export async function generateMetadata({ params, searchParams }: HomePageProps):
 
   return {
     title: "No pasarán - The Wall of Shame",
-    description: tMeta('siteDescription'), 
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    description: tMeta('siteDescription'),
+    // Page 1 : canonique + grappe hreflang complète.
+    // Pages 2+ : canonique auto-référente seule. On n'y met pas de hreflang,
+    // car la page 2 d'une langue pointerait vers la page 1 des autres, ce qui
+    // donnerait une grappe non réciproque que Google ignorerait.
+    alternates: page > 1
+      ? { canonical: canonicalUrl }
+      : localeAlternates(resolvedParams.lang),
   };
 }
 

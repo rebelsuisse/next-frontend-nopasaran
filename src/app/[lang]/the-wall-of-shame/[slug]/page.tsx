@@ -13,7 +13,8 @@ import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
 import IncidentNavigation from '@/components/IncidentNavigation';
 import { getIncidentBySlug, getAdjacentSlugs } from '@/lib/api';
-import SlugUpdater from '@/components/SlugUpdater'; 
+import SlugUpdater from '@/components/SlugUpdater';
+import { DEFAULT_LOCALE } from '@/lib/seo';
 
 interface DetailPageProps {
   params: Promise<{ slug: string; lang: string }>; 
@@ -80,12 +81,20 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
 
   // hreflang : Strapi renvoie déjà les traductions via `populate.localizations`.
   const slugsByLocale = buildSlugsByLocale(incident, resolvedParams.lang);
-  const languageAlternates = Object.fromEntries(
-    Object.entries(slugsByLocale).map(([locale, slug]) => [
-      locale,
-      `/${locale}/the-wall-of-shame/${slug}`,
-    ])
-  );
+  const defaultLocaleSlug = slugsByLocale[DEFAULT_LOCALE];
+  const languageAlternates = {
+    ...Object.fromEntries(
+      Object.entries(slugsByLocale).map(([locale, slug]) => [
+        locale,
+        `/${locale}/the-wall-of-shame/${slug}`,
+      ])
+    ),
+    // x-default, comme sur les pages statiques (cf. src/lib/seo.ts), pour que
+    // la grappe soit complète. Omis si l'incident n'a pas de version fr-CH.
+    ...(defaultLocaleSlug
+      ? { 'x-default': `/${DEFAULT_LOCALE}/the-wall-of-shame/${defaultLocaleSlug}` }
+      : {}),
+  };
 
   return {
     title: `${seoTitle} | No pasarán`,

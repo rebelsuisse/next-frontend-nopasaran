@@ -2,6 +2,7 @@
 
 import { getTranslations } from 'next-intl/server';
 import NewsletterForm from '@/components/NewsletterForm';
+import { localeAlternates } from '@/lib/seo';
 
 // 1. On définit une interface propre pour les props
 interface NewsletterPageProps {
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: NewsletterPageProps) {
   return {
     title: t('title'),
     description: t('description'),
+    alternates: localeAlternates(lang, '/newsletter'),
   };
 }
 
