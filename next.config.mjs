@@ -16,7 +16,7 @@ const cspHeader = `
     object-src 'none';
     base-uri 'self';
     form-action 'self' https://formspree.io;
-    frame-ancestors 'none';
+    frame-ancestors https://tagassistant.google.com;
     frame-src https://www.googletagmanager.com;
     connect-src 'self' https://formspree.io https: https://api.nopasaran.ch;
 `.replace(/\s{2,}/g, ' ').trim();
@@ -31,7 +31,11 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
+          // Pas de X-Frame-Options : cet en-tête ne permet que DENY/SAMEORIGIN,
+          // donc il bloquerait la vérification du tag Google même avec la CSP
+          // ci-dessus. La protection anti-clickjacking est assurée par
+          // « frame-ancestors », qui prime sur X-Frame-Options et sait, lui,
+          // autoriser une origine précise (tagassistant.google.com).
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },

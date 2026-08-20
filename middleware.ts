@@ -1,10 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 
 const locales = ['fr-CH', 'de-CH', 'it-CH', 'en'];
-const defaultLocale = 'fr-CH';
-const localePrefix = 'always';
 
+// Un SEUL export de middleware.
+// Avant, ce fichier exportait à la fois un `export default createMiddleware(...)`
+// et un `export function middleware(...)`. Next.js ne retient qu'un seul des
+// deux, donc le middleware next-intl n'était jamais exécuté et `localeDetection`
+// restait sans effet : toutes les requêtes atterrissaient sur /fr-CH.
+// createMiddleware couvre déjà la redirection des URLs sans préfixe de langue
+// (grâce à localePrefix: 'always'), la fonction manuelle était redondante.
 export default createMiddleware({
   // La langue par défaut à utiliser si aucune n'est détectée
   defaultLocale: 'fr-CH',
@@ -13,25 +17,11 @@ export default createMiddleware({
   locales,
 
   // Le préfixe de chemin
-  localePrefix,
+  localePrefix: 'always',
 
-  // NOUVELLE OPTION : Activer la détection automatique de la langue
+  // Détection automatique de la langue (cookie NEXT_LOCALE, puis Accept-Language)
   localeDetection: true
 });
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
-
-  if (pathnameIsMissingLocale) {
-    const url = request.nextUrl.clone();
-    url.pathname = `/${defaultLocale}${pathname}`;
-    return NextResponse.redirect(url);
-  }
-}
 
 export const config = {
   // On ignore :
