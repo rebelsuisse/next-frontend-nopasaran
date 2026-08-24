@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { FaCalendar, FaTag, FaMapMarkerAlt, FaLink, FaShareAlt } from 'react-icons/fa';
 import ShareButton from '@/components/ShareButton';
 import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import type { Incident } from '@/types';
 import MarkdownIt from 'markdown-it';
 import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
 import IncidentNavigation from '@/components/IncidentNavigation';
-import { getIncidentBySlug, getAdjacentSlugs } from '@/lib/api';
+import { getIncidentBySlug, getAdjacentSlugs, findLocaleForSlug } from '@/lib/api';
 import SlugUpdater from '@/components/SlugUpdater';
 import { DEFAULT_LOCALE } from '@/lib/seo';
 
@@ -152,6 +152,17 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   const { involvedSubject, descriptionTitle, consequencesTitle, evidenceTitle, sourcesTitle, shareLabel, copiedLabel } = translations;
 
   if (!response.data || response.data.length === 0) {
+    // Le slug n'existe pas dans cette langue. Avant de renvoyer 404, on vérifie
+    // s'il existe dans une autre : si oui, c'est une URL croisée héritée
+    // (ancien sitemap, ancienne redirection, vieux backlink) et une 308 vers la
+    // bonne langue vaut mieux qu'une 404. Google remplace alors l'URL fautive
+    // par la bonne au lieu de la re-crawler indéfiniment.
+    const realLocale = await findLocaleForSlug(resolvedParams.slug, resolvedParams.lang);
+
+    if (realLocale) {
+      permanentRedirect(`/${realLocale}/the-wall-of-shame/${resolvedParams.slug}`);
+    }
+
     return notFound();
   }
 

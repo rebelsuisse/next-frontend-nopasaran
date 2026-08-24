@@ -124,6 +124,49 @@ export async function getIncidentBySlug(slug: string, locale: string = 'fr-CH') 
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
 
+/**
+ * Cherche dans quelle langue un slug existe, en excluant celle déjà essayée.
+ *
+ * Un slug d'incident n'existe que dans SA langue. Google a hérité d'un stock
+ * d'URLs croisées (/it-CH/<slug-en>, /fr-CH/<slug-it>, ...) : un ancien sitemap
+ * les publiait, et les URLs sans préfixe de langue ont longtemps été redirigées
+ * vers un préfixe deviné. Plutôt que de renvoyer 404 sur ces URLs, on retrouve
+ * la bonne langue pour rediriger dessus.
+ *
+ * Strapi ne supporte pas `locale=all` sur cette collection (il renvoie 0
+ * résultat), d'où les requêtes par langue, lancées en parallèle. Cette fonction
+ * n'est appelée que lorsqu'un slug est déjà introuvable : le chemin normal ne
+ * paie donc rien.
+ */
+export async function findLocaleForSlug(
+  slug: string,
+  excludeLocale: string
+): Promise<string | null> {
+  const candidates = ['fr-CH', 'de-CH', 'it-CH', 'en'].filter(
+    locale => locale !== excludeLocale
+  );
+
+  const found = await Promise.all(
+    candidates.map(async locale => {
+      try {
+        const query = qs.stringify(
+          { locale, filters: { slug: { $eq: slug } }, fields: ['slug'] },
+          { encodeValuesOnly: true }
+        );
+        const res = await fetchApi<StrapiApiCollectionResponse<Incident>>(
+          `the-wall-of-shames?${query}`
+        );
+        return res.data && res.data.length > 0 ? locale : null;
+      } catch {
+        // Une langue qui échoue ne doit pas empêcher les autres de répondre.
+        return null;
+      }
+    })
+  );
+
+  return found.find(Boolean) ?? null;
+}
+
 // Récupère un incident au hasard (astuce en 2 étapes)
 export async function getRandomIncident(locale: string = 'fr-CH') {
   // 1. Obtenir le nombre total d'incidents
