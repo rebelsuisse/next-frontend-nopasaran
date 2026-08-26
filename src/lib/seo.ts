@@ -7,6 +7,24 @@ import type { Metadata } from 'next';
 export const LOCALES = ['fr-CH', 'de-CH', 'it-CH', 'en'] as const;
 export const DEFAULT_LOCALE = 'fr-CH';
 
+export type Locale = (typeof LOCALES)[number];
+
+/**
+ * Ramène une valeur d'origine externe à une locale supportée.
+ *
+ * À appliquer sur TOUT « lang » qui vient du client (query string, params de
+ * route) avant de le réinjecter dans une URL ou dans une requête Strapi.
+ * Une valeur arbitraire y ouvrait deux trous :
+ *   - « ?lang=/example.com » donnait « //example.com/... », que new URL()
+ *     résout en URL absolue : redirection ouverte depuis notre propre domaine,
+ *     donc du phishing qui emprunte la réputation de nopasaran.ch ;
+ *   - la même valeur partant vers Strapi, un « & » suffisait à y greffer des
+ *     paramètres de requête arbitraires.
+ */
+export function resolveLocale(value: string | null | undefined): Locale {
+  return LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
+}
+
 /**
  * Construit le bloc `alternates` d'une page : canonique auto-référente +
  * jeu hreflang complet (x-default inclus).

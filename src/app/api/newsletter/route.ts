@@ -1,7 +1,22 @@
 // src/app/api/newsletter/route.ts
 import { NextResponse } from 'next/server';
 
+// Interrupteur d'arrêt. La newsletter est déployée mais pas encore lancée :
+// la page et cette route répondaient déjà en production, seul le lien dans le
+// header manquait -- ce qui ne protège rien, l'URL étant publique sur GitHub.
+// Or la route est un relais non authentifié vers Brevo : ni captcha, ni
+// limite de débit, ni double opt-in. N'importe qui peut donc y inscrire des
+// adresses de tiers (harcèlement au nom de nopasaran.ch, réputation
+// d'expéditeur grillée) et consommer le quota Brevo.
+// Tant que ces protections ne sont pas en place, on répond 404.
+// Pour rouvrir : NEWSLETTER_ENABLED=true dans les variables d'environnement.
+const NEWSLETTER_ENABLED = process.env.NEWSLETTER_ENABLED === 'true';
+
 export async function POST(request: Request) {
+  if (!NEWSLETTER_ENABLED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   try {
     const { email, lang } = await request.json();
 

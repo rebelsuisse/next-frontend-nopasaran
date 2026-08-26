@@ -1,8 +1,14 @@
 // src/app/[lang]/newsletter/page.tsx
 
+import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import NewsletterForm from '@/components/NewsletterForm';
 import { localeAlternates } from '@/lib/seo';
+
+// Même interrupteur que src/app/api/newsletter/route.ts : sans lui la page
+// resterait servie en 200 et son formulaire taperait dans une route qui
+// répond 404. Les deux s'allument ensemble via NEWSLETTER_ENABLED=true.
+const NEWSLETTER_ENABLED = process.env.NEWSLETTER_ENABLED === 'true';
 
 // 1. On définit une interface propre pour les props
 interface NewsletterPageProps {
@@ -25,6 +31,10 @@ export async function generateMetadata({ params }: NewsletterPageProps) {
 
 // 3. Correction du composant principal
 export default async function NewsletterPage({ params }: NewsletterPageProps) {
+  if (!NEWSLETTER_ENABLED) {
+    notFound();
+  }
+
   // ICI AUSSI, ON "AWAIT" LES PARAMS
   const resolvedParams = await params;
   const lang = resolvedParams.lang;

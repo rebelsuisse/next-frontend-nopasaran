@@ -168,15 +168,26 @@ export async function findLocaleForSlug(
 }
 
 // Récupère un incident au hasard (astuce en 2 étapes)
+// `locale` était interpolée telle quelle dans la query string : un « & » dans
+// la valeur permettait d'ajouter des paramètres arbitraires à la requête
+// Strapi. On passe par qs, comme partout ailleurs dans ce fichier, qui encode
+// les valeurs. L'appelant doit malgré tout valider la locale (resolveLocale).
 export async function getRandomIncident(locale: string = 'fr-CH') {
   // 1. Obtenir le nombre total d'incidents
-  const countResponse = await fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?locale=${locale}&pagination[pageSize]=1`);
+  const countQuery = qs.stringify(
+    { locale, pagination: { pageSize: 1 } },
+    { encodeValuesOnly: true }
+  );
+  const countResponse = await fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${countQuery}`);
   const total = countResponse.meta.pagination.total;
 
   // 2. Choisir un index au hasard et récupérer un seul incident
   const randomIndex = Math.floor(Math.random() * total);
-  const randomQuery = `the-wall-of-shames?locale=${locale}&pagination[start]=${randomIndex}&pagination[limit]=1`;
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(randomQuery);
+  const randomQuery = qs.stringify(
+    { locale, pagination: { start: randomIndex, limit: 1 } },
+    { encodeValuesOnly: true }
+  );
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${randomQuery}`);
 }
 
 export async function searchIncidents(
