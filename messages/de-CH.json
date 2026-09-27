@@ -102,6 +102,17 @@
     "errorMessage": "Hoppla, ein Fehler ist aufgetreten.",
     "privacyNote": "Sie können sich jederzeit über den Link in der E-Mail abmelden."
   },
+  "RssPage": {
+    "title": "RSS-Feed",
+    "description": "Verfolgen Sie neue Vorfälle in Ihrem RSS-Reader, ohne Anmeldung und ohne E-Mail.",
+    "feedUrlTitle": "Adresse des Feeds",
+    "feedUrlHelp": "Kopieren Sie diese Adresse und fügen Sie sie in Ihrem RSS-Reader hinzu.",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "readersTitle": "Mit einem Klick abonnieren",
+    "rawFeedPrefix": "Für Neugierige:",
+    "rawFeedLink": "Rohdaten des Feeds anzeigen (XML)"
+  },
   "Categories": {
     "racism": "Rassismus",
     "antisemitism": "Antisemitismus",

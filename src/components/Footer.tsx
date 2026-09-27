@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { FaGithub, FaFacebook, FaInstagram, FaYoutube, FaMedium, FaEnvelope, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaFacebook, FaInstagram, FaYoutube, FaMedium, FaEnvelope, FaTwitter, FaRss } from 'react-icons/fa';
 
 interface FooterProps {
   lang: string;
@@ -24,6 +24,7 @@ export default async function Footer({ lang }: FooterProps) {
           <a href={t('medium')} target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href={t('github')} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
           <a href={`mailto:${t('contact')}`} aria-label="Email"><FaEnvelope size={24} /></a>
+          <a href={`/${lang}/rss`} aria-label="RSS"><FaRss size={24} /></a>
         </div>
         
         <p className="text-sm text-gray-400" style={{ whiteSpace: 'pre-line' }}>

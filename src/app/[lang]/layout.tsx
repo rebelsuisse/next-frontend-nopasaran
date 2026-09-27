@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { getTranslations } from 'next-intl/server';
 import { Analytics } from "@vercel/analytics/react"; 
 import Header from "@/components/Header";
@@ -128,17 +129,31 @@ export default async function LangLayout({ children, params }: LangLayoutParams)
   return (
     <html lang={resolvedParams.lang} suppressHydrationWarning>
       <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18393125613" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-18393125613');
-            `,
-          }}
+        {/* Découverte automatique du flux RSS par les navigateurs et lecteurs.
+            Posé ici plutôt que via `alternates.types` dans les métadonnées :
+            chaque page redéfinit son `alternates` (cf. commentaire plus haut),
+            il aurait fallu l'ajouter partout. */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="No pasarán - The Wall of Shame"
+          href={`/${resolvedParams.lang}/feed.xml`}
         />
+        {/* Google tag via next/script : un <script> brut dans un composant
+            déclenche un avertissement React 19 (les scripts insérés par React
+            côté client ne s'exécutent jamais). */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18393125613"
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-18393125613');
+          `}
+        </Script>
       </head>
       <body className="flex flex-col min-h-screen">
         <script

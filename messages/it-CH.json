@@ -102,6 +102,17 @@
     "errorMessage": "Ops, si è verificato un errore.",
     "privacyNote": "Potrai disiscriverti in qualsiasi momento tramite il link nell'email."
   },
+  "RssPage": {
+    "title": "Feed RSS",
+    "description": "Segui i nuovi incidenti nel tuo lettore RSS, senza registrazione né email.",
+    "feedUrlTitle": "Indirizzo del feed",
+    "feedUrlHelp": "Copia questo indirizzo e aggiungilo al tuo lettore RSS.",
+    "copy": "Copia",
+    "copied": "Copiato!",
+    "readersTitle": "Abbonati con un clic",
+    "rawFeedPrefix": "Per i curiosi:",
+    "rawFeedLink": "vedi il feed grezzo (XML)"
+  },
   "Categories": {
     "racism": "Razzismo",
     "antisemitism": "Antisemitismo",

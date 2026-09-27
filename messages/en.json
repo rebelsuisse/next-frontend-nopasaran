@@ -102,6 +102,17 @@
     "errorMessage": "Oops, an error occurred.",
     "privacyNote": "You can unsubscribe at any time via the link in the email."
   },
+  "RssPage": {
+    "title": "RSS feed",
+    "description": "Follow new incidents in your RSS reader, with no sign-up and no email.",
+    "feedUrlTitle": "Feed address",
+    "feedUrlHelp": "Copy this address and add it to your RSS reader.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "readersTitle": "Subscribe in one click",
+    "rawFeedPrefix": "For the curious:",
+    "rawFeedLink": "view the raw feed (XML)"
+  },
   "Categories": {
     "racism": "Racism",
     "antisemitism": "Antisemitism",

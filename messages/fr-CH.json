@@ -102,6 +102,17 @@
     "errorMessage": "Oups, une erreur est survenue.",
     "privacyNote": "Vous pourrez vous désinscrire à tout moment via le lien dans l'email."
   },
+  "RssPage": {
+    "title": "Flux RSS",
+    "description": "Suivez les nouveaux incidents dans votre lecteur RSS, sans inscription ni email.",
+    "feedUrlTitle": "Adresse du flux",
+    "feedUrlHelp": "Copiez cette adresse et ajoutez-la dans votre lecteur RSS.",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "readersTitle": "S'abonner en un clic",
+    "rawFeedPrefix": "Pour les curieux :",
+    "rawFeedLink": "voir le flux brut (XML)"
+  },
   "Categories": {
     "racism": "Racisme",
     "antisemitism": "Antisémitisme",
