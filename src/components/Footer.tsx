@@ -14,12 +14,15 @@ export default async function Footer({ lang }: FooterProps) {
   return (
     <footer className="bg-gray-800 text-white p-6 mt-8">
       <div className="container mx-auto text-center">
-        <div className="flex justify-center space-x-6 mb-4">
+        {/* flex-wrap + gap : sur mobile, les icônes passent à la ligne au lieu
+            d'être comprimées (l'<img> Bluesky, soumise au max-width: 100% de
+            Tailwind, était la seule à rétrécir). */}
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-4">
           <a href={t('instagram')} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram size={24} /></a>
           <a href={t('facebook')} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook size={24} /></a>
           <a href={t('x')} target="_blank" rel="noopener noreferrer" aria-label="X"><FaTwitter size={24} /></a>
           <a href={t('bluesky')} target="_blank" rel="noopener noreferrer" aria-label="Bluesky">
-            <img src="/icons/bluesky.svg" alt="Bluesky" width={24} height={24} style={{ filter: 'brightness(0) invert(1)' }} />
+            <img src="/icons/bluesky.svg" alt="Bluesky" width={24} height={24} className="max-w-none" style={{ filter: 'brightness(0) invert(1)' }} />
           </a>
           <a href={t('medium')} target="_blank" rel="noopener noreferrer" aria-label="Medium"><FaMedium size={24} /></a>
           <a href={t('github')} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub size={24} /></a>
