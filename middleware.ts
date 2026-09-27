@@ -26,7 +26,22 @@ const intlMiddleware = createMiddleware({
   localePrefix: 'always',
 
   // Détection automatique de la langue (cookie NEXT_LOCALE, puis Accept-Language)
-  localeDetection: true
+  localeDetection: true,
+
+  // Pas d'en-tête HTTP `Link` hreflang. next-intl le construit en changeant
+  // seulement le préfixe de langue du chemin, ce qui est faux pour les
+  // incidents, dont le slug est traduit : /en/the-wall-of-shame/<slug-en>
+  // déclarait /fr-CH/the-wall-of-shame/<slug-en> comme version française, et
+  // /the-wall-of-shame/<slug-en> (sans préfixe) comme x-default. Google lit
+  // les hreflang des en-têtes HTTP comme ceux du HTML : chaque page lui
+  // fournissait donc quatre URLs inexistantes, qui contredisaient en plus les
+  // balises <link hreflang> du HTML. C'est la source des URLs croisées
+  // signalées dans la Search Console depuis que ce middleware s'exécute
+  // réellement (cf. plus haut).
+  // Les hreflang restent déclarés dans le HTML de chaque page :
+  // localeAlternates() de src/lib/seo.ts, et buildSlugsByLocale() pour les
+  // incidents.
+  alternateLinks: false
 });
 
 export default function middleware(request: NextRequest) {
