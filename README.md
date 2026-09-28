@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# No pasarán — The Wall of Shame (frontend)
 
-## Getting Started
+Source of [nopasaran.ch](https://www.nopasaran.ch): a public record of far-right incidents in Switzerland, in French, German, Italian and English.
 
-First, run the development server:
+This repository is the website. The content (incidents, subjects, images) comes from a separate Strapi 5 backend through its public REST API.
+
+## Stack
+
+- [Next.js](https://nextjs.org) 16 (App Router), deployed on Vercel
+- [next-intl](https://next-intl.dev) for the four locales (`fr-CH`, `de-CH`, `it-CH`, `en`); `fr-CH` is the default
+- MDX for the static pages (`content/`), Tailwind CSS for styling
+- An RSS feed per locale at `/<locale>/feed.xml`
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env.local` (git-ignored) with the variables below.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`npm run build` prerenders the sitemap and the static pages, so **the Strapi API must be reachable at build time**. If `.env.local` points at a local Strapi that isn't running, the build fails on `/sitemap.xml`. Either start the local backend, or build against the public API:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+NEXT_PUBLIC_STRAPI_URL=https://api.nopasaran.ch \
+NEXT_PUBLIC_STRAPI_HOST=https://api.nopasaran.ch npm run build
+```
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+In production these are set in the Vercel project settings (Environment Variables). Locally they go in `.env.local`. Never commit real values.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Exposed to the browser | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_STRAPI_URL` | yes | Base URL of the Strapi API |
+| `NEXT_PUBLIC_STRAPI_HOST` | yes | Host prefixed to Strapi image paths (`/uploads/...`) |
+| `NEXT_PUBLIC_FORMSPREE_ID` | yes | Formspree form used by the contact page |
+| `BREVO_API_KEY` | no — secret | Brevo API key used by the newsletter route |
+| `BREVO_LIST_ID_FR` / `BREVO_LIST_ID_DE` | no | Brevo list IDs for newsletter sign-ups |
+| `NEWSLETTER_ENABLED` | no | Feature flag, off by default — see below |
+| `NEXT_PUBLIC_APP_VERSION` | yes | Set automatically by `npm run dev` / `npm run build` from `git describe` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Newsletter flag
 
-## Deploy on Vercel
+The newsletter page (`/<locale>/newsletter`) and its API route (`/api/newsletter`) both return 404 unless `NEWSLETTER_ENABLED=true`. Keep it off until the sign-up form has bot protection, per-IP rate limiting and double opt-in. The route talks to Brevo with a server-side key, so without those protections anyone could subscribe third-party addresses. See the comment at the top of `src/app/api/newsletter/route.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Infrastructure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Hosting, DNS, access control and other operational settings are documented in the project's private documentation repository, not here.
+
+## License
+
+Code: [MPL-2.0](LICENSE). Published content: CC BY-NC-SA 4.0, Rebel Suisse.
