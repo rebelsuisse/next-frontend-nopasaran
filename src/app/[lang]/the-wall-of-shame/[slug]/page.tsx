@@ -8,13 +8,13 @@ import { getTranslations } from 'next-intl/server';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import type { Incident } from '@/types';
-import MarkdownIt from 'markdown-it';
 import InstagramButton from '@/components/InstagramButton';
 import { formatText } from '@/lib/format';
 import IncidentNavigation from '@/components/IncidentNavigation';
 import { getIncidentBySlug, getAdjacentSlugs, findLocaleForSlug } from '@/lib/api';
 import SlugUpdater from '@/components/SlugUpdater';
-import { DEFAULT_LOCALE } from '@/lib/seo';
+import { DEFAULT_LOCALE, serializeJsonLd } from '@/lib/seo';
+import { renderMarkdown } from '@/lib/markdown';
 
 interface DetailPageProps {
   params: Promise<{ slug: string; lang: string }>; 
@@ -260,15 +260,9 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
     about: aboutObject,
   };
 
-  const md = new MarkdownIt({
-    html: true,       // Enable HTML tags in source
-    breaks: true,     // Convert '\n' in paragraphs into <br>
-    linkify: true     // Autoconvert URL-like text to links
-  });
-
   const cleanTitle = formatText(incident.title);
-  const descriptionHtml = md.render(formatText(incident.description || ''));
-  const consequenceHtml = md.render(incident.consequence || '');
+  const descriptionHtml = renderMarkdown(formatText(incident.description));
+  const consequenceHtml = renderMarkdown(incident.consequence);
 
   const tParties = await getTranslations({ locale: resolvedParams.lang, namespace: 'Parties' });
   const tLocs = await getTranslations({ locale: resolvedParams.lang, namespace: 'Locations' });
@@ -281,7 +275,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <SlugUpdater slugs={slugsMap} />

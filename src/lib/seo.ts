@@ -24,6 +24,22 @@ export type Locale = (typeof LOCALES)[number];
  *   - la même valeur partant vers Strapi, un « & » suffisait à y greffer des
  *     paramètres de requête arbitraires.
  */
+/**
+ * Sérialise un objet pour un <script type="application/ld+json">.
+ *
+ * JSON.stringify n'échappe pas « < » : un titre d'incident contenant
+ * « </script> » fermerait la balise, et la suite serait lue comme du HTML --
+ * un XSS stocké à partir d'un simple champ texte de Strapi. On échappe donc
+ * <, > et & en séquences \u, que le parseur JSON relit à l'identique.
+ * À utiliser pour tout JSON-LD qui contient du contenu venu du CMS.
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+}
+
 export function resolveLocale(value: string | null | undefined): Locale {
   return LOCALES.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
 }

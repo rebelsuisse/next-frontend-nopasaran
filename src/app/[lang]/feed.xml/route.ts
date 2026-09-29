@@ -2,9 +2,9 @@
 
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import MarkdownIt from 'markdown-it';
 import { getLatestAddedIncidents } from '@/lib/api';
 import { formatText } from '@/lib/format';
+import { renderMarkdown } from '@/lib/markdown';
 import { incidentImageUrl } from '@/lib/media';
 import { LOCALES, SITE_URL, type Locale } from '@/lib/seo';
 import type { Incident } from '@/types';
@@ -18,14 +18,6 @@ export const revalidate = 3600;
 export function generateStaticParams() {
   return LOCALES.map(lang => ({ lang }));
 }
-
-// Mêmes options que la page d'incident, pour que le lecteur RSS affiche le
-// même texte que le site.
-const md = new MarkdownIt({
-  html: true,
-  breaks: true,
-  linkify: true,
-});
 
 function escapeXml(value: string): string {
   return value
@@ -62,10 +54,9 @@ function renderItem(
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
   let contentHtml = `<p><em>${safeDateLabel}</em></p>`;
-  contentHtml += md.render(formatText(incident.description || ''));
-  if (incident.consequence) {
-    contentHtml += md.render(incident.consequence);
-  }
+  // Même rendu que la page d'incident (src/lib/markdown.ts)
+  contentHtml += renderMarkdown(formatText(incident.description));
+  contentHtml += renderMarkdown(incident.consequence);
 
   return `
     <item>
