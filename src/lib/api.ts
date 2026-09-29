@@ -59,6 +59,87 @@ async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Prom
   }
 }
 
+// Taille de page maximale côté Strapi : doit rester égale à `rest.maxLimit`
+// dans config/api.ts du backend. Au-delà, Strapi tronque la réponse SANS
+// erreur -- une requête pageSize: 5000 renverrait silencieusement 100 lignes.
+// Tout ce qui a besoin de l'ensemble des incidents passe donc par
+// fetchAllPages() plutôt que par une page géante.
+export const MAX_PAGE_SIZE = 100;
+
+// Parcourt toutes les pages d'une collection, MAX_PAGE_SIZE lignes à la fois.
+// Séquentiel exprès : le rate limit Cloudflare compte les requêtes par IP, et
+// les rendus serveur de Vercel partagent quelques IP.
+async function fetchAllPages<T>(
+  collection: string,
+  queryObject: Record<string, unknown>,
+  customOptions: RequestInit = {}
+): Promise<T[]> {
+  const items: T[] = [];
+  let page = 1;
+  let pageCount = 1;
+
+  do {
+    const query = qs.stringify(
+      { ...queryObject, pagination: { page, pageSize: MAX_PAGE_SIZE } },
+      { encodeValuesOnly: true }
+    );
+    const response = await fetchApi<StrapiApiCollectionResponse<T>>(`${collection}?${query}`, customOptions);
+    items.push(...response.data);
+    pageCount = response.meta.pagination.pageCount;
+    page++;
+  } while (page <= pageCount);
+
+  return items;
+}
+
+interface SearchCriteria {
+  year?: string;
+  category?: string;
+  canton?: string;
+  query?: string;
+  affiliation?: string;
+}
+
+// Filtres de la recherche, partagés par searchIncidents() et
+// getAdjacentSlugs() : la navigation précédent/suivant d'un résultat doit
+// parcourir exactement la même liste que la page de recherche.
+function buildSearchConditions(criteria: SearchCriteria): object[] {
+  const conditions: object[] = [];
+
+  // Filtre par année (sur le champ incident_date)
+  if (criteria.year) {
+    conditions.push({
+      incident_date: { $gte: `${criteria.year}-01-01`, $lte: `${criteria.year}-12-31` },
+    });
+  }
+  if (criteria.category) {
+    conditions.push({ category: { $eq: criteria.category } });
+  }
+  // Canton et parti vivent dans la relation 'sujet'
+  if (criteria.canton) {
+    conditions.push({ sujet: { canton: { $eq: criteria.canton } } });
+  }
+  if (criteria.affiliation) {
+    conditions.push({ sujet: { affiliation: { $eq: criteria.affiliation } } });
+  }
+  // Filtre par texte (sur le titre, la description ou le nom du sujet)
+  if (criteria.query) {
+    conditions.push({
+      $or: [
+        { title: { $containsi: criteria.query } },
+        { description: { $containsi: criteria.query } },
+        { sujet: { name: { $containsi: criteria.query } } },
+      ],
+    });
+  }
+
+  return conditions;
+}
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 // Récupère la liste des incidents, triés par date
 export async function getIncidents(
   locale: string = 'fr-CH',
@@ -205,61 +286,12 @@ export async function searchIncidents(
 
   const { page = 1, pageSize = 10 } = params;
 
-  const filters: any = {
-    $and: [],
-  };
-
-  // Filtre par année (sur le champ incident_date)
-  if (params.year) {
-    filters.$and.push({
-      incident_date: {
-        $gte: `${params.year}-01-01`,
-        $lte: `${params.year}-12-31`,
-      },
-    });
-  }
-
-  // Filtre par catégorie
-  if (params.category) {
-    filters.$and.push({
-      category: { $eq: params.category },
-    });
-  }
-
-  // Filtre par canton (dans la relation sujet)
-  if (params.canton) {
-    filters.$and.push({
-      sujet: {
-        canton: { $eq: params.canton },
-      },
-    });
-  }
-
-  // Filtre par texte (sur le titre, la description ou le nom du sujet)
-  if (params.query) {
-    filters.$and.push({
-      $or: [
-        { title: { $containsi: params.query } },
-        { description: { $containsi: params.query } },
-        { sujet: { name: { $containsi: params.query } } },
-      ],
-    });
-  }
-
- // Filtre par Parti (Affiliation)
-  // On suppose que c'est dans la relation 'sujet' -> champ 'affiliation'
-  if (params.affiliation) {
-    filters.$and.push({
-      sujet: {
-        affiliation: { $eq: params.affiliation },
-      },
-    });
-  }
+  const conditions = buildSearchConditions(params);
 
   // On construit la query avec qs
   const queryObject = {
     locale,
-    filters,
+    filters: conditions.length > 0 ? { $and: conditions } : undefined,
     sort: STANDARD_SORT,
     populate: 'sujet',
     pagination: {
@@ -268,10 +300,6 @@ export async function searchIncidents(
     },
   };
 
-  if (filters.$and.length === 0) {
-    delete queryObject.filters;
-  }
-  
   const query = qs.stringify(queryObject, { encodeValuesOnly: true });
   console.log("Search Query with Pagination:", `the-wall-of-shames?${query}`);
   
@@ -284,36 +312,13 @@ export async function searchIncidents(
   );
 }
 
-export async function getAllIncidentsForSitemap() {
-  const queryObject = {
-    // On ne veut que les champs slug et updatedAt pour être ultra-rapide
-    fields: ['slug', 'updatedAt', 'locale'],
-    // On récupère un grand nombre d'éléments pour être sûr de tout avoir
-    pagination: {
-      pageSize: 5000,
-    },
-  };
-
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-
-  // On utilise le endpoint de base car on veut toutes les langues
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
-}
-
 export async function getIncidentsForSitemapByLocale(locale: string) {
-  const queryObject = {
-    // On spécifie la langue demandée
-    locale: locale,
-    
+  // On ne veut que les champs slug et updatedAt pour être ultra-rapide
+  return fetchAllPages<Pick<Incident, 'slug' | 'updatedAt' | 'locale'>>('the-wall-of-shames', {
+    locale,
     fields: ['slug', 'updatedAt', 'locale'],
-    pagination: {
-      pageSize: 5000, 
-    },
-  };
-  
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-  
-  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+    sort: ['id:asc'],
+  });
 }
 
 export async function getCategoryStats(locale: string): Promise<string[]> {
@@ -425,85 +430,77 @@ export async function getYearStats(locale: string): Promise<string[]> {
   return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
 }
 
+// Voisins d'un incident dans l'ordre d'affichage (STANDARD_SORT : du plus
+// récent au plus ancien). Deux requêtes bornées d'une ligne chacune au lieu
+// de télécharger tous les slugs : « le plus proche plus récent » et « le plus
+// proche plus ancien », comparés sur le couple (incident_date, createdAt)
+// comme le tri de la page.
 export async function getAdjacentSlugs(
-  currentSlug: string,
+  current: Pick<Incident, 'slug' | 'incident_date' | 'createdAt'>,
   locale: string,
   context: 'default' | 'search',
-  searchParams?: any
+  searchParams: Record<string, string | string[] | undefined> = {}
 ): Promise<{ prev: string | null; next: string | null }> {
-  
-  let queryObject: any;
+  if (!current.incident_date || !current.createdAt) return { prev: null, next: null };
 
-  // 1. DÉFINITION DU TRI ET DES FILTRES
-  if (context === 'search') {
-    // --- CONTEXTE RECHERCHE (Filtres appliqués) ---
-    const filters: any = { $and: [] };
-    if (searchParams.year) filters.$and.push({ incident_date: { $gte: `${searchParams.year}-01-01`, $lte: `${searchParams.year}-12-31` } });
-    if (searchParams.category) filters.$and.push({ category: { $eq: searchParams.category } });
-    if (searchParams.canton) filters.$and.push({ sujet: { canton: { $eq: searchParams.canton } } });
-    if (searchParams.affiliation) filters.$and.push({ sujet: { affiliation: { $eq: searchParams.affiliation } } });
-    if (searchParams.query) {
-      filters.$and.push({
-        $or: [
-          { title: { $containsi: searchParams.query } },
-          { description: { $containsi: searchParams.query } },
-          { sujet: { name: { $containsi: searchParams.query } } },
-        ],
-      });
-    }
+  // En recherche, mêmes filtres que la page de recherche (qui accepte aussi « q »)
+  const conditions = context === 'search'
+    ? buildSearchConditions({
+        year: firstParam(searchParams.year),
+        category: firstParam(searchParams.category),
+        canton: firstParam(searchParams.canton),
+        query: firstParam(searchParams.query) || firstParam(searchParams.q),
+        affiliation: firstParam(searchParams.affiliation),
+      })
+    : [];
 
-    queryObject = {
+  const date = current.incident_date;
+  const created = current.createdAt;
+  const newer = { $or: [
+    { incident_date: { $gt: date } },
+    { $and: [{ incident_date: { $eq: date } }, { createdAt: { $gt: created } }] },
+  ] };
+  const older = { $or: [
+    { incident_date: { $lt: date } },
+    { $and: [{ incident_date: { $eq: date } }, { createdAt: { $lt: created } }] },
+  ] };
+
+  // En mode recherche on ne cache pas, en mode défaut on garde le cache de 60s
+  const fetchOptions: RequestInit = context === 'search'
+    ? { cache: 'no-store', next: { revalidate: 0 } }
+    : {};
+
+  const closest = async (bound: object, sort: string[]) => {
+    const query = qs.stringify({
       locale,
-      filters: filters.$and.length > 0 ? filters : undefined,
-      // Tri identique à l'affichage : Date, puis date de création pour départager les ex aequo
-      sort: STANDARD_SORT,
+      // L'exclusion du slug courant évite qu'un écart de précision sur
+      // createdAt fasse de l'incident son propre voisin.
+      filters: { $and: [...conditions, bound, { slug: { $ne: current.slug } }] },
+      sort,
       fields: ['slug'],
-      pagination: { pageSize: 5000 }, // On récupère tout
-    };
+      pagination: { page: 1, pageSize: 1 },
+    }, { encodeValuesOnly: true });
 
-  } else {
-    // --- CONTEXTE DÉFAUT (Chronologique pur) ---
-    // C'est ici que ça change : on récupère TOUT au lieu de faire < ou >
-    queryObject = {
-      locale,
-      // Tri IMPORTANT : Doit être exactement le même que sur la Homepage
-      sort: STANDARD_SORT, // On utilise la constante 
-      fields: ['slug'],
-      pagination: { pageSize: 5000 }, 
-    };
-  }
-
-  // 2. EXÉCUTION DE LA REQUÊTE
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-  
-  // En mode recherche on ne cache pas, en mode défaut on peut cacher un peu (60s)
-  const fetchOptions = context === 'search' ? { cache: 'no-store' } as RequestInit : undefined;
-
-  const response = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(
-    `the-wall-of-shames?${query}`, 
-    fetchOptions
-  );
-
-  // 3. RECHERCHE DES VOISINS DANS LA LISTE
-  const slugs = response.data.map(i => i.slug);
-  const currentIndex = slugs.indexOf(currentSlug);
-
-  if (currentIndex === -1) return { prev: null, next: null };
-
-  // Rappel : la liste est triée du plus récent (0) au plus ancien (N)
-  // Prev (Gauche) = Index - 1 (Plus récent)
-  // Next (Droite) = Index + 1 (Plus ancien)
-  
-  return {
-    prev: slugs[currentIndex - 1] || null,
-    next: slugs[currentIndex + 1] || null,
+    const response = await fetchApi<StrapiApiCollectionResponse<{ slug: string }>>(
+      `the-wall-of-shames?${query}`,
+      fetchOptions
+    );
+    return response.data[0]?.slug ?? null;
   };
+
+  // Prev (gauche) = le plus proche plus récent ; Next (droite) = le plus proche plus ancien
+  const [prev, next] = await Promise.all([
+    closest(newer, ['incident_date:asc', 'createdAt:asc']),
+    closest(older, STANDARD_SORT),
+  ]);
+
+  return { prev, next };
 }
 
 export async function getSearchFilters(locale: string): Promise<SearchFilters> {
-  // 1. On prépare une requête UNIQUE pour tout récupérer
-  // On demande 5000 items (grâce à la config Strapi modifiée)
-  const queryObject = {
+  // 1. On récupère tous les incidents de la langue, page par page (cache 1 heure)
+  type FilterRow = { category?: string; incident_date?: string; sujet?: { affiliation?: string } | null };
+  const incidents = await fetchAllPages<FilterRow>('the-wall-of-shames', {
     locale,
     fields: ['category', 'incident_date', 'createdAt'], // On prend juste ce qu'il faut
     populate: {
@@ -512,27 +509,14 @@ export async function getSearchFilters(locale: string): Promise<SearchFilters> {
       }
     },
     sort: ['createdAt:desc'],
-    pagination: {
-      limit: 5000, // On utilise 'limit' au lieu de pageSize pour être sûr avec la nouvelle config
-    },
-  };
-
-  const query = qs.stringify(queryObject, { encodeValuesOnly: true });
-
-  // 2. Appel API avec Cache (1 heure)
-  const response = await fetchApi<StrapiApiCollectionResponse<any>>(
-    `the-wall-of-shames?${query}`,
-    { next: { revalidate: 3600 } }
-  );
-
-  const incidents = response.data;
+  }, { next: { revalidate: 3600 } });
 
   // 3. Calcul des statistiques en mémoire (Javascript est super rapide pour ça)
   const catCounts: Record<string, number> = {};
   const partyCounts: Record<string, number> = {};
   const yearsSet = new Set<string>();
 
-  incidents.forEach((incident: any) => {
+  incidents.forEach((incident) => {
     // Catégories
     if (incident.category) {
       catCounts[incident.category] = (catCounts[incident.category] || 0) + 1;

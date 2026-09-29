@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const responsesByLocale = await Promise.all(promises);
   
   // On fusionne les résultats de tous les appels en une seule liste d'incidents
-  const allIncidents = responsesByLocale.flatMap(response => response.data || []);
+  const allIncidents = responsesByLocale.flat();
 
   // La logique pour transformer les incidents en URLs de sitemap est la même qu'avant
   const incidentPages = allIncidents.map(incident => {

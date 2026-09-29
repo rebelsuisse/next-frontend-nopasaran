@@ -210,7 +210,7 @@ export default async function DetailPageOfAnIncident({ params, searchParams }: D
   if (!isRandom) {
     // Si pas random, on cherche les voisins
     const { prev: prevSlug, next: nextSlug } = await getAdjacentSlugs(
-      resolvedParams.slug,
+      incident,
       resolvedParams.lang,
       isSearch ? 'search' : 'default',
       resolvedSearchParams // On passe tous les filtres (q, category, etc.)
