@@ -7,6 +7,9 @@ import type { Metadata } from 'next';
 export const LOCALES = ['fr-CH', 'de-CH', 'it-CH', 'en'] as const;
 export const DEFAULT_LOCALE = 'fr-CH';
 
+// Public origin of the site, for absolute URLs (feeds, social posts).
+export const SITE_URL = 'https://www.nopasaran.ch';
+
 export type Locale = (typeof LOCALES)[number];
 
 /**

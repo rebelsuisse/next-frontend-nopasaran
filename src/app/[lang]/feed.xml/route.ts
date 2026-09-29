@@ -3,13 +3,12 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import MarkdownIt from 'markdown-it';
-import { getIncidents } from '@/lib/api';
+import { getLatestAddedIncidents } from '@/lib/api';
 import { formatText } from '@/lib/format';
-import { LOCALES, type Locale } from '@/lib/seo';
+import { incidentImageUrl } from '@/lib/media';
+import { LOCALES, SITE_URL, type Locale } from '@/lib/seo';
 import type { Incident } from '@/types';
 
-const BASE_URL = 'https://www.nopasaran.ch';
-const STRAPI_HOST = process.env.NEXT_PUBLIC_STRAPI_HOST || 'https://api.nopasaran.ch';
 const FEED_SIZE = 50;
 
 // Un flux par langue : un slug d'incident n'existe que dans SA langue, un flux
@@ -43,18 +42,27 @@ function cdata(value: string): string {
   return `<![CDATA[${value.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
 }
 
-function incidentImageUrl(incident: Incident): string | null {
-  const url = incident.evidence_image?.[0]?.url ?? incident.sujet?.picture?.url;
-  if (!url) return null;
-  return url.startsWith('http') ? url : `${STRAPI_HOST}${url}`;
-}
-
-function renderItem(incident: Incident, lang: string, categoryLabel: string | null): string {
-  const link = `${BASE_URL}/${lang}/the-wall-of-shame/${incident.slug}`;
-  const pubDate = new Date(incident.incident_date || incident.publishedAt).toUTCString();
+function renderItem(
+  incident: Incident,
+  lang: string,
+  categoryLabel: string | null,
+  incidentDateLabel: string
+): string {
+  const link = `${SITE_URL}/${lang}/the-wall-of-shame/${incident.slug}`;
+  // The feed lists what is new on the site, so items are dated when they were
+  // added. The incident date goes in the body instead: many additions are
+  // historical incidents.
+  const pubDate = new Date(incident.createdAt).toUTCString();
   const imageUrl = incidentImageUrl(incident);
 
-  let contentHtml = md.render(formatText(incident.description || ''));
+  // HTML inside CDATA: escape for HTML, not XML (&apos; is not HTML 4 and
+  // some readers would show it literally).
+  const safeDateLabel = incidentDateLabel
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  let contentHtml = `<p><em>${safeDateLabel}</em></p>`;
+  contentHtml += md.render(formatText(incident.description || ''));
   if (incident.consequence) {
     contentHtml += md.render(incident.consequence);
   }
@@ -88,7 +96,16 @@ export async function GET(
   // Même repli que la page d'incident : clé brute si la traduction manque.
   const categoryLabel = (category: string) =>
     category ? (tCats.has(category) ? tCats(category) : category) : null;
-  const { data: incidents } = await getIncidents(lang, 1, FEED_SIZE);
+  const tFeed = await getTranslations({ locale: lang, namespace: 'Feed' });
+  const incidentDateLabel = (incident: Incident) =>
+    tFeed('incidentDate', {
+      date: new Date(incident.incident_date).toLocaleDateString(lang, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+    });
+  const { data: incidents } = await getLatestAddedIncidents(lang, FEED_SIZE);
 
   const lastBuildDate = incidents.length > 0
     ? new Date(
@@ -96,23 +113,25 @@ export async function GET(
       ).toUTCString()
     : new Date().toUTCString();
 
-  const feedUrl = `${BASE_URL}/${lang}/feed.xml`;
+  const feedUrl = `${SITE_URL}/${lang}/feed.xml`;
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>No pasarán - The Wall of Shame</title>
-    <link>${BASE_URL}/${lang}</link>
+    <link>${SITE_URL}/${lang}</link>
     <description>${escapeXml(tMeta('siteDescription'))}</description>
     <language>${lang.toLowerCase()}</language>
     <copyright>CC BY-NC-SA 4.0 - Rebel Suisse</copyright>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
     <image>
-      <url>${BASE_URL}/icon.png</url>
+      <url>${SITE_URL}/icon.png</url>
       <title>No pasarán - The Wall of Shame</title>
-      <link>${BASE_URL}/${lang}</link>
-    </image>${incidents.map(incident => renderItem(incident, lang, categoryLabel(incident.category))).join('')}
+      <link>${SITE_URL}/${lang}</link>
+    </image>${incidents.map(incident =>
+      renderItem(incident, lang, categoryLabel(incident.category), incidentDateLabel(incident))
+    ).join('')}
   </channel>
 </rss>`;
 

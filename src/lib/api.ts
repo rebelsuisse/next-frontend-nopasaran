@@ -173,6 +173,81 @@ export async function getIncidents(
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
 
+// Populate shared by the queries that need the images of an incident.
+const INCIDENT_IMAGES_POPULATE = {
+  sujet: { populate: { picture: true } },
+  evidence_image: true,
+};
+
+/**
+ * Latest incidents in the order they were added to the site.
+ *
+ * Unlike getIncidents() (sorted by incident date, as on the home page), this
+ * surfaces historical incidents added today: an incident from 2015 added this
+ * morning comes first. `createdAt` is used rather than `publishedAt` because
+ * Strapi bumps `publishedAt` on every republish, which would resurface edited
+ * incidents as new.
+ */
+export async function getLatestAddedIncidents(locale: string, limit: number) {
+  const query = qs.stringify(
+    {
+      locale,
+      sort: ['createdAt:desc'],
+      populate: INCIDENT_IMAGES_POPULATE,
+      pagination: { page: 1, pageSize: limit },
+    },
+    { encodeValuesOnly: true }
+  );
+
+  return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+}
+
+/**
+ * Incidents that may be published on social networks: added (`createdAt`)
+ * since `createdSince`, and last published (`publishedAt`) before
+ * `publishedBefore`. Oldest publication first.
+ *
+ * Filtering on `publishedAt` gives the review delay: republishing a fix
+ * restarts it. Filtering on `createdAt` keeps the back catalogue out, since a
+ * republished old incident keeps its original `createdAt`.
+ */
+export async function getSocialCandidates(
+  locale: string,
+  createdSince: Date,
+  publishedBefore: Date
+): Promise<Incident[]> {
+  const incidents: Incident[] = [];
+  let page = 1;
+  let pageCount = 1;
+
+  do {
+    const query = qs.stringify(
+      {
+        locale,
+        filters: {
+          createdAt: { $gte: createdSince.toISOString() },
+          publishedAt: { $lte: publishedBefore.toISOString() },
+        },
+        sort: ['publishedAt:asc'],
+        populate: INCIDENT_IMAGES_POPULATE,
+        pagination: { page, pageSize: 100 },
+      },
+      { encodeValuesOnly: true }
+    );
+
+    const response = await fetchApi<StrapiApiCollectionResponse<Incident>>(
+      `the-wall-of-shames?${query}`,
+      { cache: 'no-store', next: { revalidate: 0 } }
+    );
+
+    incidents.push(...response.data);
+    pageCount = response.meta.pagination.pageCount;
+    page++;
+  } while (page <= pageCount);
+
+  return incidents;
+}
+
 // Récupère un incident par son slug
 export async function getIncidentBySlug(slug: string, locale: string = 'fr-CH') {
   // On définit notre 'populate' sous forme d'objet JavaScript

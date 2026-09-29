@@ -24,6 +24,9 @@ export interface Sujet {
 
 export interface Incident {
   id: number;
+  // Strapi 5 document id: shared by all locales of an incident and stable
+  // across edits and republishing.
+  documentId: string;
   title: string;
   slug: string;
   subject_role: string | null;

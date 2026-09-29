@@ -40,10 +40,29 @@ In production these are set in the Vercel project settings (Environment Variable
 | `BREVO_LIST_ID_FR` / `BREVO_LIST_ID_DE` | no | Brevo list IDs for newsletter sign-ups |
 | `NEWSLETTER_ENABLED` | no | Feature flag, off by default — see below |
 | `NEXT_PUBLIC_APP_VERSION` | yes | Set automatically by `npm run dev` / `npm run build` from `git describe` |
+| `SOCIAL_MODE` | no | Social publishing: `off` (default), `dry-run` or `live` — see below |
+| `SOCIAL_START_DATE` | no | ISO date; only incidents added from then on are published |
+| `SOCIAL_NETWORKS` | no | Optional subset, e.g. `bluesky`; default: all |
+| `CRON_SECRET` | no — secret | Protects `/api/social/*`; Vercel Cron sends it automatically |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | no — secret | Publishing state; set by the Upstash integration (`KV_REST_API_*` also accepted) |
 
 ### Newsletter flag
 
 The newsletter page (`/<locale>/newsletter`) and its API route (`/api/newsletter`) both return 404 unless `NEWSLETTER_ENABLED=true`. Keep it off until the sign-up form has bot protection, per-IP rate limiting and double opt-in. The route talks to Brevo with a server-side key, so without those protections anyone could subscribe third-party addresses. See the comment at the top of `src/app/api/newsletter/route.ts`.
+
+### Social publishing
+
+New incidents are posted automatically on the `fr-CH` and `de-CH` social accounts (code in `src/social/`). Vercel Cron calls `/api/social/run` every 15 minutes (`vercel.json`); each run posts at most once per account. The rules live in `src/social/config.ts`:
+
+- recent incidents are posted one by one, one hour after (re)publication in Strapi, between 07:00 and midnight Swiss time, at least 30 minutes apart, at most 3 per day and per account;
+- historical incidents (added more than 30 days after they happened) are grouped in a weekly digest on Sunday from 18:00, 10 at most.
+
+Rolling out:
+
+1. Add Upstash Redis to the Vercel project (Marketplace) and set `CRON_SECRET`. Set secrets for the Production environment only.
+2. `SOCIAL_MODE=dry-run` with `SOCIAL_START_DATE` set to today: runs the whole pipeline and records what it *would* post, without calling any network.
+3. Review the simulated posts: `curl -H "Authorization: Bearer $CRON_SECRET" https://www.nopasaran.ch/api/social/status`.
+4. Go live: `SOCIAL_MODE=live` and `SOCIAL_START_DATE` set to the go-live time, so that incidents seen during the dry run are not posted afterwards. Dry-run and live state are stored separately.
 
 ## Infrastructure
 

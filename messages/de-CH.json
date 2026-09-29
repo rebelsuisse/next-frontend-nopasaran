@@ -113,6 +113,12 @@
     "rawFeedPrefix": "Für Neugierige:",
     "rawFeedLink": "Rohdaten des Feeds anzeigen (XML)"
   },
+  "Feed": {
+    "incidentDate": "Datum des Vorfalls: {date}"
+  },
+  "Social": {
+    "digestHeader": "🗂️ Archiv: {count} ältere Vorfälle diese Woche in die Wall of Shame aufgenommen"
+  },
   "Categories": {
     "racism": "Rassismus",
     "antisemitism": "Antisemitismus",
