@@ -61,6 +61,23 @@ export function createStore(mode: Exclude<SocialMode, 'off'>) {
     `${prefix}:${network}:${locale}`;
 
   return {
+    /**
+     * When this account started posting in this mode: set on its first run,
+     * never changed afterwards. A network switched on later therefore only
+     * posts incidents added from then on, instead of catching up on
+     * everything since SOCIAL_START_DATE.
+     */
+    async initAccountStart(network: Network, locale: SocialLocale, now: Date): Promise<Date> {
+      const key = `${account(network, locale)}:start`;
+      await redis().set(key, now.toISOString(), { nx: true });
+      return new Date((await redis().get<string>(key)) ?? now.toISOString());
+    },
+
+    async getAccountStart(network: Network, locale: SocialLocale): Promise<Date | null> {
+      const value = await redis().get<string>(`${account(network, locale)}:start`);
+      return value ? new Date(value) : null;
+    },
+
     // Document ids already posted on this account.
     async getPostedIds(network: Network, locale: SocialLocale): Promise<Set<string>> {
       return new Set(await redis().hkeys(`${account(network, locale)}:posted`));
@@ -91,24 +108,24 @@ export function createStore(mode: Exclude<SocialMode, 'off'>) {
     },
 
     /**
-     * Records a successful post: marks the incidents as posted, updates the
-     * spacing timestamp and, for individual posts, the daily counter.
+     * Records a successful post: marks the incidents as posted (each with the
+     * id of the post that carries it), updates the spacing timestamp and, for
+     * individual posts, the daily counter.
      */
     async recordPost(
       network: Network,
       locale: SocialLocale,
-      documentIds: string[],
-      record: PostRecord,
+      posted: Record<string, PostRecord>,
+      post: { postedAt: string; kind: PostRecord['kind'] },
       swissDate: string
     ) {
       const key = account(network, locale);
       const pipeline = redis().pipeline();
-      pipeline.hset(
-        `${key}:posted`,
-        Object.fromEntries(documentIds.map(id => [id, record]))
-      );
-      pipeline.set(`${key}:last-post`, record.postedAt);
-      if (record.kind === 'single') {
+      if (Object.keys(posted).length > 0) {
+        pipeline.hset(`${key}:posted`, posted);
+      }
+      pipeline.set(`${key}:last-post`, post.postedAt);
+      if (post.kind === 'single') {
         pipeline.incr(`${key}:count:${swissDate}`);
         pipeline.expire(`${key}:count:${swissDate}`, 3 * 24 * 3600);
       }

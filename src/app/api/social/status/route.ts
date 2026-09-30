@@ -42,6 +42,8 @@ export async function GET(request: Request) {
           locale,
           postedTotal: await store.countPosted(network, locale),
           postedToday: await store.getDailyCount(network, locale, clock.date),
+          // First run of this account in this mode: incidents added before are skipped.
+          startedAt: (await store.getAccountStart(network, locale))?.toISOString() ?? null,
           lastPostAt: (await store.getLastPostAt(network, locale))?.toISOString() ?? null,
           digestDoneThisWeek: await store.isDigestDone(network, locale, clock.isoWeek),
         }))

@@ -15,6 +15,15 @@ export type SocialLocale = (typeof SOCIAL_LOCALES)[number];
 export const NETWORKS = ['bluesky', 'facebook', 'instagram'] as const;
 export type Network = (typeof NETWORKS)[number];
 
+// Bluesky accounts. Their app passwords are secrets, kept in Vercel.
+export const BLUESKY_ACCOUNTS: Record<
+  SocialLocale,
+  { handle: string; passwordEnv: string; lang: string }
+> = {
+  'fr-CH': { handle: 'nopasaran-ch-fr.bsky.social', passwordEnv: 'BLUESKY_FR_APP_PASSWORD', lang: 'fr' },
+  'de-CH': { handle: 'nopasaran-ch-de.bsky.social', passwordEnv: 'BLUESKY_DE_APP_PASSWORD', lang: 'de' },
+};
+
 export const RULES = {
   timeZone: 'Europe/Zurich',
   // Posts only go out between these hours, Swiss time (24 = midnight).

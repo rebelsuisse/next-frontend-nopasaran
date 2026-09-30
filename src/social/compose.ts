@@ -1,13 +1,15 @@
 // src/social/compose.ts
 
 import { getTranslations } from 'next-intl/server';
-import { formatText } from '@/lib/format';
-import { incidentImageUrl } from '@/lib/media';
+import { formatText, plainTextExcerpt } from '@/lib/format';
+import { incidentImageUrl, incidentImageWithin } from '@/lib/media';
 import { SITE_URL } from '@/lib/seo';
 import type { Incident } from '@/types';
 import { RULES, type SocialLocale } from './config';
 
 const DAY_MS = 24 * 3600 * 1000;
+// Largest image the networks accept as an upload (Bluesky: 1,000,000 bytes).
+const THUMBNAIL_MAX_BYTES = 950_000;
 
 // What a network needs to publish an incident, already localized.
 export interface SocialItem {
@@ -17,7 +19,11 @@ export interface SocialItem {
   url: string;
   categoryLabel: string | null;
   incidentDateLabel: string;
+  // Plain-text start of the description, for link previews.
+  summary: string;
   imageUrl: string | null;
+  // The same image, light enough to be uploaded to a network.
+  thumbnail: { url: string; mime: string } | null;
   historical: boolean;
   createdAt: string;
   publishedAt: string;
@@ -50,7 +56,9 @@ export async function toSocialItems(
       year: 'numeric',
       timeZone: 'UTC',
     }),
+    summary: plainTextExcerpt(incident.description, 240),
     imageUrl: incidentImageUrl(incident),
+    thumbnail: incidentImageWithin(incident, THUMBNAIL_MAX_BYTES),
     historical: isHistorical(incident),
     createdAt: incident.createdAt,
     publishedAt: incident.publishedAt,

@@ -122,12 +122,17 @@ async function runAccount(ctx: AccountContext): Promise<AccountReport> {
   const base = { network, locale };
 
   try {
+    // First, so that the account's start is its first run, even at night.
+    const accountStart = (await store.initAccountStart(network, locale, now)).getTime();
+
     if (!isWithinPublishingHours(clock)) {
       return { ...base, outcome: 'waiting', detail: 'Outside publishing hours.' };
     }
 
     const postedIds = await store.getPostedIds(network, locale);
-    const pending = items.filter(item => !postedIds.has(item.documentId));
+    const pending = items.filter(
+      item => !postedIds.has(item.documentId) && Date.parse(item.createdAt) >= accountStart
+    );
     const lastPostAt = await store.getLastPostAt(network, locale);
     const spacingOk =
       !lastPostAt || now.getTime() - lastPostAt.getTime() >= RULES.minSpacingMinutes * MINUTE_MS;
@@ -154,13 +159,15 @@ async function runAccount(ctx: AccountContext): Promise<AccountReport> {
           historical.length === 1
             ? await publisher.publishSingle(historical[0])
             : await publisher.publishDigest(await digestHeader(locale, historical.length), historical);
-        await record(ctx, historical, result, 'digest');
+        const recorded = await record(ctx, historical, result, 'digest');
+        // Done for the week even if the thread stopped halfway: posting it
+        // again would repeat its first posts.
         await store.markDigestDone(network, locale, clock.isoWeek);
         return {
           ...base,
-          outcome: 'posted',
-          detail: `Weekly digest (${historical.length} historical incident(s)).`,
-          titles: historical.map(item => item.title),
+          outcome: result.error ? 'error' : 'posted',
+          detail: result.error ?? `Weekly digest (${recorded.length} historical incident(s)).`,
+          titles: recorded.map(item => item.title),
         };
       }
     }
@@ -206,35 +213,44 @@ async function runAccount(ctx: AccountContext): Promise<AccountReport> {
   }
 }
 
+// Records the incidents that actually went out; returns them.
 async function record(
   ctx: AccountContext,
   items: SocialItem[],
   result: PublishResult,
   origin: 'single' | 'digest'
-) {
+): Promise<SocialItem[]> {
   const { network, locale, store, clock, now } = ctx;
-  const documentIds = items.map(item => item.documentId);
+  const postedAt = now.toISOString();
   // A digest of one is posted as an individual post but, coming from the
   // digest, it does not count towards the daily limit.
   const kind = origin === 'digest' ? 'digest' : 'single';
+  const posted = result.refs ? items.filter(item => result.refs?.[item.documentId]) : items;
 
   await store.recordPost(
     network,
     locale,
-    documentIds,
-    { postedAt: now.toISOString(), kind, ref: result.ref, url: result.url },
+    Object.fromEntries(
+      posted.map(item => [
+        item.documentId,
+        { postedAt, kind, ref: result.refs?.[item.documentId] ?? result.ref, url: result.url },
+      ])
+    ),
+    { postedAt, kind },
     clock.date
   );
   await store.appendLog({
-    at: now.toISOString(),
+    at: postedAt,
     network,
     locale,
     kind,
-    documentIds,
-    titles: items.map(item => item.title),
+    documentIds: posted.map(item => item.documentId),
+    titles: posted.map(item => item.title),
     text: result.text,
     url: result.url,
+    error: result.error,
   });
+  return posted;
 }
 
 function errorMessage(error: unknown): string {

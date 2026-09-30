@@ -22,7 +22,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 | Scheduler: what to post now, per account | `src/social/run.ts` |
 | Swiss time, ISO weeks | `src/social/clock.ts` |
 | Texts (individual post, digest) | `src/social/compose.ts`, translations under `Social` in `messages/*.json` |
-| Network connectors | `src/social/publishers.ts` |
+| Network connectors | `src/social/publishers.ts`, `src/social/networks/` |
 | State: what was posted, counters, log | `src/social/store.ts` (Upstash Redis) |
 | Cron entry point | `GET /api/social/run`, every 15 minutes (`vercel.json`) |
 | Status for humans | `GET /api/social/status` |
@@ -35,6 +35,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 
   Dry-run and live data are stored under separate Redis prefixes (`social:dry-run:*`, `social:live:*`).
 - **Each run posts at most once per account.** A run that finds another run still in progress skips itself, to avoid duplicates.
+- **Each account has its own start date:** its first run in a given mode. A network switched on later therefore only posts incidents added from then on, instead of catching up on everything since `SOCIAL_START_DATE`. The status route shows it as `startedAt`.
 - **Dates:** Strapi keeps `createdAt` unchanged but updates `publishedAt` on every republish.
   - `createdAt` keeps the back catalogue out: a republished old incident is not new.
   - `publishedAt` gives the review delay, which restarts when a fix is republished.
@@ -52,8 +53,10 @@ curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/socia
 - **Emergency stop:** set `SOCIAL_MODE=off` in Vercel, then redeploy.
 - **Going live:**
   1. Review the dry-run log.
-  2. Set `SOCIAL_MODE=live`, `SOCIAL_NETWORKS` to the networks that are ready (e.g. `bluesky`), and `SOCIAL_START_DATE` to the go-live time, so that incidents seen during the dry run are not posted afterwards.
+  2. Set `SOCIAL_MODE=live` and `SOCIAL_NETWORKS` to the networks that are ready (e.g. `bluesky`).
   3. Redeploy.
+
+  No need to move `SOCIAL_START_DATE`: each account's start date is its first live run, so incidents seen during the dry run are not posted afterwards.
 
 ## Configuration
 
@@ -66,7 +69,7 @@ All variables are set in Vercel for the **Production** environment only, secrets
 | `SOCIAL_MODE` | `dry-run` | set 2026-09-29 |
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` | set 2026-09-29 |
 | `SOCIAL_NETWORKS` | optional subset (default: all three) | not set |
-| `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | Bluesky app passwords | planned (step 2) |
+| `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) | set 2026-09-30 |
 | `FACEBOOK_{FR,DE}_PAGE_ID`, `FACEBOOK_{FR,DE}_PAGE_TOKEN` | Facebook Page ids and non-expiring Page tokens (also used for Instagram) | planned (steps 3–4) |
 
 The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` instead of the `KV_*` names.
@@ -96,6 +99,22 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - `CRON_SECRET`, `SOCIAL_MODE=dry-run` and `SOCIAL_START_DATE=2026-09-30T00:00:00Z` set.
 - `/api/social/status` answers in production with `"currentMode":"dry-run"` and an empty log: incidents count from 30 Sep 2026.
 
+### 2026-09-30 · Step 2a, Bluesky app passwords
+
+- An app password `nopasaran-publisher` (no DM access) created on each account and stored in Vercel as `BLUESKY_FR_APP_PASSWORD` / `BLUESKY_DE_APP_PASSWORD` (Production, Sensitive). Production redeployed.
+
+### 2026-09-30 · Bluesky connector (code)
+
+- `src/social/networks/bluesky.ts`, with the official `@atproto/api` client.
+- **Individual post.** The title, then category and incident date, in the account's language. The link goes in a preview card: title, plain-text summary of the description, and the incident image, taken from Strapi's smaller copies so that it stays under Bluesky's 1 MB limit. Texts longer than 300 characters are shortened, keeping the category and date.
+- **Weekly digest.** A thread: a header post, then one reply per incident, each answering the previous one. If a post fails, the thread stops there. The incidents already in it are recorded, and the others wait for next week's digest, so the header is never posted twice.
+- **Dry run.** Bluesky entries in the log now show the exact Bluesky text.
+- **Per-account start date** (see [How it works](#how-it-works)).
+- **Local test,** without posting anything. A fake client checked every record against Bluesky's own schema (`app.bsky.feed.post`) and received a real image upload from Strapi (52 KB). Verified:
+  - the thread chaining, and the stop after a failure;
+  - the shortening of long texts;
+  - a re-run of the scheduler simulation: Bluesky alone first, then Facebook and Instagram switched on a day later. Only incidents added after their switch-on were posted.
+
 ## Decisions
 
 - **X is not automated.** Since February 2026 the X API is pay-per-use, at $0.20 per post containing a link. Posting on X stays manual.
@@ -106,5 +125,5 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 ## Known limitations
 
 - An incident created as a draft before `SOCIAL_START_DATE` and first published after it is never posted.
-- **Enabling a network later:** a network switched on after the others would catch up on every incident since `SOCIAL_START_DATE`, subject to the daily limit. A per-network start date is planned with the Bluesky connector.
+- **Stopped digest thread:** if a post fails in the middle of a Bluesky digest thread, the header and the first replies stay online and the remaining incidents go to next week's digest.
 - **Rare duplicate:** if saving the post record fails right after a successful post, the next run posts the same incident again.
