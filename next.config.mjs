@@ -9,15 +9,14 @@ const withMDX = createMDX({});
 // CSP PROPRE (Sans localhost)
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https: https://api.nopasaran.ch;
     font-src 'self' data:;
     object-src 'none';
     base-uri 'self';
     form-action 'self' https://formspree.io;
-    frame-ancestors https://tagassistant.google.com;
-    frame-src https://www.googletagmanager.com;
+    frame-ancestors 'none';
     connect-src 'self' https://formspree.io https: https://api.nopasaran.ch;
 `.replace(/\s{2,}/g, ' ').trim();
 
@@ -31,11 +30,10 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
-          // Pas de X-Frame-Options : cet en-tête ne permet que DENY/SAMEORIGIN,
-          // donc il bloquerait la vérification du tag Google même avec la CSP
-          // ci-dessus. La protection anti-clickjacking est assurée par
-          // « frame-ancestors », qui prime sur X-Frame-Options et sait, lui,
-          // autoriser une origine précise (tagassistant.google.com).
+          // Clickjacking protection comes from `frame-ancestors 'none'` in the
+          // CSP above, which supersedes X-Frame-Options in current browsers.
+          // (It used to allow tagassistant.google.com for the Google Ads tag,
+          // removed on 2026-09-30.)
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },

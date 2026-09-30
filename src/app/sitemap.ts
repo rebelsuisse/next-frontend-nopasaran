@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/${lang}/manifesto`, lastModified: new Date() },
     { url: `${BASE_URL}/${lang}/search`, lastModified: new Date() },
     { url: `${BASE_URL}/${lang}/rss`, lastModified: new Date() },
+    { url: `${BASE_URL}/${lang}/privacy`, lastModified: new Date() },
   ]);
 
   const promises = languages.map(lang => getIncidentsForSitemapByLocale(lang));

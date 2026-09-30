@@ -5,7 +5,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 ## What it does
 
 - **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones. Italian and English are not published for now.
-- **Networks:** Bluesky, Facebook, Instagram. X stays manual (see [Decisions](#decisions)).
+- **Networks:** Bluesky (live), Instagram (next), Facebook (on hold). X stays manual (see [Decisions](#decisions)).
 - **Recent incidents** (added less than 30 days after they happened) are posted one by one:
   - 30 minutes after they are (re)published in Strapi, to leave time for a last review (a Bluesky post can't be edited, and its preview card is a snapshot);
   - between 07:00 and midnight, Swiss time;
@@ -70,7 +70,8 @@ All variables are set in Vercel for the **Production** environment only, secrets
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` | set 2026-09-29 |
 | `SOCIAL_NETWORKS` | `bluesky` (default when unset: all three) | set 2026-09-30 |
 | `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) | set 2026-09-30 |
-| `FACEBOOK_{FR,DE}_PAGE_ID`, `FACEBOOK_{FR,DE}_PAGE_TOKEN` | Facebook Page ids and non-expiring Page tokens (also used for Instagram) | planned (steps 3–4) |
+| `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN` | initial Instagram Login tokens (60 days; the site then renews them itself) | planned (step 3) |
+| `FACEBOOK_DE_PAGE_ID`, `FACEBOOK_DE_PAGE_TOKEN` | German Facebook Page | on hold |
 
 The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` instead of the `KV_*` names.
 
@@ -122,8 +123,19 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - Still to check: the first real post, which is also the first real test of the Bluesky login and image upload.
 - Review delay reduced from 60 to 30 minutes (`reviewDelayMinutes` in `src/social/config.ts`). With the 15-minute cron, a post now goes out 30 to 45 minutes after publication.
 
+### 2026-09-30 · Instagram before Facebook
+
+- **The French Facebook account is a personal profile,** not a Page, and Facebook's API cannot post on a profile. Creating a French Page is not wanted, so Facebook is put on hold (roadmap). Only the German Page could be automated.
+- **Instagram moves up to step 3:** it has the largest audience and takes the most time to post by hand. Both accounts will use **Instagram Login**, which needs no Facebook Page.
+
+### 2026-09-30 · Privacy policy page, Google Ads tag removed
+
+- **Privacy page.** A short, deliberately generic privacy page at `/<locale>/privacy` in the four languages (`content/privacy/*.mdx`), listed in the sitemap. Meta requires its URL to switch the Instagram app to Live: `https://www.nopasaran.ch/fr-CH/privacy`.
+- **Google Ads removed.** The Google Ads tag (unused) was removed from the layout, together with its CSP exceptions. The CSP now has `frame-ancestors 'none'`: the only exception was for Google Tag Assistant. The Search Console verification is unrelated and stays.
+
 ## Decisions
 
+- **Instagram through Instagram Login, not through Facebook Pages.** The French Instagram account has no French Facebook Page to link to. With Instagram Login each professional account connects to the Meta app directly. Its tokens last 60 days, so the site stores them and renews them automatically. Meta's documentation says App Review is not required for an app that only serves accounts its owner manages.
 - **X is not automated.** Since February 2026 the X API is pay-per-use, at $0.20 per post containing a link. Posting on X stays manual.
 - **State lives in Redis, not in Strapi.** With Draft & Publish, republishing an older draft could overwrite a "posted" field on the published version and cause duplicate posts.
 - **Same repository as the site.** The pipeline reuses the Strapi client, the translations and the site's design (for the Instagram image), and runs as part of the same Vercel project (Pro plan, so cron can run every 15 minutes). It is isolated in `src/social/` and could be moved out as is.
