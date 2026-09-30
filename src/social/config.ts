@@ -35,7 +35,7 @@ export const RULES = {
   // digest does not count towards it.
   maxPostsPerDay: 3,
   // Time to fix mistakes after an incident is (re)published in Strapi.
-  reviewDelayMinutes: 60,
+  reviewDelayMinutes: 30,
   // An incident added more than this many days after it happened is
   // "historical": it waits for the weekly digest instead of being posted alone.
   historicalThresholdDays: 30,

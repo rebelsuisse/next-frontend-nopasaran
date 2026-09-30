@@ -66,9 +66,9 @@ All variables are set in Vercel for the **Production** environment only, secrets
 |---|---|---|
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` (+ other `KV_*`) | Upstash Redis, created by the Vercel Marketplace integration with prefix `KV` | set 2026-09-29 |
 | `CRON_SECRET` | protects `/api/social/*` | set 2026-09-29 |
-| `SOCIAL_MODE` | `dry-run` | set 2026-09-29 |
+| `SOCIAL_MODE` | `live` (was `dry-run` from 2026-09-29) | set 2026-09-30 |
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` | set 2026-09-29 |
-| `SOCIAL_NETWORKS` | optional subset (default: all three) | not set |
+| `SOCIAL_NETWORKS` | `bluesky` (default when unset: all three) | set 2026-09-30 |
 | `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) | set 2026-09-30 |
 | `FACEBOOK_{FR,DE}_PAGE_ID`, `FACEBOOK_{FR,DE}_PAGE_TOKEN` | Facebook Page ids and non-expiring Page tokens (also used for Instagram) | planned (steps 3–4) |
 
@@ -114,6 +114,12 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
   - the thread chaining, and the stop after a failure;
   - the shortening of long texts;
   - a re-run of the scheduler simulation: Bluesky alone first, then Facebook and Instagram switched on a day later. Only incidents added after their switch-on were posted.
+
+### 2026-09-30 · Step 2b, Bluesky live (first post pending)
+
+- Dry run checked on a real incident (Rickenbacher, fr and de). It was "posted" one hour after publication, with the new Bluesky text format.
+- `SOCIAL_MODE=live` and `SOCIAL_NETWORKS=bluesky` set, production redeployed. Both Bluesky accounts started at 2026-09-30 16:30 UTC; incidents created before that, including Rickenbacher, are not posted.
+- Still to check: the first real post, which is also the first real test of the Bluesky login and image upload.
 
 ## Decisions
 
