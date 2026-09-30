@@ -7,7 +7,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 - **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones. Italian and English are not published for now.
 - **Networks:** Bluesky, Facebook, Instagram. X stays manual (see [Decisions](#decisions)).
 - **Recent incidents** (added less than 30 days after they happened) are posted one by one:
-  - one hour after they are (re)published in Strapi, to leave time for a last review;
+  - 30 minutes after they are (re)published in Strapi, to leave time for a last review (a Bluesky post can't be edited, and its preview card is a snapshot);
   - between 07:00 and midnight, Swiss time;
   - at least 30 minutes apart, and at most 3 per day and per account. Anything over the limit waits for the next slot.
 - **Historical incidents** (added more than 30 days after they happened) are grouped in a weekly digest, on Sunday from 18:00, 10 at most. The rest waits for the following week. A lone historical incident is posted like a normal post. The digest does not count towards the daily limit.
@@ -120,6 +120,7 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - Dry run checked on a real incident (Rickenbacher, fr and de). It was "posted" one hour after publication, with the new Bluesky text format.
 - `SOCIAL_MODE=live` and `SOCIAL_NETWORKS=bluesky` set, production redeployed. Both Bluesky accounts started at 2026-09-30 16:30 UTC; incidents created before that, including Rickenbacher, are not posted.
 - Still to check: the first real post, which is also the first real test of the Bluesky login and image upload.
+- Review delay reduced from 60 to 30 minutes (`reviewDelayMinutes` in `src/social/config.ts`). With the 15-minute cron, a post now goes out 30 to 45 minutes after publication.
 
 ## Decisions
 
