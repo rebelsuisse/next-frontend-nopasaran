@@ -117,7 +117,9 @@
     "incidentDate": "Data dell'incidente: {date}"
   },
   "Social": {
-    "digestHeader": "🗂️ Archivio: {count} incidenti meno recenti aggiunti questa settimana al Wall of Shame"
+    "digestHeader": "Archivio: {count} schede meno recenti aggiunte questa settimana al Wall of Shame",
+    "endLabel": "Da leggere su nopasaran.ch",
+    "linkInBio": "Link nella bio"
   },
   "Categories": {
     "racism": "Razzismo",

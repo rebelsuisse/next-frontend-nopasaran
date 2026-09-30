@@ -5,12 +5,12 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 ## What it does
 
 - **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones. Italian and English are not published for now.
-- **Networks:** Bluesky (live), Instagram (next), Facebook (on hold). X stays manual (see [Decisions](#decisions)).
+- **Networks:** Bluesky (live), Instagram (ready, to be switched on), Facebook (on hold). X stays manual (see [Decisions](#decisions)).
 - **Recent incidents** (added less than 30 days after they happened) are posted one by one:
   - 30 minutes after they are (re)published in Strapi, to leave time for a last review (a Bluesky post can't be edited, and its preview card is a snapshot);
   - between 07:00 and midnight, Swiss time;
   - at least 30 minutes apart, and at most 3 per day and per account. Anything over the limit waits for the next slot.
-- **Historical incidents** (added more than 30 days after they happened) are grouped in a weekly digest, on Sunday from 18:00, 10 at most. The rest waits for the following week. A lone historical incident is posted like a normal post. The digest does not count towards the daily limit.
+- **Historical incidents** (added more than 30 days after they happened) are grouped in a weekly digest, on Sunday from 18:00, 9 at most (an Instagram carousel holds 10 images: 9 covers and the closing image). The rest waits for the following week. A lone historical incident is posted like a normal post. The digest does not count towards the daily limit.
 - Only incidents added after `SOCIAL_START_DATE` are posted, never the back catalogue.
 - An incident is never posted twice on the same account, even when it is edited and republished.
 
@@ -23,6 +23,9 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 | Swiss time, ISO weeks | `src/social/clock.ts` |
 | Texts (individual post, digest) | `src/social/compose.ts`, translations under `Social` in `messages/*.json` |
 | Network connectors | `src/social/publishers.ts`, `src/social/networks/` |
+| Instagram images: layout, rendering, formatted text, font widths | `src/social/slides.ts`, `src/social/card.tsx`, `src/social/richtext.ts`, `src/social/metrics.ts` |
+| Instagram images, public (Instagram fetches them) | `GET /api/social/image/<locale>/<documentId>?slide=cover\|text-<n>\|evidence-<n>\|end` |
+| Account check, posts nothing | `GET /api/social/check` |
 | State: what was posted, counters, log | `src/social/store.ts` (Upstash Redis) |
 | Cron entry point | `GET /api/social/run`, every 15 minutes (`vercel.json`) |
 | Status for humans | `GET /api/social/status` |
@@ -40,7 +43,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
   - `createdAt` keeps the back catalogue out: a republished old incident is not new.
   - `publishedAt` gives the review delay, which restarts when a fix is republished.
   - `createdAt` versus `incident_date` decides whether an incident is historical.
-- **Both routes require** `Authorization: Bearer <CRON_SECRET>`. Vercel Cron sends it automatically.
+- **The `run`, `status` and `check` routes require** `Authorization: Bearer <CRON_SECRET>`. Vercel Cron sends it automatically. The image route is public: it only renders public Strapi data.
 
 ### Operating it
 
@@ -48,6 +51,10 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 # State: mode, per-account counters, last 50 posts or simulated posts
 curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/social/status
 # Add ?mode=dry-run or ?mode=live to read the other mode's data.
+
+# Check the accounts without posting: Bluesky logins, and on each Instagram
+# account the carousel of the latest fiche prepared but not published
+curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/social/check
 ```
 
 - **Emergency stop:** set `SOCIAL_MODE=off` in Vercel, then redeploy.
@@ -70,7 +77,7 @@ All variables are set in Vercel for the **Production** environment only, secrets
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` | set 2026-09-29 |
 | `SOCIAL_NETWORKS` | `bluesky` (default when unset: all three) | set 2026-09-30 |
 | `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) | set 2026-09-30 |
-| `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN` | initial Instagram Login tokens (60 days; the site then renews them itself) | planned (step 3) |
+| `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN` | Instagram Login tokens of `nopasaran.ch_fr` and `nopasaran.ch_de` (60 days). The site copies them into Redis and renews them every week; a new value put in Vercel replaces the stored one | set 2026-09-30 |
 | `FACEBOOK_DE_PAGE_ID`, `FACEBOOK_DE_PAGE_TOKEN` | German Facebook Page | on hold |
 
 The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` instead of the `KV_*` names.
@@ -133,6 +140,34 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - **Privacy page.** A short, deliberately generic privacy page at `/<locale>/privacy` in the four languages (`content/privacy/*.mdx`), listed in the sitemap. Meta requires its URL to switch the Instagram app to Live: `https://www.nopasaran.ch/fr-CH/privacy`.
 - **Google Ads removed.** The Google Ads tag (unused) was removed from the layout, together with its CSP exceptions. The CSP now has `frame-ancestors 'none'`: the only exception was for Google Tag Assistant. The Search Console verification is unrelated and stays.
 
+### 2026-09-30 · Step 3a, Instagram tokens
+
+- Meta app `nopasaran publisher` (id 1404791037869529), use case "Instagram API with Instagram Login", in Development mode. `instagram_business_basic` and `instagram_business_content_publish` show "Prête pour le test" (Standard Access), which is enough for accounts with a role on the app: no App Review, no business portfolio.
+- Both accounts added as Instagram testers and invitations accepted; a token generated for each and stored in Vercel as `INSTAGRAM_FR_TOKEN` / `INSTAGRAM_DE_TOKEN` (Production, Sensitive).
+
+### 2026-09-30 · Instagram connector (code)
+
+- **Post of a new fiche: a carousel** (1080×1350 JPEG images rendered by the site, the only format the Instagram API accepts):
+  1. the cover, after the site's Story design: category and date, the title as large as it fits (never breaking a word), the subject's picture always at the same size and position, then "Name (party - canton)" and the role;
+  2. the full text, formatted as on the fiche's page (subheadings, italics, bold, lists, quotes), over 1 to 5 images, cut between sentences;
+  3. the evidence images, one per image;
+  4. a closing image: logo, "À lire sur nopasaran.ch", "Lien en bio".
+
+  Every image but the closing one carries a small nopasaran.ch signature, so that an image shared alone still says where it comes from. Large margins at the top and bottom, where Instagram lays its buttons.
+- **Caption:** the title and the full text, no emoji, no link. Instagram cuts captions at 2,200 characters: a longer text is shortened with "…" (the images show all of it).
+- **Weekly digest:** a carousel of the fiches' covers and the closing image; the caption lists the fiches and ends with "🔗 Lien en bio". Digest capped at 9 fiches, for every network.
+- **Public wording:** "fiche(s)" (German "Eintrag/Einträge"), never "incident(s)", and no emoji except the link in bio. The digest header, shared with Bluesky, changed accordingly.
+- **Text layout.** The renderer (`next/og`) cannot measure text beforehand: the site wraps words itself with the advance widths of the Inter faces (`src/social/metrics.ts`, read from the font files), and the renderer lays them out word by word, so that lines break where the site expects. Fonts come from Google Fonts at render time, with one retry; if they still fail, the image fails rather than going out in the wrong font, and the post is retried on the next run.
+- **Tokens.** Every run (dry-run or live, whether Instagram is enabled or not) renews each token once it is a week old; the status of both tokens is in the run report.
+- **Check route** `/api/social/check` (see [Operating it](#operating-it)).
+- **Longer runs:** the `run` route may now last 240 s (was 60 s): Instagram fetches and processes each image of a carousel.
+- **Local tests,** without posting anything:
+  - a fake Instagram API: the order of the calls (images, carousel, publication, link), the wait while Instagram processes an image, an image in error (nothing published), a missing link (post kept), the check that never publishes, the digest;
+  - token renewal against an in-memory store: seeding from Vercel, no renewal before a week, renewal with the current token, a new token in Vercel taking over, a failed renewal keeping the stored token, the token never in a report; one real renewal call with a fake token, rejected by Instagram with a clean error;
+  - the 100 latest fiches in French and German: every carousel starts with the cover, ends with the closing image, has at most 10 images and a text image when the fiche has text; no caption reaches 2,200 characters;
+  - a simulated week of dry run against a local Redis (Bluesky and Instagram, fr and de): the digest of the 6 historical fiches on Sunday at 18:30, then one fiche every 35 minutes up to the daily limit;
+  - the image route under `next start` after a production build.
+
 ## Decisions
 
 - **Instagram through Instagram Login, not through Facebook Pages.** The French Instagram account has no French Facebook Page to link to. With Instagram Login each professional account connects to the Meta app directly. Its tokens last 60 days, so the site stores them and renews them automatically. Meta's documentation says App Review is not required for an app that only serves accounts its owner manages.
@@ -140,9 +175,13 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - **State lives in Redis, not in Strapi.** With Draft & Publish, republishing an older draft could overwrite a "posted" field on the published version and cause duplicate posts.
 - **Same repository as the site.** The pipeline reuses the Strapi client, the translations and the site's design (for the Instagram image), and runs as part of the same Vercel project (Pro plan, so cron can run every 15 minutes). It is isolated in `src/social/` and could be moved out as is.
 - **Historical incidents go to a weekly digest**, so that backfilling old incidents doesn't flood the accounts.
+- **Instagram posts carry the whole fiche.** A caption has no clickable link, so the text and the evidence are in the post itself, and the closing image points to the bio link.
 
 ## Known limitations
 
 - An incident created as a draft before `SOCIAL_START_DATE` and first published after it is never posted.
 - **Stopped digest thread:** if a post fails in the middle of a Bluesky digest thread, the header and the first replies stay online and the remaining incidents go to next week's digest.
 - **Rare duplicate:** if saving the post record fails right after a successful post, the next run posts the same incident again.
+- **Instagram carousels hold 10 images.** A fiche with more text and evidence images than that loses its last evidence images (one fiche in the 100 latest has 18).
+- **Instagram tokens are only renewed while the pipeline runs.** With `SOCIAL_MODE=off` for more than about 60 days, they expire: generate new ones in the Meta app and put them in Vercel.
+- **An Instagram post may not be public while the Meta app is in Development mode.** If the first post is not visible to a logged-out visitor, the app must be switched to Live (privacy policy URL, category, icon).

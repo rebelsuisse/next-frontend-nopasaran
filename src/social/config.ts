@@ -24,6 +24,16 @@ export const BLUESKY_ACCOUNTS: Record<
   'de-CH': { handle: 'nopasaran-ch-de.bsky.social', passwordEnv: 'BLUESKY_DE_APP_PASSWORD', lang: 'de' },
 };
 
+// Instagram accounts (Instagram Login). The env variable holds the token
+// generated in the Meta App Dashboard; the site then keeps and renews it.
+export const INSTAGRAM_ACCOUNTS: Record<
+  SocialLocale,
+  { username: string; tokenEnv: string; linkInBio: string }
+> = {
+  'fr-CH': { username: 'nopasaran.ch_fr', tokenEnv: 'INSTAGRAM_FR_TOKEN', linkInBio: '🔗 Lien en bio : nopasaran.ch' },
+  'de-CH': { username: 'nopasaran.ch_de', tokenEnv: 'INSTAGRAM_DE_TOKEN', linkInBio: '🔗 Link in der Bio: nopasaran.ch' },
+};
+
 export const RULES = {
   timeZone: 'Europe/Zurich',
   // Posts only go out between these hours, Swiss time (24 = midnight).
@@ -42,7 +52,8 @@ export const RULES = {
   // Weekly digest of historical incidents: Sunday (0) from 18:00.
   digestWeekday: 0,
   digestHour: 18,
-  digestMaxItems: 10,
+  // An Instagram carousel holds 10 images: 9 fiches and the closing image.
+  digestMaxItems: 9,
 } as const;
 
 /**

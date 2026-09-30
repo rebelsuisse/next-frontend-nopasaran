@@ -202,6 +202,23 @@ export async function getLatestAddedIncidents(locale: string, limit: number) {
   return fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
 }
 
+// One incident in one locale, by its Strapi document id; null if not found.
+export async function getIncidentByDocumentId(
+  documentId: string,
+  locale: string
+): Promise<Incident | null> {
+  const query = qs.stringify(
+    {
+      locale,
+      filters: { documentId: { $eq: documentId } },
+      populate: INCIDENT_IMAGES_POPULATE,
+    },
+    { encodeValuesOnly: true }
+  );
+  const response = await fetchApi<StrapiApiCollectionResponse<Incident>>(`the-wall-of-shames?${query}`);
+  return response.data[0] ?? null;
+}
+
 /**
  * Incidents that may be published on social networks: added (`createdAt`)
  * since `createdSince`, and last published (`publishedAt`) before

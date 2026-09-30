@@ -3,6 +3,7 @@
 import { digestText, singlePostText, type SocialItem } from './compose';
 import type { Network, SocialLocale, SocialMode } from './config';
 import { blueskyDigestTexts, blueskyPublisher, blueskySingleText } from './networks/bluesky';
+import { instagramCaption, instagramDigestCaption, instagramPublisher } from './networks/instagram';
 
 export interface PublishResult {
   // Network-side id of the post (for later deletion). For a digest thread,
@@ -30,6 +31,7 @@ type PublisherFactory = (locale: SocialLocale) => Publisher;
 // Real publishers, added network by network.
 const LIVE_PUBLISHERS: Partial<Record<Network, PublisherFactory>> = {
   bluesky: locale => blueskyPublisher(locale),
+  instagram: locale => instagramPublisher(locale),
 };
 
 // Texts shown by the dry run: the network's own format when it has one.
@@ -39,6 +41,10 @@ const DRY_RUN_TEXTS: Partial<
   bluesky: {
     single: blueskySingleText,
     digest: (header, items) => blueskyDigestTexts(header, items).join('\n---\n'),
+  },
+  instagram: {
+    single: instagramCaption,
+    digest: instagramDigestCaption,
   },
 };
 

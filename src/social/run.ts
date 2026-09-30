@@ -13,6 +13,7 @@ import {
   type SocialLocale,
   type SocialMode,
 } from './config';
+import { maintainInstagramToken, type TokenStatus } from './networks/instagram';
 import { getPublisher, type Publisher, type PublishResult } from './publishers';
 import { createStore, type Store } from './store';
 
@@ -35,6 +36,7 @@ export interface RunReport {
   swissTime?: string;
   message?: string;
   accounts: AccountReport[];
+  tokens?: TokenStatus[];
 }
 
 /**
@@ -68,6 +70,10 @@ export async function runSocialPublishing(now = new Date()): Promise<RunReport> 
     const clock = swissClock(now);
     report.swissTime = `${clock.date} ${String(clock.hour).padStart(2, '0')}:${String(clock.minute).padStart(2, '0')}`;
     const publishedBefore = new Date(now.getTime() - RULES.reviewDelayMinutes * MINUTE_MS);
+
+    // Instagram tokens expire after 60 days: renewed on every run, whether
+    // Instagram is enabled or not.
+    report.tokens = await Promise.all(SOCIAL_LOCALES.map(locale => maintainInstagramToken(locale, now)));
 
     for (const locale of SOCIAL_LOCALES) {
       const networks = getEnabledNetworks();

@@ -6,6 +6,7 @@ import { incidentImageUrl, incidentImageWithin } from '@/lib/media';
 import { SITE_URL } from '@/lib/seo';
 import type { Incident } from '@/types';
 import { RULES, type SocialLocale } from './config';
+import { slideIds, textSections, type TextSection } from './slides';
 
 const DAY_MS = 24 * 3600 * 1000;
 // Largest image the networks accept as an upload (Bluesky: 1,000,000 bytes).
@@ -24,6 +25,10 @@ export interface SocialItem {
   imageUrl: string | null;
   // The same image, light enough to be uploaded to a network.
   thumbnail: { url: string; mime: string } | null;
+  // Full text of the fiche, for the networks that take a long text.
+  sections: TextSection[];
+  // Images of the fiche's carousel (Instagram), see slides.ts.
+  slides: string[];
   historical: boolean;
   createdAt: string;
   publishedAt: string;
@@ -41,28 +46,34 @@ export async function toSocialItems(
   locale: SocialLocale
 ): Promise<SocialItem[]> {
   const tCats = await getTranslations({ locale, namespace: 'Categories' });
+  const tIncident = await getTranslations({ locale, namespace: 'IncidentPage' });
 
-  return incidents.map(incident => ({
-    documentId: incident.documentId,
-    locale,
-    title: formatText(incident.title),
-    url: `${SITE_URL}/${locale}/the-wall-of-shame/${incident.slug}`,
-    categoryLabel: incident.category
-      ? tCats.has(incident.category) ? tCats(incident.category) : incident.category
-      : null,
-    incidentDateLabel: new Date(incident.incident_date).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC',
-    }),
-    summary: plainTextExcerpt(incident.description, 240),
-    imageUrl: incidentImageUrl(incident),
-    thumbnail: incidentImageWithin(incident, THUMBNAIL_MAX_BYTES),
-    historical: isHistorical(incident),
-    createdAt: incident.createdAt,
-    publishedAt: incident.publishedAt,
-  }));
+  return incidents.map(incident => {
+    const sections = textSections(incident, tIncident('consequencesTitle'));
+    return {
+      documentId: incident.documentId,
+      locale,
+      title: formatText(incident.title),
+      url: `${SITE_URL}/${locale}/the-wall-of-shame/${incident.slug}`,
+      categoryLabel: incident.category
+        ? tCats.has(incident.category) ? tCats(incident.category) : incident.category
+        : null,
+      incidentDateLabel: new Date(incident.incident_date).toLocaleDateString(locale, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }),
+      summary: plainTextExcerpt(incident.description, 240),
+      imageUrl: incidentImageUrl(incident),
+      thumbnail: incidentImageWithin(incident, THUMBNAIL_MAX_BYTES),
+      sections,
+      slides: slideIds(incident, tIncident('consequencesTitle')),
+      historical: isHistorical(incident),
+      createdAt: incident.createdAt,
+      publishedAt: incident.publishedAt,
+    };
+  });
 }
 
 /**

@@ -53,6 +53,29 @@ function redis(): Redis {
   return client;
 }
 
+// A network token the site keeps and renews itself (Instagram).
+export interface StoredToken {
+  token: string;
+  refreshedAt: string;
+  // Hash of the env value it came from: a new token put in Vercel replaces it.
+  seed: string;
+}
+
+export interface TokenStore {
+  get(name: string): Promise<StoredToken | null>;
+  set(name: string, value: StoredToken): Promise<void>;
+}
+
+// Shared by dry-run and live: the token is the same in both modes.
+export const tokenStore: TokenStore = {
+  async get(name: string): Promise<StoredToken | null> {
+    return redis().get<StoredToken>(`social:tokens:${name}`);
+  },
+  async set(name: string, value: StoredToken) {
+    await redis().set(`social:tokens:${name}`, value);
+  },
+};
+
 export type Store = ReturnType<typeof createStore>;
 
 export function createStore(mode: Exclude<SocialMode, 'off'>) {
