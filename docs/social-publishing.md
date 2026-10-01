@@ -5,7 +5,7 @@ Automatic posting of new incidents on the site's social accounts. This file reco
 ## What it does
 
 - **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones. Italian and English are not published for now.
-- **Networks:** Bluesky (live), Instagram (ready, to be switched on), Facebook (on hold). X stays manual (see [Decisions](#decisions)).
+- **Networks:** Bluesky (live), Instagram (live since 1 Oct 2026, first post pending), Facebook (on hold). X stays manual (see [Decisions](#decisions)).
 - **Recent incidents** (added less than 30 days after they happened) are posted one by one:
   - 30 minutes after they are (re)published in Strapi, to leave time for a last review (a Bluesky post can't be edited, and its preview card is a snapshot);
   - between 07:00 and midnight, Swiss time;
@@ -75,7 +75,7 @@ All variables are set in Vercel for the **Production** environment only, secrets
 | `CRON_SECRET` | protects `/api/social/*` | set 2026-09-29 |
 | `SOCIAL_MODE` | `live` (was `dry-run` from 2026-09-29) | set 2026-09-30 |
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` | set 2026-09-29 |
-| `SOCIAL_NETWORKS` | `bluesky` (default when unset: all three) | set 2026-09-30 |
+| `SOCIAL_NETWORKS` | `bluesky,instagram` (was `bluesky` from 2026-09-30; default when unset: all three) | set 2026-10-01 |
 | `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) | set 2026-09-30 |
 | `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN` | Instagram Login tokens of `nopasaran.ch_fr` and `nopasaran.ch_de` (60 days). The site copies them into Redis and renews them every week; a new value put in Vercel replaces the stored one | set 2026-09-30 |
 | `FACEBOOK_DE_PAGE_ID`, `FACEBOOK_DE_PAGE_TOKEN` | German Facebook Page | on hold |
@@ -129,6 +129,13 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - `SOCIAL_MODE=live` and `SOCIAL_NETWORKS=bluesky` set, production redeployed. Both Bluesky accounts started at 2026-09-30 16:30 UTC; incidents created before that, including Rickenbacher, are not posted.
 - Still to check: the first real post, which is also the first real test of the Bluesky login and image upload.
 - Review delay reduced from 60 to 30 minutes (`reviewDelayMinutes` in `src/social/config.ts`). With the 15-minute cron, a post now goes out 30 to 45 minutes after publication.
+
+### 2026-10-01 · Step 3b, Instagram live (first post pending)
+
+- The Instagram connector and the new closing image deployed; `/api/social/check` passed on both accounts (Bluesky login, Instagram carousel prepared without publishing).
+- Bio link set on both Instagram accounts.
+- `SOCIAL_NETWORKS=bluesky,instagram` set and production redeployed. Each Instagram account starts at its first live run: fiches created before are not posted.
+- Still to check: the first real post on each account, and that it is public while the Meta app is in Development mode.
 
 ### 2026-10-01 · Step 2b, first Bluesky posts checked
 
