@@ -130,6 +130,10 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - Still to check: the first real post, which is also the first real test of the Bluesky login and image upload.
 - Review delay reduced from 60 to 30 minutes (`reviewDelayMinutes` in `src/social/config.ts`). With the 15-minute cron, a post now goes out 30 to 45 minutes after publication.
 
+### 2026-10-01 · Step 2b, first Bluesky posts checked
+
+- First real posts on both accounts on 1 Oct 2026 at 15:30 (Swiss time), for the fiche on Jean-Luc Addor ("soi-disant vaccin" / "sogenannten Impfstoff"): title, category and date, then the preview card with the image, the start of the text and the link to the site. This was also the first real test of the Bluesky login and image upload.
+
 ### 2026-09-30 · Instagram before Facebook
 
 - **The French Facebook account is a personal profile,** not a Page, and Facebook's API cannot post on a profile. Creating a French Page is not wanted, so Facebook is put on hold (roadmap). Only the German Page could be automated.
