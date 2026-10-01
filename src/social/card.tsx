@@ -492,8 +492,8 @@ function evidencePage(incident: Incident, image: FittedImage, logo: FittedImage 
 
 // ---- Closing image ----
 
-// The same for every carousel: logo, "À lire sur nopasaran.ch", and the
-// link in bio.
+// The same for every carousel: logo, "À lire sur nopasaran.ch", and where
+// to find the sources.
 async function end(locale: string) {
   const t = await getTranslations({ locale, namespace: 'Social' });
   const logo = await fetchImage(`${SITE_URL}/icon.png`, 320, 320, true);
@@ -527,18 +527,18 @@ async function end(locale: string) {
         <div
           style={{
             display: 'flex',
-            marginTop: 80,
-            padding: '14px 40px',
-            borderRadius: 16,
-            background: '#dc2626',
-            border: '1px solid #ef4444',
-            fontSize: 34,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: 2,
+            justifyContent: 'center',
+            width: 760,
+            marginTop: 72,
+            fontSize: 32,
+            fontWeight: 500,
+            lineHeight: 1.4,
+            color: '#d1d5db',
+            textAlign: 'center',
+            textWrap: 'balance',
           }}
         >
-          {t('linkInBio')}
+          {t('endSources')}
         </div>
       </div>
     </Frame>

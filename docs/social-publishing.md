@@ -151,7 +151,7 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
   1. the cover, after the site's Story design: category and date, the title as large as it fits (never breaking a word), the subject's picture always at the same size and position, then "Name (party - canton)" and the role;
   2. the full text, formatted as on the fiche's page (subheadings, italics, bold, lists, quotes), over 1 to 5 images, cut between sentences;
   3. the evidence images, one per image;
-  4. a closing image: logo, "À lire sur nopasaran.ch", "Lien en bio".
+  4. a closing image: logo, "À lire sur nopasaran.ch", and "Sources et liens dans chaque fiche, sur le site nopasaran.ch" (changed on 2026-10-01 from a red "Lien en bio" badge).
 
   Every image but the closing one carries a small nopasaran.ch signature, so that an image shared alone still says where it comes from. Large margins at the top and bottom, where Instagram lays its buttons.
 - **Caption:** the title and the full text, no emoji, no link. Instagram cuts captions at 2,200 characters: a longer text is shortened with "…" (the images show all of it).
@@ -175,7 +175,7 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - **State lives in Redis, not in Strapi.** With Draft & Publish, republishing an older draft could overwrite a "posted" field on the published version and cause duplicate posts.
 - **Same repository as the site.** The pipeline reuses the Strapi client, the translations and the site's design (for the Instagram image), and runs as part of the same Vercel project (Pro plan, so cron can run every 15 minutes). It is isolated in `src/social/` and could be moved out as is.
 - **Historical incidents go to a weekly digest**, so that backfilling old incidents doesn't flood the accounts.
-- **Instagram posts carry the whole fiche.** A caption has no clickable link, so the text and the evidence are in the post itself, and the closing image points to the bio link.
+- **Instagram posts carry the whole fiche.** A caption has no clickable link, so the text and the evidence are in the post itself, and the closing image points to the site for the sources and their links.
 
 ## Known limitations
 
