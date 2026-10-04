@@ -1,9 +1,8 @@
 // src/components/RandomButton.tsx
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaDice } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
 
 interface RandomButtonProps {
   label: string;
@@ -13,11 +12,23 @@ interface RandomButtonProps {
 
 export default function RandomButton({ label, lang, size = 'small' }: RandomButtonProps) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
+  // Full navigation (see handleClick): on Back, the browser may restore this
+  // page from its back/forward cache with loading still true, leaving the
+  // button disabled and spinning.
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setLoading(false);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
+  // /api/random is a route handler that redirects, not a page: the client
+  // router can't reliably follow it, so use a full browser navigation.
   const handleClick = () => {
     setLoading(true);
-    router.push(`/api/random?lang=${lang}`);
+    window.location.assign(`/api/random?lang=${lang}`);
   };
 
   const sizeClasses = size === 'large' 

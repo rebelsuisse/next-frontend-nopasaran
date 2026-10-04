@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { FaArrowLeft, FaArrowRight, FaDice, FaSearch } from 'react-icons/fa';
 
 interface IncidentNavigationProps {
@@ -17,21 +17,26 @@ interface IncidentNavigationProps {
 export default function IncidentNavigation({ prevLink, nextLink, isRandomContext, isSearchContext, lang }: IncidentNavigationProps) {
   const router = useRouter();
 
+  // /api/random is a route handler that redirects, not a page: the client
+  // router can't reliably follow it (it may reuse its cache and stay on the
+  // current incident), so use a full browser navigation.
+  const goRandom = useCallback(() => window.location.assign(`/api/random?lang=${lang}`), [lang]);
+
   // Navigation clavier
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
-        if (isRandomContext) router.push(`/api/random?lang=${lang}`);
+        if (isRandomContext) goRandom();
         else if (prevLink) router.push(prevLink);
       }
       if (e.key === 'ArrowRight') {
-        if (isRandomContext) router.push(`/api/random?lang=${lang}`);
+        if (isRandomContext) goRandom();
         else if (nextLink) router.push(nextLink);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [prevLink, nextLink, isRandomContext, lang, router]);
+  }, [prevLink, nextLink, isRandomContext, goRandom, router]);
 
   // Style "Bouton Rond" (Retour au style précédent)
   const buttonClass = "p-4 rounded-full bg-gray-700 hover:bg-blue-600 text-white transition-all shadow-lg flex items-center justify-center";
@@ -41,7 +46,7 @@ export default function IncidentNavigation({ prevLink, nextLink, isRandomContext
   const renderLeftButton = () => {
     if (isRandomContext) {
       return (
-        <button onClick={() => router.push(`/api/random?lang=${lang}`)} className={buttonClass} title="Autre incident au hasard">
+        <button onClick={() => goRandom()} className={buttonClass} title="Autre incident au hasard">
           <FaArrowLeft size={24} />
         </button>
       );
@@ -60,7 +65,7 @@ export default function IncidentNavigation({ prevLink, nextLink, isRandomContext
   const renderRightButton = () => {
     if (isRandomContext) {
       return (
-        <button onClick={() => router.push(`/api/random?lang=${lang}`)} className={buttonClass} title="Autre incident au hasard">
+        <button onClick={() => goRandom()} className={buttonClass} title="Autre incident au hasard">
           <FaArrowRight size={24} />
         </button>
       );
