@@ -79,6 +79,7 @@ curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/socia
 
 - **Emergency stop:** set `SOCIAL_MODE=off` in Vercel, then redeploy.
 - **Switching a network off or on:** change `SOCIAL_NETWORKS`, then redeploy. A network switched on only posts incidents added from then on.
+- **"API access blocked" on both Instagram accounts:** Meta has locked the developer account after "unusual activity". Open developers.facebook.com, follow the account verification (email and phone), then run the check. Meanwhile the post is retried every 15 minutes.
 - **New Instagram token** (e.g. after more than about 60 days without runs): generate it in the Meta app (Instagram API with Instagram Login → the account → "Générer un token"), put it in Vercel, redeploy. It replaces the stored one.
 
 ## Configuration
@@ -100,10 +101,10 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 
 ### Meta app
 
-- `nopasaran publisher` (id 1404791037869529), use case "Instagram API with Instagram Login", in Development mode.
+- `nopasaran publisher` (id 1404791037869529), use case "Instagram API with Instagram Login", in Development mode. Posts are public all the same: switching the app to Live is not needed.
 - `instagram_business_basic` and `instagram_business_content_publish` have Standard Access ("Prête pour le test"), which is enough for accounts with a role on the app: no App Review, no business portfolio.
 - Both Instagram accounts are testers of the app.
-- Privacy policy URL, needed to switch the app to Live: `https://www.nopasaran.ch/fr-CH/privacy`.
+- Should the app ever have to go Live, Meta asks for a privacy policy URL: `https://www.nopasaran.ch/fr-CH/privacy`.
 
 ## Decisions
 
@@ -122,4 +123,4 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 - **Rare duplicate:** if saving the post record fails right after a successful post, the next run posts the same incident again.
 - **Instagram carousels hold 10 images.** A fiche with more text and evidence images than that loses its last evidence images.
 - **Instagram tokens are only renewed while the pipeline runs.** With `SOCIAL_MODE=off` for more than about 60 days, they expire (see [Operating it](#operating-it)).
-- **An Instagram post may not be public while the Meta app is in Development mode.** If posts are not visible to a logged-out visitor, the app must be switched to Live (privacy policy URL, category, icon).
+- **Meta can lock the developer account** for "unusual activity", which blocks Instagram posting until the account is verified again (see [Operating it](#operating-it)).
