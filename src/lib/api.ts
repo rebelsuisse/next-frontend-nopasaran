@@ -17,6 +17,12 @@ async function fetchApi<T>(query: string, customOptions: RequestInit = {}): Prom
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      // Cloudflare rate-limits /api/ per IP, and all of Vercel's server-side
+      // fetches leave from a handful of shared AWS addresses: one crawler
+      // burst then breaks pages for every visitor. This secret lets a
+      // Cloudflare custom rule skip the rate limit for the site itself.
+      // Server-only variable, so it never reaches the browser.
+      ...(process.env.STRAPI_EDGE_KEY ? { 'x-nopasaran-edge-key': process.env.STRAPI_EDGE_KEY } : {}),
     },
     // Valeur par défaut (60s) SI rien n'est fourni dans customOptions
     next: { revalidate: 60 },

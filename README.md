@@ -35,6 +35,7 @@ In production these are set in the Vercel project settings (Environment Variable
 |---|---|---|
 | `NEXT_PUBLIC_STRAPI_URL` | yes | Base URL of the Strapi API |
 | `NEXT_PUBLIC_STRAPI_HOST` | yes | Host prefixed to Strapi image paths (`/uploads/...`) |
+| `STRAPI_EDGE_KEY` | no — secret | Sent on server-side API fetches so a Cloudflare custom rule can exempt the site from the per-IP `/api/` rate limit. Optional: without it, nothing breaks until the limit is hit |
 | `NEXT_PUBLIC_FORMSPREE_ID` | yes | Formspree form used by the contact page |
 | `BREVO_API_KEY` | no — secret | Brevo API key used by the newsletter route |
 | `BREVO_LIST_ID_FR` / `BREVO_LIST_ID_DE` | no | Brevo list IDs for newsletter sign-ups |
