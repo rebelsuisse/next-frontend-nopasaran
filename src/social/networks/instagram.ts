@@ -173,7 +173,10 @@ export function instagramPublisher(locale: SocialLocale, deps?: Partial<Instagra
   // processed the image. Nothing is visible until it is published.
   async function container(accessToken: string, params: GraphParams): Promise<string> {
     const { id } = await me(accessToken);
-    const created = await api('POST', `/${id}/media`, { ...params, access_token: accessToken });
+    // Instagram fetches the image here: say which one it refused.
+    const created = await api('POST', `/${id}/media`, { ...params, access_token: accessToken }).catch(error => {
+      throw params.image_url ? new Error(`${error instanceof Error ? error.message : error} (${params.image_url})`) : error;
+    });
     const containerId = String(created.id);
 
     for (let attempt = 0; attempt < 20; attempt++) {
