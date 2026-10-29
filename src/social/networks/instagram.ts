@@ -177,10 +177,16 @@ export function instagramPublisher(locale: SocialLocale, deps?: Partial<Instagra
     const containerId = String(created.id);
 
     for (let attempt = 0; attempt < 20; attempt++) {
-      const { status_code } = await api('GET', `/${containerId}`, { fields: 'status_code', access_token: accessToken });
+      const { status_code, status } = await api('GET', `/${containerId}`, {
+        fields: 'status_code,status',
+        access_token: accessToken,
+      });
       if (status_code === 'FINISHED') return containerId;
       if (status_code === 'ERROR' || status_code === 'EXPIRED') {
-        throw new Error(`Instagram could not prepare the post (${status_code}).`);
+        // status says why, e.g. an image Instagram could not download; the
+        // image's URL says which one.
+        const what = params.image_url ?? 'the carousel';
+        throw new Error(`Instagram could not prepare ${what} (${status_code}: ${String(status ?? 'no reason given')}).`);
       }
       await sleep(2000);
     }

@@ -60,16 +60,21 @@ const FACES = [
 // going out in the wrong font, and the next image tries again.
 let fonts: Promise<Font[]> | null = null;
 
+// A stalled connection must fail the image, not hang it: Instagram gives up
+// on a slow image, and a font fetch that never settled would stay cached
+// above and hang every later image of the server instance.
+const FETCH_TIMEOUT_MS = 6000;
+
 // The connection to Google Fonts fails now and then: one more try.
 async function fetchWithRetry(url: string): Promise<Response> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
     if (response.ok) return response;
   } catch {
     // Tried again below.
   }
   await new Promise(resolve => setTimeout(resolve, 500));
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response;
 }
@@ -105,7 +110,7 @@ interface FittedImage {
 // everything goes through sharp.
 async function fetchImage(url: string, width: number, height: number, square = false): Promise<FittedImage | null> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
     if (!response.ok) return null;
     const { data, info } = await sharp(Buffer.from(await response.arrayBuffer()))
       .resize(width, height, { fit: square ? 'cover' : 'inside' })
