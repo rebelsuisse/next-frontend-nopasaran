@@ -4,7 +4,7 @@ Automatic posting of new incidents on the site's social accounts: what the featu
 
 ## What it does
 
-- **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones. Italian and English are not published.
+- **Accounts:** `fr-CH` incidents go to the French accounts, `de-CH` incidents to the German ones, `it-CH` incidents to the Italian Instagram account (there is no Italian Bluesky account). English is not published.
 - **Networks:** Bluesky and Instagram. Facebook is on hold and X stays manual (see [Decisions](#decisions)).
 - **Recent incidents** (added less than 30 days after they happened) are posted one by one:
   - 30 minutes after they are (re)published in Strapi, to leave time for a last review (a Bluesky post can't be edited, and its preview card is a snapshot). With the 15-minute cron, a post goes out 30 to 45 minutes after publication;
@@ -30,15 +30,15 @@ Automatic posting of new incidents on the site's social accounts: what the featu
 
   Every image but the closing one carries a small nopasaran.ch signature, so that an image shared alone still says where it comes from. Large margins at the top and bottom, where Instagram lays its buttons.
 - **Caption:** the title and the full text, no emoji, no link. Instagram cuts captions at 2,200 characters: a longer text is shortened with "…" (the images show all of it).
-- **Weekly digest:** a carousel of the fiches' covers and the closing image; the caption lists the fiches and ends with "🔗 Lien en bio", the only emoji. Both accounts' bio links to the site.
+- **Weekly digest:** a carousel of the fiches' covers and the closing image; the caption lists the fiches and ends with "🔗 Lien en bio", the only emoji. Every account's bio links to the site.
 - **Text layout.** The renderer (`next/og`) cannot measure text beforehand: the site wraps words itself with the advance widths of the Inter faces (`src/social/metrics.ts`, read from the font files), and the renderer lays them out word by word, so that lines break where the site expects. Fonts come from Google Fonts at render time, with one retry; if they still fail, the image fails rather than going out in the wrong font, and the post is retried on the next run. Every request the renderer makes (fonts, logo, Strapi images) gives up after 6 seconds and is tried once more, so that a stalled connection does not hang the image: Instagram gives up on a slow image ("Only photo or video can be accepted as media type").
-- **Tokens.** Every run (dry-run or live, whether Instagram is enabled or not) renews each token once it is a week old; the status of both tokens is in the run report.
+- **Tokens.** Every run (dry-run or live, whether Instagram is enabled or not) renews each token once it is a week old; the status of every token is in the run report.
 
 ## How it works
 
 | Part | Where |
 |---|---|
-| Rules (hours, limits, delays) | `src/social/config.ts` |
+| Accounts per language and network, rules (hours, limits, delays) | `src/social/config.ts` |
 | Scheduler: what to post now, per account | `src/social/run.ts` |
 | Swiss time, ISO weeks | `src/social/clock.ts` |
 | Texts (individual post, digest) | `src/social/compose.ts`, translations under `Social` in `messages/*.json` |
@@ -59,6 +59,7 @@ Automatic posting of new incidents on the site's social accounts: what the featu
   Dry-run and live data are stored under separate Redis prefixes (`social:dry-run:*`, `social:live:*`).
 - **Each run posts at most once per account.** A run that finds another run still in progress skips itself, to avoid duplicates.
 - **Each account has its own start date:** its first run in a given mode. A network switched on later therefore only posts incidents added from then on, instead of catching up on everything since `SOCIAL_START_DATE`. The status route shows it as `startedAt`.
+- **An account whose secret is not set** (app password or token, see [Configuration](#configuration)) is `skipped` in live mode, and its start date stays unset until the secret is there: a new account only posts incidents added once its secret is in Vercel.
 - **Dates:** Strapi keeps `createdAt` unchanged but updates `publishedAt` on every republish.
   - `createdAt` keeps the back catalogue out: a republished old incident is not new.
   - `publishedAt` gives the review delay, which restarts when a fix is republished.
@@ -79,7 +80,7 @@ curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/socia
 
 - **Emergency stop:** set `SOCIAL_MODE=off` in Vercel, then redeploy.
 - **Switching a network off or on:** change `SOCIAL_NETWORKS`, then redeploy. A network switched on only posts incidents added from then on.
-- **"API access blocked" on both Instagram accounts:** Meta has locked the developer account after "unusual activity". Open developers.facebook.com, follow the account verification (email and phone), then run the check. Meanwhile the post is retried every 15 minutes.
+- **"API access blocked" on all Instagram accounts:** Meta has locked the developer account after "unusual activity". Open developers.facebook.com, follow the account verification (email and phone), then run the check. Meanwhile the post is retried every 15 minutes.
 - **New Instagram token** (e.g. after more than about 60 days without runs): generate it in the Meta app (Instagram API with Instagram Login → the account → "Générer un token"), put it in Vercel, redeploy. It replaces the stored one.
 
 ## Configuration
@@ -94,7 +95,7 @@ All variables are set in Vercel for the **Production** environment only, secrets
 | `SOCIAL_START_DATE` | `2026-09-30T00:00:00Z` |
 | `SOCIAL_NETWORKS` | `bluesky,instagram` (default when unset: all three) |
 | `BLUESKY_FR_APP_PASSWORD`, `BLUESKY_DE_APP_PASSWORD` | app passwords named `nopasaran-publisher` on `nopasaran-ch-fr.bsky.social` and `nopasaran-ch-de.bsky.social` (no DM access) |
-| `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN` | Instagram Login tokens of `nopasaran.ch_fr` and `nopasaran.ch_de` (60 days). The site copies them into Redis and renews them every week; a new value put in Vercel replaces the stored one |
+| `INSTAGRAM_FR_TOKEN`, `INSTAGRAM_DE_TOKEN`, `INSTAGRAM_IT_TOKEN` | Instagram Login tokens of `nopasaran.ch_fr`, `nopasaran.ch_de` and `nopasaran.ch_it` (60 days). The site copies them into Redis and renews them every week; a new value put in Vercel replaces the stored one |
 | `FACEBOOK_DE_PAGE_ID`, `FACEBOOK_DE_PAGE_TOKEN` | German Facebook Page; not set (Facebook on hold) |
 
 The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` instead of the `KV_*` names.
@@ -103,7 +104,7 @@ The code also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` inst
 
 - `nopasaran publisher` (id 1404791037869529), use case "Instagram API with Instagram Login", in Development mode. Posts are public all the same: switching the app to Live is not needed.
 - `instagram_business_basic` and `instagram_business_content_publish` have Standard Access ("Prête pour le test"), which is enough for accounts with a role on the app: no App Review, no business portfolio.
-- Both Instagram accounts are testers of the app.
+- The Instagram accounts are testers of the app.
 - Should the app ever have to go Live, Meta asks for a privacy policy URL: `https://www.nopasaran.ch/fr-CH/privacy`.
 
 ## Decisions

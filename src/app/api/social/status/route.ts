@@ -6,6 +6,7 @@ import {
   getEnabledNetworks,
   getMode,
   getStartDate,
+  hasAccount,
   RULES,
   SOCIAL_LOCALES,
 } from '@/social/config';
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
     const store = createStore(mode);
     const accounts = await Promise.all(
       SOCIAL_LOCALES.flatMap(locale =>
-        getEnabledNetworks().map(async network => ({
+        getEnabledNetworks().filter(network => hasAccount(network, locale)).map(async network => ({
           network,
           locale,
           postedTotal: await store.countPosted(network, locale),

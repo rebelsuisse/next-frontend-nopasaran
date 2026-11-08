@@ -2,7 +2,7 @@
 
 import { AtpAgent, type AppBskyEmbedExternal, type AppBskyFeedPost } from '@atproto/api';
 import type { SocialItem } from '../compose';
-import { BLUESKY_ACCOUNTS, type SocialLocale } from '../config';
+import { accountOf, BLUESKY_ACCOUNTS, type SocialLocale } from '../config';
 import type { Publisher } from '../publishers';
 
 const SERVICE = 'https://bsky.social';
@@ -84,7 +84,7 @@ export function buildPostRecord(
 
 // Also used by the check route (src/app/api/social/check).
 export async function blueskyLogin(locale: SocialLocale): Promise<BlueskyClient> {
-  const account = BLUESKY_ACCOUNTS[locale];
+  const account = accountOf(BLUESKY_ACCOUNTS, locale);
   const password = process.env[account.passwordEnv];
   if (!password) throw new Error(`${account.passwordEnv} is not set.`);
 
@@ -101,7 +101,7 @@ export function blueskyPublisher(
   locale: SocialLocale,
   connect: (locale: SocialLocale) => Promise<BlueskyClient> = blueskyLogin
 ): Publisher {
-  const { handle, lang } = BLUESKY_ACCOUNTS[locale];
+  const { handle, lang } = accountOf(BLUESKY_ACCOUNTS, locale);
   let client: Promise<BlueskyClient> | null = null;
   const session = () => (client ??= connect(locale));
   const postUrl = (uri: string) => `https://bsky.app/profile/${handle}/post/${uri.split('/').pop()}`;

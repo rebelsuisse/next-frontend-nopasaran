@@ -3,7 +3,7 @@
 import { getLatestAddedIncidents } from '@/lib/api';
 import { isAuthorized } from '@/social/auth';
 import { toSocialItems } from '@/social/compose';
-import { BLUESKY_ACCOUNTS, INSTAGRAM_ACCOUNTS, SOCIAL_LOCALES, type SocialLocale } from '@/social/config';
+import { accountOf, ACCOUNT_LOCALES, BLUESKY_ACCOUNTS, INSTAGRAM_ACCOUNTS, type SocialLocale } from '@/social/config';
 import { blueskyLogin } from '@/social/networks/bluesky';
 import { instagramPublisher } from '@/social/networks/instagram';
 
@@ -28,7 +28,7 @@ interface Check {
 const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 async function checkBluesky(locale: SocialLocale): Promise<Check> {
-  const { handle } = BLUESKY_ACCOUNTS[locale];
+  const { handle } = accountOf(BLUESKY_ACCOUNTS, locale);
   try {
     await blueskyLogin(locale);
     return { network: 'bluesky', locale, ok: true, detail: `Logged in as ${handle}.` };
@@ -38,7 +38,7 @@ async function checkBluesky(locale: SocialLocale): Promise<Check> {
 }
 
 async function checkInstagram(locale: SocialLocale): Promise<Check> {
-  const expected = INSTAGRAM_ACCOUNTS[locale].username;
+  const expected = accountOf(INSTAGRAM_ACCOUNTS, locale).username;
   try {
     const [incident] = (await getLatestAddedIncidents(locale, 1)).data;
     if (!incident) throw new Error('No fiche to prepare a post with.');
@@ -69,8 +69,9 @@ export async function GET(request: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const checks = await Promise.all(
-    SOCIAL_LOCALES.flatMap(locale => [checkBluesky(locale), checkInstagram(locale)])
-  );
+  const checks = await Promise.all([
+    ...ACCOUNT_LOCALES.bluesky.map(checkBluesky),
+    ...ACCOUNT_LOCALES.instagram.map(checkInstagram),
+  ]);
   return Response.json({ ok: checks.every(check => check.ok), checks });
 }

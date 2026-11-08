@@ -53,7 +53,7 @@ The newsletter page (`/<locale>/newsletter`) and its API route (`/api/newsletter
 
 ### Social publishing
 
-New incidents are posted automatically on the `fr-CH` and `de-CH` social accounts (code in `src/social/`, cron in `vercel.json`). What it does, how it works, its configuration and how to operate it: see [docs/social-publishing.md](docs/social-publishing.md).
+New incidents are posted automatically on the `fr-CH` and `de-CH` social accounts, and on the `it-CH` Instagram account (code in `src/social/`, cron in `vercel.json`). What it does, how it works, its configuration and how to operate it: see [docs/social-publishing.md](docs/social-publishing.md).
 
 ## Infrastructure
 

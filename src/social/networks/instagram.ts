@@ -3,7 +3,7 @@
 import { createHash } from 'node:crypto';
 import { SITE_URL } from '@/lib/seo';
 import type { SocialItem } from '../compose';
-import { INSTAGRAM_ACCOUNTS, type SocialLocale } from '../config';
+import { accountOf, INSTAGRAM_ACCOUNTS, type SocialLocale } from '../config';
 import type { Publisher } from '../publishers';
 import { END_SLIDE } from '../slides';
 import { tokenStore, type StoredToken, type TokenStore } from '../store';
@@ -47,7 +47,7 @@ export function instagramCaption(item: SocialItem): string {
 
 export function instagramDigestCaption(header: string, items: SocialItem[]): string {
   const lines = items.map((item, index) => `${index + 1}. ${item.title} (${item.incidentDateLabel})`);
-  const linkInBio = items[0] ? INSTAGRAM_ACCOUNTS[items[0].locale].linkInBio : '';
+  const linkInBio = items[0] ? accountOf(INSTAGRAM_ACCOUNTS, items[0].locale).linkInBio : '';
   return fit(`${header}\n\n${lines.join('\n')}\n\n${linkInBio}`, CAPTION_MAX);
 }
 
@@ -94,7 +94,7 @@ async function currentToken(
   now = new Date(),
   store: TokenStore = tokenStore
 ): Promise<StoredToken> {
-  const { tokenEnv } = INSTAGRAM_ACCOUNTS[locale];
+  const { tokenEnv } = accountOf(INSTAGRAM_ACCOUNTS, locale);
   const fromEnv = process.env[tokenEnv];
   if (!fromEnv) throw new Error(`${tokenEnv} is not set.`);
 
@@ -122,7 +122,7 @@ export async function maintainInstagramToken(
   api: GraphApi = graph,
   store: TokenStore = tokenStore
 ): Promise<TokenStatus> {
-  const { tokenEnv } = INSTAGRAM_ACCOUNTS[locale];
+  const { tokenEnv } = accountOf(INSTAGRAM_ACCOUNTS, locale);
   if (!process.env[tokenEnv]) return { locale, outcome: 'missing', detail: `${tokenEnv} is not set.` };
 
   try {

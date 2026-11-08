@@ -4,9 +4,12 @@ import { getSocialCandidates } from '@/lib/api';
 import { isWithinPublishingHours, swissClock, type SwissClock } from './clock';
 import { digestHeader, toSocialItems, type SocialItem } from './compose';
 import {
+  accountSecretEnv,
+  ACCOUNT_LOCALES,
   getEnabledNetworks,
   getMode,
   getStartDate,
+  hasAccount,
   RULES,
   SOCIAL_LOCALES,
   type Network,
@@ -25,7 +28,7 @@ const LOCK_TTL_SECONDS = 5 * 60;
 export interface AccountReport {
   network: Network;
   locale: SocialLocale;
-  outcome: 'posted' | 'waiting' | 'idle' | 'error';
+  outcome: 'posted' | 'waiting' | 'idle' | 'skipped' | 'error';
   detail: string;
   titles?: string[];
 }
@@ -73,10 +76,25 @@ export async function runSocialPublishing(now = new Date()): Promise<RunReport> 
 
     // Instagram tokens expire after 60 days: renewed on every run, whether
     // Instagram is enabled or not.
-    report.tokens = await Promise.all(SOCIAL_LOCALES.map(locale => maintainInstagramToken(locale, now)));
+    report.tokens = await Promise.all(
+      ACCOUNT_LOCALES.instagram.map(locale => maintainInstagramToken(locale, now))
+    );
 
     for (const locale of SOCIAL_LOCALES) {
-      const networks = getEnabledNetworks();
+      const networks: Network[] = [];
+      for (const network of getEnabledNetworks()) {
+        if (!hasAccount(network, locale)) continue;
+        // An account whose secret is not in Vercel yet is left alone, and its
+        // start date stays unset: once the secret is added, it only posts
+        // incidents added from then on.
+        const secretEnv = mode === 'live' ? accountSecretEnv(network, locale) : null;
+        if (secretEnv && !process.env[secretEnv]) {
+          report.accounts.push({ network, locale, outcome: 'skipped', detail: `${secretEnv} is not set.` });
+        } else {
+          networks.push(network);
+        }
+      }
+      if (networks.length === 0) continue;
 
       let items: SocialItem[];
       try {
