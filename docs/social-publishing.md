@@ -81,7 +81,7 @@ curl -H "Authorization: Bearer <CRON_SECRET>" https://www.nopasaran.ch/api/socia
 - **Emergency stop:** set `SOCIAL_MODE=off` in Vercel, then redeploy.
 - **Switching a network off or on:** change `SOCIAL_NETWORKS`, then redeploy. A network switched on only posts incidents added from then on.
 - **"API access blocked" on all Instagram accounts:** Meta has locked the developer account after "unusual activity". Open developers.facebook.com, follow the account verification (email and phone), then run the check. Meanwhile the post is retried every 15 minutes.
-- **New Instagram token** (e.g. after more than about 60 days without runs): generate it in the Meta app (Instagram API with Instagram Login → the account → "Générer un token"), put it in Vercel, redeploy. It replaces the stored one.
+- **New Instagram token**, when the check says "Error validating access token" for one account (password changed, or session invalidated by Meta) or after more than about 60 days without runs: generate it in the Meta app ("Configuration de l'API avec la connexion Instagram" → the account's row → "Générer un token"), put it in Vercel, redeploy. It replaces the stored one.
 
 ## Configuration
 
