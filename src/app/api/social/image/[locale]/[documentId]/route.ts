@@ -34,7 +34,8 @@ export async function GET(
   return new Response(new Uint8Array(jpeg), {
     headers: {
       'Content-Type': 'image/jpeg',
-      // Links carry ?v=<publishedAt>, so an edited fiche gets new URLs.
+      // Links carry ?v=<time of the post attempt>: each attempt gets new
+      // URLs, so neither the CDN nor Instagram hands back an older image.
       'Cache-Control': 'public, max-age=3600, s-maxage=86400',
     },
   });

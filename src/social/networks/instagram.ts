@@ -51,11 +51,12 @@ export function instagramDigestCaption(header: string, items: SocialItem[]): str
   return fit(`${header}\n\n${lines.join('\n')}\n\n${linkInBio}`, CAPTION_MAX);
 }
 
-// Public URL of one image of the fiche, rendered by the site. The version
-// parameter changes when the fiche is republished, so a fix is never hidden
-// behind a cached image.
-export function instagramImageUrl(item: SocialItem, slide = 'cover'): string {
-  return `${SITE_URL}/api/social/image/${item.locale}/${item.documentId}?slide=${slide}&v=${Date.parse(item.publishedAt)}`;
+// Public URL of one image of the fiche, rendered by the site. `attempt` (the
+// time of the post attempt) gives every attempt new URLs: Instagram keeps
+// the images it has downloaded by URL, so a fiche posted again after a
+// faulty post was deleted would otherwise get the faulty images back.
+export function instagramImageUrl(item: SocialItem, slide: string, attempt: number): string {
+  return `${SITE_URL}/api/social/image/${item.locale}/${item.documentId}?slide=${slide}&v=${attempt}`;
 }
 
 // ---- Graph API ----
@@ -221,8 +222,9 @@ export function instagramPublisher(locale: SocialLocale, deps?: Partial<Instagra
   // a carousel.
   async function prepareSingle(accessToken: string, item: SocialItem) {
     const caption = instagramCaption(item);
+    const attempt = Date.now();
     const images = item.slides.map(slide => ({
-      image_url: instagramImageUrl(item, slide),
+      image_url: instagramImageUrl(item, slide, attempt),
       ...(slide === 'cover' ? { alt_text: item.title } : {}),
     }));
     return { containerId: await carousel(accessToken, images, caption), caption };
@@ -241,9 +243,10 @@ export function instagramPublisher(locale: SocialLocale, deps?: Partial<Instagra
     async publishDigest(header, items) {
       const accessToken = await token();
       const caption = instagramDigestCaption(header, items);
+      const attempt = Date.now();
       const images = [
-        ...items.map(item => ({ image_url: instagramImageUrl(item), alt_text: item.title })),
-        { image_url: instagramImageUrl(items[0], END_SLIDE) },
+        ...items.map(item => ({ image_url: instagramImageUrl(item, 'cover', attempt), alt_text: item.title })),
+        { image_url: instagramImageUrl(items[0], END_SLIDE, attempt) },
       ];
       const { mediaId, permalink } = await publish(accessToken, await carousel(accessToken, images, caption));
       return { ref: mediaId, url: permalink, text: caption };
