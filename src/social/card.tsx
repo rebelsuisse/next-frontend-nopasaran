@@ -109,7 +109,12 @@ interface FittedImage {
 // Remote image as a PNG data URL, resized to fit the box (cropped when
 // square). The renderer cannot read every format Strapi stores (WebP), so
 // everything goes through sharp.
-async function fetchImage(url: string, width: number, height: number, square = false): Promise<FittedImage | null> {
+//
+// An image that cannot be loaded fails the slide, like a font: Instagram
+// then refuses the post, which is retried on the next run. A slide without
+// its picture or logo would go out for good, and the CDN would keep serving
+// it until the next deployment.
+async function fetchImage(url: string, width: number, height: number, square = false): Promise<FittedImage> {
   try {
     const response = await fetchWithRetry(url);
     const { data, info } = await sharp(Buffer.from(await response.arrayBuffer()))
@@ -117,10 +122,13 @@ async function fetchImage(url: string, width: number, height: number, square = f
       .png()
       .toBuffer({ resolveWithObject: true });
     return { src: `data:image/png;base64,${data.toString('base64')}`, width: info.width, height: info.height };
-  } catch {
-    return null;
+  } catch (error) {
+    throw new Error(`Image ${url} could not be loaded: ${error instanceof Error ? error.message : error}`);
   }
 }
+
+// The small logo of the signature.
+const signatureLogo = () => fetchImage(`${SITE_URL}/icon.png`, 160, 160, true);
 
 function absolute(url: string): string {
   return url.startsWith('http') ? url : `${STRAPI_HOST}${url}`;
@@ -160,23 +168,24 @@ async function toJpeg(image: ReactElement): Promise<Buffer> {
 export async function renderSlide(incident: Incident, locale: string, slide: string): Promise<Buffer | null> {
   const [, kind, number] = slide.match(/^(cover|text|evidence|end)(?:-(\d+))?$/) ?? [];
   const index = Number(number ?? 1) - 1;
-  const logo = fetchImage(`${SITE_URL}/icon.png`, 160, 160, true);
 
-  if (kind === 'cover') return toJpeg(await cover(incident, locale, await logo));
+  if (kind === 'cover') return toJpeg(await cover(incident, locale));
   if (kind === END_SLIDE) return toJpeg(await end(locale));
 
   if (kind === 'text') {
     const tIncident = await getTranslations({ locale, namespace: 'IncidentPage' });
     const pages = textPages(textBlocks(incident, tIncident('consequencesTitle')));
-    return pages[index] ? toJpeg(textPage(incident, pages[index], pages.length > 1, await logo)) : null;
+    return pages[index] ? toJpeg(textPage(incident, pages[index], pages.length > 1, await signatureLogo())) : null;
   }
 
   if (kind === 'evidence') {
     const image = evidenceImages(incident)[index];
     if (!image) return null;
-    const fitted = await fetchImage(absolute(image.url), PAGE_BOX.width, PAGE_BOX.height);
-    if (!fitted) throw new Error(`Evidence image ${index + 1} could not be loaded.`);
-    return toJpeg(evidencePage(incident, fitted, await logo));
+    const [fitted, logo] = await Promise.all([
+      fetchImage(absolute(image.url), PAGE_BOX.width, PAGE_BOX.height),
+      signatureLogo(),
+    ]);
+    return toJpeg(evidencePage(incident, fitted, logo));
   }
 
   return null;
@@ -184,7 +193,7 @@ export async function renderSlide(incident: Incident, locale: string, slide: str
 
 // ---- Cover ----
 
-async function cover(incident: Incident, locale: string, logo: FittedImage | null) {
+async function cover(incident: Incident, locale: string) {
   const tCats = await getTranslations({ locale, namespace: 'Categories' });
   const tParties = await getTranslations({ locale, namespace: 'Parties' });
 
@@ -216,9 +225,10 @@ async function cover(incident: Incident, locale: string, logo: FittedImage | nul
 
   // Same picture as the Story: the subject's, else the first evidence image.
   const pictureUrl = incident.sujet?.picture?.url ?? incident.evidence_image?.[0]?.url;
-  const picture = pictureUrl
-    ? await fetchImage(absolute(pictureUrl), COVER.pictureSize, COVER.pictureSize, true)
-    : null;
+  const [picture, logo] = await Promise.all([
+    pictureUrl ? fetchImage(absolute(pictureUrl), COVER.pictureSize, COVER.pictureSize, true) : null,
+    signatureLogo(),
+  ]);
 
   const badge = {
     display: 'flex',
@@ -318,7 +328,7 @@ async function cover(incident: Incident, locale: string, logo: FittedImage | nul
 
 // Small logo and address at the bottom of every image but the closing one,
 // so that an image shared alone still says where it comes from.
-function Signature({ logo, marginTop }: { logo: FittedImage | null; marginTop: number | 'auto' }) {
+function Signature({ logo, marginTop }: { logo: FittedImage; marginTop: number | 'auto' }) {
   return (
     <div
       style={{
@@ -333,16 +343,14 @@ function Signature({ logo, marginTop }: { logo: FittedImage | null; marginTop: n
         background: 'rgba(255,255,255,0.05)',
       }}
     >
-      {logo && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={logo.src}
-          width={SIGNATURE.logo}
-          height={SIGNATURE.logo}
-          alt=""
-          style={{ borderRadius: SIGNATURE.logo / 2, background: 'white', padding: 5 }}
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={logo.src}
+        width={SIGNATURE.logo}
+        height={SIGNATURE.logo}
+        alt=""
+        style={{ borderRadius: SIGNATURE.logo / 2, background: 'white', padding: 5 }}
+      />
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', fontSize: 26, fontWeight: 900, letterSpacing: 1 }}>nopasaran.ch</div>
         <div style={{ display: 'flex', marginTop: 4, fontSize: 13, fontWeight: 700, letterSpacing: 4, color: '#d1d5db' }}>
@@ -355,7 +363,7 @@ function Signature({ logo, marginTop }: { logo: FittedImage | null; marginTop: n
 
 // `top`: the body starts at the top of its box instead of being centered,
 // for a text that continues from one image to the next.
-function pageFrame(incident: Incident, logo: FittedImage | null, body: ReactNode, top = false) {
+function pageFrame(incident: Incident, logo: FittedImage, body: ReactNode, top = false) {
   const subject = incident.sujet?.name ?? '';
   return (
     <Frame>
@@ -462,7 +470,7 @@ function TextBlockView({ block, fontSize }: { block: Block; fontSize: number }) 
   return <div style={{ display: 'flex', width: '100%', fontSize: size }}>{words}</div>;
 }
 
-function textPage(incident: Incident, page: TextPage, continued: boolean, logo: FittedImage | null) {
+function textPage(incident: Incident, page: TextPage, continued: boolean, logo: FittedImage) {
   const { fontSize } = page;
   return pageFrame(
     incident,
@@ -486,7 +494,7 @@ function textPage(incident: Incident, page: TextPage, continued: boolean, logo: 
   );
 }
 
-function evidencePage(incident: Incident, image: FittedImage, logo: FittedImage | null) {
+function evidencePage(incident: Incident, image: FittedImage, logo: FittedImage) {
   return pageFrame(
     incident,
     logo,
@@ -509,16 +517,14 @@ async function end(locale: string) {
   return (
     <Frame>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-        {logo && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logo.src}
-            width={300}
-            height={300}
-            alt=""
-            style={{ borderRadius: 150, background: 'white', padding: 20, boxShadow: '0 30px 60px rgba(0,0,0,0.5)' }}
-          />
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo.src}
+          width={300}
+          height={300}
+          alt=""
+          style={{ borderRadius: 150, background: 'white', padding: 20, boxShadow: '0 30px 60px rgba(0,0,0,0.5)' }}
+        />
         <div style={{ display: 'flex', marginTop: 80, fontSize: endLabelSize(label), fontWeight: 500, letterSpacing: 1 }}>
           {/* The renderer drops spaces at the edge of a text run: keep them
               as non-breaking spaces. */}
